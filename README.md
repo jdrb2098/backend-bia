@@ -1,2 +1,0 @@
-# Backend-bia
-# Initial configuration 
