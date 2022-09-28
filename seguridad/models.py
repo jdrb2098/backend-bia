@@ -11,6 +11,9 @@ class Paises(models.Model):
         return self.cod_pais
     class Meta:
         db_table = "T003Paises"
+        verbose_name='Pais'
+        verbose_name_plural='Paises'
+        
 
 class EstadoCivil (models.Model):
     nombre = models.CharField(max_length=20, db_column='T005nombre')
@@ -21,6 +24,8 @@ class EstadoCivil (models.Model):
 
     class Meta:
         db_table = 'T005EstadoCivil'
+        verbose_name='Estado civil'
+        verbose_name_plural='Estado civil'
 
 class Departamento (models.Model):
     nombre = models.CharField(max_length=30, db_column='T002nombre')
@@ -32,6 +37,8 @@ class Departamento (models.Model):
 
     class Meta:
         db_table = 'T002DepartamentosPais'
+        verbose_name='Departamento'
+        verbose_name_plural='Departamentos'
 
 
 
@@ -45,6 +52,8 @@ class Municipio (models.Model):
 
     class Meta:
         db_table = 'T001MunicipiosDepartamento'
+        verbose_name='Municipio'
+        verbose_name_plural='Municipios'
 
 
 class Sexo(models.Model):
@@ -55,6 +64,8 @@ class Sexo(models.Model):
         return self.nombre
     class Meta:
         db_table = 'T004Sexo'
+        verbose_name='Sexo'
+        verbose_name_plural='Sexo'
 
 class Permisos(models.Model):
     nombre_permiso = models.CharField(max_length=50, db_column='TzCodPermiso')
@@ -65,6 +76,8 @@ class Permisos(models.Model):
 
     class Meta:
         db_table = "TzPermisos"
+        verbose_name='Permiso'
+        verbose_name_plural='Permisos'
 
 
 
@@ -77,6 +90,8 @@ class OperacionesSobreUsuario(models.Model):
 
     class Meta:
         db_table = 'T008OperacionesSobreUsusario'
+        verbose_name='Operacion sobre usuario'
+        verbose_name_plural='Operaciones sobre usuario'
 
 class TiposDocumento(models.Model):
     cod_tipo_documento = models.AutoField(primary_key=True, editable=False, db_column='T006CodTipoDocumento')
@@ -87,6 +102,8 @@ class TiposDocumento(models.Model):
 
     class Meta:
         db_table = 'T006TiposDocumento'
+        verbose_name='Tipo de documento'
+        verbose_name_plural='Tipos de documento'
 
     
 class Roles(models.Model):
@@ -96,6 +113,8 @@ class Roles(models.Model):
     
     class Meta:
         db_table= 'TzRoles'
+        verbose_name='Rol'
+        verbose_name_plural='Roles'
         
     def __str__(self):
          return self.nombre_rol
@@ -108,6 +127,8 @@ class Modulos(models.Model):
     
     class Meta:
         db_table= 'TzModulos'
+        verbose_name='Modulo'
+        verbose_name_plural='Modulos'
         
     def __str__(self):
          return self.nombre_modulo
@@ -118,6 +139,8 @@ class PermisosModulo(models.Model):
     
     class Meta:
         db_table= 'TzPermisos_Modulo'
+        verbose_name='Permiso de módulo'
+        verbose_name_plural='Permisos de módulo'
 
 class PermisosModuloRol(models.Model):
     id_rol=models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True,   db_column='TzIdRol')
@@ -126,6 +149,9 @@ class PermisosModuloRol(models.Model):
     
     class Meta:
         db_table= 'TzPermisos_Modulo_Rol'
+        verbose_name='Permiso de modulo de rol'
+        verbose_name_plural='Permisos de modulo de roles'
+        
 class Personas(models.Model):
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=50, db_column='T010tipoPersona')
@@ -160,6 +186,9 @@ class Personas(models.Model):
     
     class Meta:
         db_table = 'T010Personas'
+        verbose_name='Persona'
+        verbose_name_plural='Personas'
+        
 class HistoricoDireccion(models.Model):
     id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
     id_persona = models.ForeignKey(Personas, on_delete=models.SET, db_column = 'T015Id_Persona')    
@@ -172,6 +201,9 @@ class HistoricoDireccion(models.Model):
 
     class Meta:
         db_table = 'T015HistoricoDirecciones'
+        verbose_name='Histórico de dirección '
+        verbose_name_plural='Histórico de direcciones'
+        
 class ApoderadoPersona (models.Model):
     id_proceso = models.CharField(max_length=50, db_column = 'T013idProceso')
     consecutivo_del_proceso = models.AutoField(primary_key=True, editable=False, db_column = 'T013consecDelProceso')
@@ -184,7 +216,10 @@ class ApoderadoPersona (models.Model):
         return str(self.persona_poderdante)
 
     class Meta:
-        db_table = 'T013Apoderado_Persona'       
+        db_table = 'T013Apoderado_Persona'    
+        verbose_name='Apoderado'
+        verbose_name_plural='Apoderados'
+           
 class HistoricoEmails(models.Model):
     id_histo_email = models.AutoField(primary_key=True, db_column='T016IdHistoEmail')
     id_persona = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True,  db_column='T016Id_Persona')
@@ -196,6 +231,9 @@ class HistoricoEmails(models.Model):
 
     class Meta:
         db_table = 'T016HistoricoEmails'      
+        verbose_name='Historico de email'
+        verbose_name_plural='Históricos de email'
+        
 class SucursalesEempresas(models.Model):
     id_empresa = models.ForeignKey(Personas,on_delete=models.SET_NULL, null=True,  db_column='T012IdEmpresa')
     numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
@@ -214,6 +252,9 @@ class SucursalesEempresas(models.Model):
     
     class Meta:
         db_table = 'T012SucursalesEempresas'
+        verbose_name='Sucursal'
+        verbose_name_plural='Sucursales'
+        
 class User(AbstractBaseUser,PermissionsMixin):
     id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=100, db_column='TzNombreUsuario')
@@ -238,6 +279,8 @@ class User(AbstractBaseUser,PermissionsMixin):
     
     class Meta:
         db_table = 'TzUsuarios'
+        verbose_name='Usuario'
+        verbose_name_plural='Usuarios'
 
 class UsuariosRol(models.Model):
     id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True, db_column='TzIdRol')
@@ -245,6 +288,8 @@ class UsuariosRol(models.Model):
 
     class Meta:
         db_table='TzUsuarios_Rol'
+        verbose_name='Rol de usuario'
+        verbose_name_plural='Roles de usuario'
 
 class Auditorias(models.Model):
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
@@ -259,8 +304,12 @@ class Auditorias(models.Model):
     
     class Meta: 
         db_table ='TzAuditorias'
+        verbose_name='Auditoría'
+        verbose_name_plural='Auditorías'
+        
     def __str__(self):
-         return str(self.id_auditoria)    
+         return str(self.id_auditoria)   
+      
 class HistoricoActivacion(models.Model):
     id_usuario_afectado = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  db_column='T014Id_Usuario_Afectado')
     cod_operacion = models.ForeignKey(OperacionesSobreUsuario, on_delete=models.SET_NULL, null=True,  db_column='T014Cod_Operacion')
@@ -274,6 +323,8 @@ class HistoricoActivacion(models.Model):
 
     class Meta:
         db_table = 'T014HistoricoActivacion'  
+        verbose_name='Histórico de activación'
+        verbose_name_plural='Histórico de activaciones'
 
 class ClasesTercero(models.Model):
     id_tipo_tercero = models.AutoField(primary_key=True, editable=False, db_column='T007IdTipoTercero')
@@ -284,10 +335,14 @@ class ClasesTercero(models.Model):
 
     class Meta:
         db_table='T007ClasesTercero'
+        verbose_name='Clase tercero'
+        verbose_name_plural='Clase terceros'
 
 class ClasesTerceroPersona(models.Model):
     id_persona = models.ForeignKey(ClasesTercero, on_delete=models.SET_NULL, null=True, db_column='T011IdTipoTercero')
     id_tipo_tercero = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, db_column='T011IdPersona')
     class Meta:
         db_table='T011ClasesTercero_Persona'
+        verbose_name='Clase tercero persona'
+        verbose_name_plural='Clase tercero personas'
 
