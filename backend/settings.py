@@ -52,7 +52,7 @@ INSTALLED_APPS = [
 
     'seguridad.apps.SeguridadConfig',
     'almacen.apps.AlmacenConfig',
-    'conservacion.apps.ConservacionConfg',
+    'conservacion.apps.ConservacionConfig',
     'gestion_documental.apps.GestionDocumentalConfig',
     'recaudo.apps.RecaudoConfig',
     'recurso_hidrico.apps.RecursoHidricoConfig',
@@ -192,6 +192,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+AUTH_USER_MODEL = 'seguridad.User'
 if os.getcwd() == '/app':
     DEBUG = False

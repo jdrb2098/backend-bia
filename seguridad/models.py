@@ -1,8 +1,293 @@
+from tkinter.tix import Tree
+from turtle import mode
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .managers import CustomUserManager
 # Create your models here.
 class Paises(models.Model):
     nombre = models.CharField(max_length=50, db_column='T003nombre')
-    pais = models.CharField(max_length=50, db_column="T003CodPais")
+    cod_pais = models.CharField(max_length=4, db_column='T003CodPais', primary_key=True)
+    def __str__(self):
+        return self.cod_pais
     class Meta:
         db_table = "T003Paises"
+
+class EstadoCivil (models.Model):
+    nombre = models.CharField(max_length=20, db_column='T005nombre')
+    cod_estado_civil = models.CharField(max_length=1, db_column='T005CodEstadoCivil', primary_key=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = 'T005EstadoCivil'
+
+class Departamento (models.Model):
+    nombre = models.CharField(max_length=30, db_column='T002nombre')
+    pais = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True,  db_column='T002Cod_Pais', )
+    cod_departamento = models.CharField(max_length=2, db_column='T002CodDepartamento',primary_key=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = 'T002DepartamentosPais'
+
+
+
+class Municipio (models.Model):
+    nombre = models.CharField(max_length=30, db_column='T001nombre')
+    cod_departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, db_column='T001Cod_Departamentos')
+    cod_municipio = models.CharField(max_length=5, db_column = 'T001CodMunicipio')
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = 'T001MunicipiosDepartamento'
+
+
+class Sexo(models.Model):
+    nombre = models.CharField(max_length=50, db_column='T004nombre')
+    cod_sexo = models.CharField(max_length=1, db_column='T004CodSexo', primary_key=True)
+
+    def __str__(self):
+        return self.nombre
+    class Meta:
+        db_table = 'T004Sexo'
+
+class Permisos(models.Model):
+    nombre_permiso = models.CharField(max_length=50, db_column='TzCodPermiso')
+    cod_permiso = models.AutoField(primary_key=True, db_column="TznombrePermiso")
+
+    def __str__(self):
+        return self.nombre_permiso
+
+    class Meta:
+        db_table = "TzPermisos"
+
+
+
+class OperacionesSobreUsuario(models.Model):
+    cod_operacion = models.AutoField(primary_key=True, editable=False, db_column='T008CodOperacion')
+    nombre = models.CharField(max_length=50, db_column='T008nombre')
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = 'T008OperacionesSobreUsusario'
+
+class TiposDocumento(models.Model):
+    cod_tipo_documento = models.AutoField(primary_key=True, editable=False, db_column='T006CodTipoDocumento')
+    nombre = models.CharField(max_length=50, db_column='T006nombre')
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = 'T006TiposDocumento'
+
+    
+class Roles(models.Model):
+    id_rol=models.AutoField(primary_key=True, editable=False, db_column='TzIdRol')
+    nombre_rol=models.CharField(max_length=50, db_column='TznombreRol')
+    descripcion_rol=models.CharField(max_length=50,db_column='TzdescripcionRol')
+    
+    class Meta:
+        db_table= 'TzRoles'
+        
+    def __str__(self):
+         return self.nombre_rol
+    
+        
+class Modulos(models.Model):
+    id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
+    nombre_modulo=models.CharField(max_length=50,db_column='TznombreModulo')
+    subsistema=models.CharField(max_length=50,db_column='Tzsubsistema')
+    
+    class Meta:
+        db_table= 'TzModulos'
+        
+    def __str__(self):
+         return self.nombre_modulo
+
+class PermisosModulo(models.Model):
+    id_modulo=models.ForeignKey(Modulos, on_delete=models.SET_NULL, null=True,  db_column='TzIdModulo')
+    cod_permiso=models.ForeignKey(Permisos, on_delete=models.SET_NULL, null=True, db_column='TzCodPermiso')
+    
+    class Meta:
+        db_table= 'TzPermisos_Modulo'
+
+class PermisosModuloRol(models.Model):
+    id_rol=models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True,   db_column='TzIdRol')
+    id_modulo=models.ForeignKey(PermisosModulo, on_delete=models.SET_NULL, null=True,  db_column='TzIdModulo')
+    cod_permiso=models.CharField(max_length=100, primary_key=True, db_column='TzCodPermiso')
+    
+    class Meta:
+        db_table= 'TzPermisos_Modulo_Rol'
+class Personas(models.Model):
+    id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
+    tipo_persona = models.CharField(max_length=50, db_column='T010tipoPersona')
+    tipo_documento = models.ForeignKey(TiposDocumento, on_delete=models.CASCADE, db_column='T010CodTipo_Documento')
+    numero_documento = models.CharField(max_length=50, db_column='T010nroDocumento')
+    digito_verificacion = models.CharField(max_length=50, db_column='T010digitoVerificacion')
+    primer_nombre = models.CharField(max_length=50, db_column='T010primerNombre')
+    segundo_nombre = models.CharField(max_length=50, db_column='T010segundoNombre')
+    primer_apellido = models.CharField(max_length=50, db_column='T010primerApellido')
+    segundo_apellido = models.CharField(max_length=50, db_column='T010segundoApellido')
+    nombre_comercial = models.CharField(max_length=50, db_column='T010nombreComercial')
+    razon_social = models.CharField(max_length=255, db_column='T010razonSocial')
+    pais_residencia = models.CharField(max_length=50, db_column='T010codPaisResidencia')
+    municipio_residencia = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, db_column='T010Cod_MunicipioResidencia')
+    direccion_residencia = models.CharField(max_length=50, db_column='T010direccionResidencia')
+    direccion_residencia_ref = models.CharField(max_length=50, db_column='T010direccionResidenciaRef')
+    ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T010ubicacionGeoreferenciada')
+    direccion_laboral = models.CharField(max_length=50, db_column='T010direccionLaboral')
+    direccion_correspondencia = models.CharField(max_length=50, db_column='T010direccionCorrespondencia')
+    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.CASCADE, db_column='T010Cod_Pais_Nacimiento')
+    sexo = models.ForeignKey(Sexo, on_delete=models.CASCADE, db_column='T010Cod_Sexo')
+    estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.CASCADE, db_column='T010Cod_Estado_Civil')
+    representate_legal = models.CharField(max_length=50, db_column='T010IdRepresentanteLegal')
+    email = models.EmailField(max_length=255, unique=True, db_column='T010email')
+    email_empresarial = models.EmailField(max_length=255, db_column='T010emailEmpresarial')
+    telefono_fijo_residencial = models.CharField(max_length=10, db_column='T010telFijoResidencial')
+    telefono_celular = models.CharField(max_length=10, db_column='T010telCelular')
+    telefono_empresa = models.CharField(max_length=10, db_column='T010telEmpresa')
+    
+    def __str__(self):
+        return str(self.id_persona)
+    
+    class Meta:
+        db_table = 'T010Personas'
+class HistoricoDireccion(models.Model):
+    id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
+    id_persona = models.ForeignKey(Personas, on_delete=models.SET, db_column = 'T015Id_Persona')    
+    fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
+    cod_municipio = models.ForeignKey(Municipio, db_column='T015Cod_Municipio', on_delete=models.SET)
+    direccion = models.CharField(max_length=255, db_column='T015direccion')
+    
+    def __str__(self):
+        return str(self.id_historico_direccion)
+
+    class Meta:
+        db_table = 'T015HistoricoDirecciones'
+class ApoderadoPersona (models.Model):
+    id_proceso = models.CharField(max_length=50, db_column = 'T013idProceso')
+    consecutivo_del_proceso = models.AutoField(primary_key=True, editable=False, db_column = 'T013consecDelProceso')
+    fecha_inicio = models.DateTimeField(db_column = 'T013fechaInicio')
+    fecha_cierre = models.DateTimeField(db_column = 'T013fechaCierre')
+    persona_poderdante = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True,   db_column='T013IdPersonaPoderdante')
+    persona_apoderada = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True,  related_name='apoderada', db_column = 'T013IdPersonaApoderada')
+    
+    def __str__(self):
+        return str(self.persona_poderdante)
+
+    class Meta:
+        db_table = 'T013Apoderado_Persona'       
+class HistoricoEmails(models.Model):
+    id_histo_email = models.AutoField(primary_key=True, db_column='T016IdHistoEmail')
+    id_persona = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True,  db_column='T016Id_Persona')
+    email = models.EmailField(max_length=255, db_column='T016email')
+    fecha_cambio = models.DateTimeField(auto_now=True, db_column='T016fechaCambio')
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        db_table = 'T016HistoricoEmails'      
+class SucursalesEempresas(models.Model):
+    id_empresa = models.ForeignKey(Personas,on_delete=models.SET_NULL, null=True,  db_column='T012IdEmpresa')
+    numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
+    sucursal = models.CharField(max_length=50, db_column='T012sucursal')
+    municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True,  db_column='T012codMunicipio')
+    direccion = models.CharField(max_length=50, db_column='T012direccion')
+    ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T012ubicacionGeoreferenciada')
+    pais_empresa_extranjera = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True,  db_column='T012cod_PaisEmpresaExtranjera')
+    direccion_correspondencias = models.CharField(max_length=50, db_column='T012direccionCorrespondencias')
+    email_sucursal = models.EmailField(max_length=255, db_column='T012emailSucursal')
+    telefono_sucursal = models.CharField(max_length=10, db_column='T012telContactoSucursal')
+    es_principal = models.BooleanField(default=False, db_column='T012esPrincipal')
+    
+    def __str__(self):
+        return self.sucursal
+    
+    class Meta:
+        db_table = 'T012SucursalesEempresas'
+class User(AbstractBaseUser,PermissionsMixin):
+    id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
+    nombre_de_usuario = models.CharField(max_length=100, db_column='TzNombreUsuario')
+    persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True, db_column='Id_Persona')
+    is_active = models.BooleanField(default=False, db_column='TzActivo')
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)  
+    is_blocked = models.BooleanField(default=False, db_column='TzBloqueado')
+    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,  db_column="TzId_Usuario_Creador")
+    created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
+    activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
+    tipo_usuario = models.CharField(max_length=50, db_column='TztipoUsuario')
+    email = models.EmailField( unique=True)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return str(self.email)
+    
+    class Meta:
+        db_table = 'TzUsuarios'
+
+class UsuariosRol(models.Model):
+    id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True, db_column='TzIdRol')
+    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzIdUsuario')
+
+    class Meta:
+        db_table='TzUsuarios_Rol'
+
+class Auditorias(models.Model):
+    id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
+    id_usuario=models.ForeignKey(User, on_delete=models.SET_NULL, null=True,   db_column='TzId_Usuario')
+    id_modulo=models.ForeignKey(Modulos, on_delete=models.SET_NULL, null=True,  db_column='TzId_Modulo')
+    id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.SET_NULL, null=True,  db_column='TzCod_Operacion')
+    fecha_accion=models.DateField(db_column='TzfechaAccion')
+    subsistema=models.CharField(max_length=50, db_column='Tzsubsistema')
+    dirip=models.CharField(max_length=50,db_column='Tzdirip')
+    descripcion=models.TextField(db_column='Tzdescripcion')
+    valores_actualizados=models.CharField(max_length=50,db_column='TzvaloresActualizado')
+    
+    class Meta: 
+        db_table ='TzAuditorias'
+    def __str__(self):
+         return str(self.id_auditoria)    
+class HistoricoActivacion(models.Model):
+    id_usuario_afectado = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  db_column='T014Id_Usuario_Afectado')
+    cod_operacion = models.ForeignKey(OperacionesSobreUsuario, on_delete=models.SET_NULL, null=True,  db_column='T014Cod_Operacion')
+    fecha_operacion = models.DateTimeField(auto_now = True, db_column='T014fechaOperacion')
+    justificacion = models.TextField( db_column='T014justificacion')
+    usuario_operador = models.ForeignKey(User, related_name='usuarioOperador',on_delete=models.SET_NULL, null=True, db_column='T014usuarioOperador')
+    id_historico = models.AutoField(primary_key=True, editable=False, db_column='T014IdHistorico')
+
+    def __str__(self):
+        return self.fecha_operacion
+
+    class Meta:
+        db_table = 'T014HistoricoActivacion'  
+
+class ClasesTercero(models.Model):
+    id_tipo_tercero = models.AutoField(primary_key=True, editable=False, db_column='T007IdTipoTercero')
+    nombre = models.CharField(max_length=100, db_column='T0007nombre')
+    
+    def __str__(self):
+        return str(self.id_tipo_tercero)
+
+    class Meta:
+        db_table='T007ClasesTercero'
+
+class ClasesTerceroPersona(models.Model):
+    id_persona = models.ForeignKey(ClasesTercero, on_delete=models.SET_NULL, null=True, db_column='T011IdTipoTercero')
+    id_tipo_tercero = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, db_column='T011IdPersona')
+    class Meta:
+        db_table='T011ClasesTercero_Persona'
+
