@@ -124,6 +124,7 @@ class Modulos(models.Model):
     id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
     nombre_modulo=models.CharField(max_length=70,db_column='TznombreModulo')
     subsistema=models.CharField(max_length=4,db_column='Tzsubsistema')
+    descripcion = models.CharField(max_length=255, db_column='Tzdescripcion')
     
     class Meta:
         db_table= 'TzModulos'
@@ -134,8 +135,8 @@ class Modulos(models.Model):
          return self.nombre_modulo
 
 class PermisosModulo(models.Model):
-    id_modulo=models.ForeignKey(Modulos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzIdModulo')
-    cod_permiso=models.ForeignKey(Permisos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzCodPermiso')
+    id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzIdModulo')
+    cod_permiso=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso')
   
     class Meta:
         db_table= 'TzPermisos_Modulo'
@@ -143,9 +144,9 @@ class PermisosModulo(models.Model):
         verbose_name_plural='Permisos de módulo'
 
 class PermisosModuloRol(models.Model):
-    id_rol=models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True, blank=True,  db_column='TzIdRol')
-    id_modulo=models.ForeignKey(PermisosModulo, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzIdModulo')
-    cod_permiso=models.CharField(max_length=100, primary_key=True, db_column='TzCodPermiso')
+    id_rol=models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='TzIdRol')
+    id_modulo=models.ForeignKey(PermisosModulo, on_delete=models.CASCADE, db_column='TzIdModulo')
+    cod_permiso=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso')
     
     class Meta:
         db_table= 'TzPermisos_Modulo_Rol'
@@ -165,21 +166,30 @@ class Personas(models.Model):
     nombre_comercial = models.CharField(max_length=200, null=True, blank=True, db_column='T010nombreComercial')
     razon_social = models.CharField(max_length=200, null=True, blank=True, db_column='T010razonSocial')
     pais_residencia = models.ForeignKey(Paises, on_delete=models.CASCADE, null=True, blank=True, db_column='T010codPaisResidencia')
-    municipio_residencia = models.ForeignKey(Municipio, on_delete=models.CASCADE, null=True, blank=True, db_column='T010Cod_MunicipioResidenciaNal')
+    municipio_residencia = models.ForeignKey(Municipio, on_delete=models.CASCADE, null=True, blank=True, related_name='municipio_residencia', db_column='T010Cod_MunicipioResidenciaNal')
     direccion_residencia = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidencia')
     direccion_residencia_ref = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidenciaReferencia')
     ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T010ubicacionGeoreferenciada')
     direccion_laboral = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirLaboralNal')
     direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
     pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, db_column='T010Cod_Pais_Nacimiento')
-    sexo = models.ForeignKey(Sexo, on_delete=models.CASCADE, db_column='T010Cod_Sexo')
-    estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.CASCADE, db_column='T010Cod_Estado_Civil')
+    fecha_nacimiento = models.DateField(blank=True,null=True)
+    sexo = models.ForeignKey(Sexo, on_delete=models.SET_NULL, blank=True, null=True, db_column='T010Cod_Sexo')
+    estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_Estado_Civil')
     representate_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
     telefono_fijo_residencial = models.CharField(max_length=15, null=True, blank=True, db_column='T010telFijoResidencial')
     telefono_celular = models.CharField(max_length=15, null=True, blank=True, db_column='T010telCelular')
     telefono_empresa = models.CharField(max_length=15, null=True, blank=True, db_column='T010telEmpresa')
+    cod_municipio_laboral_nal = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, related_name='municipio_laboral', db_column='T010Cod_MunicipioLaboralNal')
+    cod_municipio_notificacion_nal = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, related_name='municipio_notificacion', db_column='T010Cod_MunicipioNotificacionNal')
+    telefono_celular_empresa = models.CharField(max_length=15, blank=True, null=True, db_column='T010telCelularEmpresa')
+    telefono_empresa_2 =models.CharField(max_lenth=15, null=True, blank=True, db_column='T010telEmpresa2')
+    cod_pais_nacionalidad_empresa = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_PaisNacionalidadDeEmpresa')
+    acepta_notificacion_sms = models.BooleanField(default=False, db_column='T010AceptaNotificacionSMS')
+    acepta_notificacion_email = models.BooleanField(default=False, db_column='T010AceptaNotificacionEmail')
+    acepta_tratamiento_datos = models.BooleanField(default=False, db_column='T010AceptaTratamientoDeDatos')
     
     def __str__(self):
         return str(self.id_persona)
@@ -190,10 +200,17 @@ class Personas(models.Model):
         verbose_name_plural='Personas'
         
 class HistoricoDireccion(models.Model):
+    tipo_direccion_CHOICES = (
+        ('L', 'Laboral'),
+        ('R', 'Residencia'),
+        ('N', 'Notificación'),
+    )
     id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
-    cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015CodMunicipio')
+    cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015Cod_MunicipioEnCol')
+    cod_pais_exterior = models.ForeignKey(Paises, on_delete=models.SET_NULL, blank=True, null=True, db_column='T015Cod_PaisEnElExterior')
+    tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES,db_column='T015TipoDeDireccion')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
         
     def __str__(self):
@@ -223,7 +240,7 @@ class ApoderadoPersona (models.Model):
 class HistoricoEmails(models.Model):
     id_histo_email = models.AutoField(primary_key=True, db_column='T016IdHistoEmail')
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T016Id_Persona')
-    email_notificacion = models.EmailField(max_length=100, db_column='T016email')
+    email_notificacion = models.EmailField(max_length=100, db_column='T016emailDeNotificacion')
     fecha_cambio = models.DateTimeField(auto_now=True, db_column='T016fechaCambio')
 
     def __str__(self):
@@ -258,12 +275,12 @@ class SucursalesEempresa(models.Model):
 class User(AbstractBaseUser,PermissionsMixin):
     id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
-    persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzId_Persona')
+    persona = models.OneToOneField(Personas, on_delete=models.CASCADE,db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
     is_blocked = models.BooleanField(max_length=1,default=False, db_column='Tzbloqueado')
-    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, db_column="TzId_Usuario_Creador")
+    id_usuario_creador = models.ForeignKey('self', on_delete=models.CASCADE, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
     tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario')
@@ -283,7 +300,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         verbose_name_plural='Usuarios'
 
 class UsuariosRol(models.Model):
-    id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzIdRol')
+    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, blank=True, db_column='TzIdRol')
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzIdUsuario')
 
     class Meta:
@@ -293,14 +310,14 @@ class UsuariosRol(models.Model):
 
 class Auditorias(models.Model):
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
-    id_usuario=models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
-    id_modulo=models.ForeignKey(Modulos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzId_Modulo')
-    id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzCod_Operacion')
+    id_usuario=models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
+    id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
+    id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Operacion')
     fecha_accion=models.DateField(db_column='TzfechaAccion')
-    subsistema=models.CharField(max_length=50, db_column='Tzsubsistema')
-    dirip=models.CharField(max_length=50,db_column='Tzdirip')
+    subsistema=models.CharField(max_length=4, db_column='Tzsubsistema')
+    dirip=models.CharField(max_length=255,db_column='Tzdirip')
     descripcion=models.TextField(db_column='Tzdescripcion')
-    valores_actualizados=models.CharField(max_length=50,db_column='TzvaloresActualizado')
+    valores_actualizados=models.CharField(max_length=255, null=True, blank=True, db_column='TzvaloresActualizado')
     
     class Meta: 
         db_table ='TzAuditorias'
