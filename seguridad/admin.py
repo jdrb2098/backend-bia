@@ -4,7 +4,6 @@ from .models import *
 admin.site.register(Municipio)
 admin.site.register(Departamento)
 admin.site.register(Paises)
-admin.site.register(Sexo)
 admin.site.register(EstadoCivil)
 admin.site.register(Personas)
 admin.site.register(HistoricoDireccion)

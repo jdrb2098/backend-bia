@@ -1,9 +1,11 @@
+from random import choices
 from tkinter.tix import Tree
 from turtle import mode
 from unittest.util import _MAX_LENGTH
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
+
 # Create your models here.
 class Paises(models.Model):
     nombre = models.CharField(max_length=50, db_column='T003nombre')
@@ -56,17 +58,6 @@ class Municipio (models.Model):
         verbose_name='Municipio'
         verbose_name_plural='Municipios'
 
-
-class Sexo(models.Model):
-    nombre = models.CharField(max_length=20, db_column='T004nombre')
-    cod_sexo = models.CharField(primary_key=True,max_length=1, db_column='T004CodSexo')
-
-    def __str__(self):
-        return self.nombre
-    class Meta:
-        db_table = 'T004Sexo'
-        verbose_name='Sexo'
-        verbose_name_plural='Sexo'
 
 class Permisos(models.Model):
     nombre_permiso = models.CharField(max_length=20, db_column='TznombrePermiso')
@@ -153,8 +144,13 @@ class PermisosModuloRol(models.Model):
         db_table= 'TzPermisos_Modulo_Rol'
         verbose_name='Permiso de modulo de rol'
         verbose_name_plural='Permisos de modulo de roles'
-        
+    
 class Personas(models.Model):
+    class Sexo(models.TextChoices):
+        Hombre = "H", "Hombre"
+        Mujer = "M", "Mujer"
+        InterSexual = "I", "Intersexual"  
+    
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=1, db_column='T010tipoPersona')
     tipo_documento = models.ForeignKey(TiposDocumento, on_delete=models.CASCADE, db_column='T010Cod_TipoDocumento')
@@ -175,7 +171,7 @@ class Personas(models.Model):
     direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
     pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, related_name='pais_nacimiento', null=True, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True)
-    sexo = models.ForeignKey(Sexo, on_delete=models.SET_NULL, blank=True, null=True, db_column='T010Cod_Sexo')
+    sexo = models.CharField(max_length=1, choices=Sexo.choices, db_column='T010Cod_Sexo')
     estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_Estado_Civil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
