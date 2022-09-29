@@ -68,8 +68,8 @@ class Sexo(models.Model):
         verbose_name_plural='Sexo'
 
 class Permisos(models.Model):
-    nombre_permiso = models.CharField(max_length=50, db_column='TznombrePermiso')
-    cod_permiso = models.AutoField(primary_key=True, editable=False, db_column='TzCodPermiso')
+    nombre_permiso = models.CharField(max_length=20, db_column='TznombrePermiso')
+    cod_permiso = models.AutoField(max_length=2,primary_key=True, editable=False, db_column='TzCodPermiso')
 
     def __str__(self):
         return self.nombre_permiso
@@ -108,8 +108,8 @@ class TiposDocumento(models.Model):
     
 class Roles(models.Model):
     id_rol=models.AutoField(primary_key=True, editable=False, db_column='TzIdRol')
-    nombre_rol=models.CharField(max_length=50, db_column='TznombreRol')
-    descripcion_rol=models.CharField(max_length=50,db_column='TzdescripcionRol')
+    nombre_rol=models.CharField(max_length=100, db_column='TznombreRol')
+    descripcion_rol=models.CharField(max_length=255,db_column='TzdescripcionRol')
     
     class Meta:
         db_table= 'TzRoles'
@@ -122,8 +122,8 @@ class Roles(models.Model):
         
 class Modulos(models.Model):
     id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
-    nombre_modulo=models.CharField(max_length=50,db_column='TznombreModulo')
-    subsistema=models.CharField(max_length=50,db_column='Tzsubsistema')
+    nombre_modulo=models.CharField(max_length=70,db_column='TznombreModulo')
+    subsistema=models.CharField(max_length=4,db_column='Tzsubsistema')
     
     class Meta:
         db_table= 'TzModulos'
@@ -257,16 +257,16 @@ class SucursalesEempresa(models.Model):
         
 class User(AbstractBaseUser,PermissionsMixin):
     id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
-    nombre_de_usuario = models.CharField(max_length=100, db_column='TznombreUsuario')
+    nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
     persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzId_Persona')
-    is_active = models.BooleanField(default=False, db_column='Tzactivo')
+    is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
-    is_blocked = models.BooleanField(default=False, db_column='Tzbloqueado')
+    is_blocked = models.BooleanField(max_length=1,default=False, db_column='Tzbloqueado')
     id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
-    tipo_usuario = models.CharField(max_length=50, db_column='TztipoUsuario')
+    tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario')
     email = models.EmailField( unique=True, db_column='TzemailUsuario') #Añadido por Juan
     
     USERNAME_FIELD = 'email'
