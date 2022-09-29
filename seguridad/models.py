@@ -70,7 +70,7 @@ class Sexo(models.Model):
 
 class Permisos(models.Model):
     nombre_permiso = models.CharField(max_length=20, db_column='TznombrePermiso')
-    cod_permiso = models.AutoField(max_length=2,primary_key=True, editable=False, db_column='TzCodPermiso')
+    cod_permiso = models.CharField(max_length=2,primary_key=True, editable=False, db_column='TzCodPermiso')
 
     def __str__(self):
         return self.nombre_permiso
