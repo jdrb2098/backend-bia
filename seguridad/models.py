@@ -177,7 +177,7 @@ class Personas(models.Model):
     fecha_nacimiento = models.DateField(blank=True,null=True)
     sexo = models.ForeignKey(Sexo, on_delete=models.SET_NULL, blank=True, null=True, db_column='T010Cod_Sexo')
     estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_Estado_Civil')
-    representate_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,db_column='T010Id_PersonaRepLegal')
+    representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
     telefono_fijo_residencial = models.CharField(max_length=15, null=True, blank=True, db_column='T010telFijoResidencial')
