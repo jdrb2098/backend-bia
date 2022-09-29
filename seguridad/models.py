@@ -251,7 +251,7 @@ class HistoricoEmails(models.Model):
         verbose_name='Historico de email'
         verbose_name_plural='Históricos de email'
         
-class SucursalesEempresa(models.Model):
+class SucursalesEmpresa(models.Model):
     id_empresa = models.ForeignKey(Personas,on_delete=models.CASCADE,  db_column='T012IdEmpresa')#Es primary_key????
     numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
     sucursal = models.CharField(max_length=255, db_column='T012sucursal')
