@@ -6,7 +6,7 @@ from .managers import CustomUserManager
 # Create your models here.
 class Paises(models.Model):
     nombre = models.CharField(max_length=50, db_column='T003nombre')
-    cod_pais = models.CharField(max_length=4, db_column='T003CodPais', primary_key=True)
+    cod_pais = models.CharField(primary_key=True,max_length=2, db_column='T003CodPais')
     def __str__(self):
         return self.cod_pais
     class Meta:
@@ -17,7 +17,7 @@ class Paises(models.Model):
 
 class EstadoCivil (models.Model):
     nombre = models.CharField(max_length=20, db_column='T005nombre')
-    cod_estado_civil = models.CharField(max_length=1, db_column='T005CodEstadoCivil', primary_key=True)
+    cod_estado_civil = models.CharField(primary_key=True,max_length=1, db_column='T005CodEstadoCivil')
 
     def __str__(self):
         return self.nombre
@@ -29,8 +29,8 @@ class EstadoCivil (models.Model):
 
 class Departamento (models.Model):
     nombre = models.CharField(max_length=30, db_column='T002nombre')
-    pais = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T002Cod_Pais', )
-    cod_departamento = models.CharField(max_length=2, db_column='T002CodDepartamento',primary_key=True)
+    pais = models.ForeignKey(Paises, on_delete=models.CASCADE, db_column='T002Cod_Pais')
+    cod_departamento = models.CharField(primary_key=True, max_length=2, db_column='T002CodDepartamento')
 
     def __str__(self):
         return self.nombre
@@ -44,8 +44,8 @@ class Departamento (models.Model):
 
 class Municipio (models.Model):
     nombre = models.CharField(max_length=30, db_column='T001nombre')
-    cod_departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True, db_column='T001Cod_Departamentos')
-    cod_municipio = models.CharField(max_length=5, db_column = 'T001CodMunicipio')
+    cod_departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE, db_column='T001Cod_Departamentos')
+    cod_municipio = models.CharField(primary_key=True, max_length=5, db_column = 'T001CodMunicipio')
 
     def __str__(self):
         return self.nombre
@@ -57,8 +57,8 @@ class Municipio (models.Model):
 
 
 class Sexo(models.Model):
-    nombre = models.CharField(max_length=50, db_column='T004nombre')
-    cod_sexo = models.CharField(max_length=1, db_column='T004CodSexo', primary_key=True)
+    nombre = models.CharField(max_length=20, db_column='T004nombre')
+    cod_sexo = models.CharField(primary_key=True,max_length=1, db_column='T004CodSexo')
 
     def __str__(self):
         return self.nombre
@@ -154,32 +154,32 @@ class PermisosModuloRol(models.Model):
         
 class Personas(models.Model):
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
-    tipo_persona = models.CharField(max_length=50, db_column='T010tipoPersona')
-    tipo_documento = models.ForeignKey(TiposDocumento, on_delete=models.CASCADE, db_column='T010CodTipo_Documento')
-    numero_documento = models.CharField(max_length=50, unique=True, db_column='T010nroDocumento')
-    digito_verificacion = models.CharField(max_length=50, db_column='T010digitoVerificacion')
-    primer_nombre = models.CharField(max_length=50, db_column='T010primerNombre')
-    segundo_nombre = models.CharField(max_length=50, db_column='T010segundoNombre')
-    primer_apellido = models.CharField(max_length=50, db_column='T010primerApellido')
-    segundo_apellido = models.CharField(max_length=50, db_column='T010segundoApellido')
-    nombre_comercial = models.CharField(max_length=50, db_column='T010nombreComercial')
-    razon_social = models.CharField(max_length=255, db_column='T010razonSocial')
-    pais_residencia = models.CharField(max_length=50, db_column='T010codPaisResidencia')
-    municipio_residencia = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_MunicipioResidencia')
-    direccion_residencia = models.CharField(max_length=50, db_column='T010direccionResidencia')
-    direccion_residencia_ref = models.CharField(max_length=50, db_column='T010direccionResidenciaRef')
+    tipo_persona = models.CharField(max_length=1, db_column='T010tipoPersona')
+    tipo_documento = models.ForeignKey(TiposDocumento, on_delete=models.CASCADE, db_column='T010Cod_TipoDocumento')
+    numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
+    digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
+    primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
+    segundo_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010segundoNombre')
+    primer_apellido = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerApellido')
+    segundo_apellido = models.CharField(max_length=30, null=True, blank=True, db_column='T010segundoApellido')
+    nombre_comercial = models.CharField(max_length=200, null=True, blank=True, db_column='T010nombreComercial')
+    razon_social = models.CharField(max_length=200, null=True, blank=True, db_column='T010razonSocial')
+    pais_residencia = models.ForeignKey(Paises, on_delete=models.CASCADE, null=True, blank=True, db_column='T010codPaisResidencia')
+    municipio_residencia = models.ForeignKey(Municipio, on_delete=models.CASCADE, null=True, blank=True, db_column='T010Cod_MunicipioResidenciaNal')
+    direccion_residencia = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidencia')
+    direccion_residencia_ref = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidenciaReferencia')
     ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T010ubicacionGeoreferenciada')
-    direccion_laboral = models.CharField(max_length=50, db_column='T010direccionLaboral')
-    direccion_correspondencia = models.CharField(max_length=50, db_column='T010direccionCorrespondencia')
-    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.CASCADE, db_column='T010Cod_Pais_Nacimiento')
+    direccion_laboral = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirLaboralNal')
+    direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
+    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, db_column='T010Cod_Pais_Nacimiento')
     sexo = models.ForeignKey(Sexo, on_delete=models.CASCADE, db_column='T010Cod_Sexo')
     estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.CASCADE, db_column='T010Cod_Estado_Civil')
-    representate_legal = models.CharField(max_length=50, db_column='T010IdRepresentanteLegal')
-    email = models.EmailField(max_length=255, unique=True, db_column='T010email')
-    email_empresarial = models.EmailField(max_length=255, db_column='T010emailEmpresarial')
-    telefono_fijo_residencial = models.CharField(max_length=10, db_column='T010telFijoResidencial')
-    telefono_celular = models.CharField(max_length=10, db_column='T010telCelular')
-    telefono_empresa = models.CharField(max_length=10, db_column='T010telEmpresa')
+    representate_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,db_column='T010Id_PersonaRepLegal')
+    email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
+    email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
+    telefono_fijo_residencial = models.CharField(max_length=15, null=True, blank=True, db_column='T010telFijoResidencial')
+    telefono_celular = models.CharField(max_length=15, null=True, blank=True, db_column='T010telCelular')
+    telefono_empresa = models.CharField(max_length=15, null=True, blank=True, db_column='T010telEmpresa')
     
     def __str__(self):
         return str(self.id_persona)
