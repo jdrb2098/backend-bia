@@ -83,7 +83,7 @@ class Permisos(models.Model):
 
 class OperacionesSobreUsuario(models.Model):
     cod_operacion = models.AutoField(primary_key=True, editable=False, db_column='T008CodOperacion')
-    nombre = models.CharField(max_length=50, db_column='T008nombre')
+    nombre = models.CharField(max_length=20, db_column='T008nombre')
 
     def __str__(self):
         return self.nombre
@@ -95,7 +95,7 @@ class OperacionesSobreUsuario(models.Model):
 
 class TiposDocumento(models.Model):
     cod_tipo_documento = models.AutoField(primary_key=True, editable=False, db_column='T006CodTipoDocumento')
-    nombre = models.CharField(max_length=50, db_column='T006nombre')
+    nombre = models.CharField(max_length=40, db_column='T006nombre')
 
     def __str__(self):
         return self.nombre
@@ -327,11 +327,11 @@ class HistoricoActivacion(models.Model):
         verbose_name_plural='Histórico de activaciones'
 
 class ClasesTercero(models.Model):
-    id_tipo_tercero = models.AutoField(primary_key=True, editable=False, db_column='T007IdTipoTercero')
-    nombre = models.CharField(max_length=100, db_column='T007nombre')
+    id_clase_tercero = models.AutoField(primary_key=True, editable=False, db_column='T007IdClaseTercero')
+    nombre = models.CharField(max_length=30, db_column='T007nombre')
     
     def __str__(self):
-        return str(self.id_tipo_tercero)
+        return str(self.id_clase_tercero)
 
     class Meta:
         db_table='T007ClasesTercero'
@@ -339,8 +339,8 @@ class ClasesTercero(models.Model):
         verbose_name_plural='Clase terceros'
 
 class ClasesTerceroPersona(models.Model):
-    id_persona = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column='T011IdTipoTercero')
-    id_tipo_tercero = models.ForeignKey(ClasesTercero, on_delete=models.SET_NULL, null=True, blank=True, db_column='T011IdPersona')
+    id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T011IdClaseTercero')
+    id_clase_tercero = models.ForeignKey(ClasesTercero, on_delete=models.CASCADE, db_column='T011IdPersona')
     class Meta:
         db_table='T011ClasesTercero_Persona'
         verbose_name='Clase tercero persona'
