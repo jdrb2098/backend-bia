@@ -191,7 +191,7 @@ class Personas(models.Model):
         
 class HistoricoDireccion(models.Model):
     id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
-    id_persona = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column = 'T015Id_Persona')    
+    id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
     cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015CodMunicipio')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
@@ -205,12 +205,12 @@ class HistoricoDireccion(models.Model):
         verbose_name_plural='Histórico de direcciones'
         
 class ApoderadoPersona (models.Model):
-    persona_poderdante = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column='T013IdPersonaPoderdante')
+    persona_poderdante = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T013IdPersonaPoderdante')
     id_proceso = models.CharField(max_length=50, db_column = 'T013IdProceso') #Pendiente por foreingKey de tabla procesos
     consecutivo_del_proceso = models.AutoField(primary_key=True, editable=False, db_column = 'T013ConsecDelProceso') #Pendiente por foreingKey de tabla procesos
-    persona_apoderada = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True,  related_name='persona_apoderada', db_column = 'T013IdPersonaApoderada')
+    persona_apoderada = models.ForeignKey(Personas, on_delete=models.CASCADE,  related_name='persona_apoderada', db_column = 'T013IdPersonaApoderada')
     fecha_inicio = models.DateTimeField(db_column = 'T013fechaInicio')
-    fecha_cierre = models.DateTimeField(db_column = 'T013fechaCierre')
+    fecha_cierre = models.DateTimeField(db_column = 'T013fechaCierre', null=True, blank=True)
     
     def __str__(self):
         return str(self.persona_poderdante)
@@ -222,26 +222,26 @@ class ApoderadoPersona (models.Model):
            
 class HistoricoEmails(models.Model):
     id_histo_email = models.AutoField(primary_key=True, db_column='T016IdHistoEmail')
-    id_persona = models.ForeignKey(Personas, on_delete=models.SET_NULL, null=True, blank=True, db_column='T016Id_Persona')
-    email = models.EmailField(max_length=255, db_column='T016email')
+    id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T016Id_Persona')
+    email_notificacion = models.EmailField(max_length=100, db_column='T016email')
     fecha_cambio = models.DateTimeField(auto_now=True, db_column='T016fechaCambio')
 
     def __str__(self):
-        return self.email
+        return self.email_notificacion
 
     class Meta:
         db_table = 'T016HistoricoEmails'      
         verbose_name='Historico de email'
         verbose_name_plural='Históricos de email'
         
-class SucursalesEempresas(models.Model):
+class SucursalesEempresa(models.Model):
     id_empresa = models.ForeignKey(Personas,on_delete=models.CASCADE,  db_column='T012IdEmpresa')#Es primary_key????
     numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
-    sucursal = models.CharField(max_length=50, db_column='T012sucursal')
-    municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE, db_column='T012codMunicipio')
-    direccion = models.CharField(max_length=50, db_column='T012direccion')
-    ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T012ubicacionGeoreferenciada') ##Foreing_Key con tabla persoas??
-    pais_empresa_extranjera = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T012cod_PaisEmpresaExtranjera')
+    sucursal = models.CharField(max_length=255, db_column='T012sucursal')
+    municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T012codMunicipio')
+    direccion = models.CharField(max_length=255, db_column='T012direccion')
+    direccion_sucursal_georeferenciada = models.CharField(max_length=50, db_column='T012ubicacionGeoreferenciada') ##Foreing_Key con tabla persoas??
+    pais_sucursal_exterior = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T012cod_sucursal_exterior')
     direccion_correspondencias = models.CharField(max_length=50, db_column='T012direccionCorrespondencias')
     email_sucursal = models.EmailField(max_length=255, db_column='T012emailSucursal')
     telefono_sucursal = models.CharField(max_length=10, db_column='T012telContactoSucursal')
@@ -316,7 +316,7 @@ class HistoricoActivacion(models.Model):
     cod_operacion = models.ForeignKey(OperacionesSobreUsuario, on_delete=models.CASCADE, db_column='T014Cod_Operacion')
     fecha_operacion = models.DateTimeField(auto_now = True, db_column='T014fechaOperacion')
     justificacion = models.TextField( db_column='T014justificacion')
-    usuario_operador = models.ForeignKey(User, related_name='usuarioOperador',on_delete=models.SET_NULL, null=True, db_column='T014usuarioOperador')  #Añadido por Juan
+    usuario_operador = models.ForeignKey(User, related_name='usuarioOperador',on_delete=models.CASCADE, db_column='T014usuarioOperador')  #Añadido por Juan
 
     def __str__(self):
         return self.fecha_operacion
