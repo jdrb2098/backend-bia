@@ -1,5 +1,6 @@
 from tkinter.tix import Tree
 from turtle import mode
+from unittest.util import _MAX_LENGTH
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
@@ -172,7 +173,7 @@ class Personas(models.Model):
     ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T010ubicacionGeoreferenciada')
     direccion_laboral = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirLaboralNal')
     direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
-    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, db_column='T010Cod_Pais_Nacimiento')
+    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, related_name='pais_nacimiento', null=True, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True)
     sexo = models.ForeignKey(Sexo, on_delete=models.SET_NULL, blank=True, null=True, db_column='T010Cod_Sexo')
     estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_Estado_Civil')
@@ -185,8 +186,8 @@ class Personas(models.Model):
     cod_municipio_laboral_nal = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, related_name='municipio_laboral', db_column='T010Cod_MunicipioLaboralNal')
     cod_municipio_notificacion_nal = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, related_name='municipio_notificacion', db_column='T010Cod_MunicipioNotificacionNal')
     telefono_celular_empresa = models.CharField(max_length=15, blank=True, null=True, db_column='T010telCelularEmpresa')
-    telefono_empresa_2 =models.CharField(max_lenth=15, null=True, blank=True, db_column='T010telEmpresa2')
-    cod_pais_nacionalidad_empresa = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_PaisNacionalidadDeEmpresa')
+    telefono_empresa_2 =models.CharField(max_length=15, null=True, blank=True, db_column='T010telEmpresa2')
+    cod_pais_nacionalidad_empresa = models.ForeignKey(Paises,related_name='pais_nacionalidad_empreza', on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_PaisNacionalidadDeEmpresa')
     acepta_notificacion_sms = models.BooleanField(default=False, db_column='T010AceptaNotificacionSMS')
     acepta_notificacion_email = models.BooleanField(default=False, db_column='T010AceptaNotificacionEmail')
     acepta_tratamiento_datos = models.BooleanField(default=False, db_column='T010AceptaTratamientoDeDatos')
@@ -251,7 +252,7 @@ class HistoricoEmails(models.Model):
         verbose_name='Historico de email'
         verbose_name_plural='Históricos de email'
         
-class SucursalesEmpresa(models.Model):
+class SucursalesEmpresas(models.Model):
     id_empresa = models.ForeignKey(Personas,on_delete=models.CASCADE,  db_column='T012IdEmpresa')#Es primary_key????
     numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
     sucursal = models.CharField(max_length=255, db_column='T012sucursal')
@@ -275,12 +276,12 @@ class SucursalesEmpresa(models.Model):
 class User(AbstractBaseUser,PermissionsMixin):
     id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
-    persona = models.OneToOneField(Personas, on_delete=models.CASCADE,db_column='TzId_Persona')
+    persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True,db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
     is_blocked = models.BooleanField(max_length=1,default=False, db_column='Tzbloqueado')
-    id_usuario_creador = models.ForeignKey('self', on_delete=models.CASCADE, db_column="TzId_Usuario_Creador")
+    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
     tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario')
