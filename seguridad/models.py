@@ -136,7 +136,7 @@ class Modulos(models.Model):
 class PermisosModulo(models.Model):
     id_modulo=models.ForeignKey(Modulos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzIdModulo')
     cod_permiso=models.ForeignKey(Permisos, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzCodPermiso')
-    
+  
     class Meta:
         db_table= 'TzPermisos_Modulo'
         verbose_name='Permiso de módulo'
