@@ -1,3 +1,4 @@
+from email.policy import default
 from random import choices
 from tkinter.tix import Tree
 from turtle import mode
@@ -423,8 +424,8 @@ class Personas(models.Model):
         Juridica = "J", "Juridica"
 
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
-    tipo_persona = models.CharField(choices=-TipoPersona.choices, db_column='T010tipoPersona')
-    tipo_documento = models.CharField(choices=TiposDocumento.choices, db_column='T010Cod_TipoDocumento')
+    tipo_persona = models.CharField(max_length=1, choices=TipoPersona.choices, db_column='T010tipoPersona')
+    tipo_documento = models.CharField(max_length=2, choices=TiposDocumento.choices, db_column='T010Cod_TipoDocumento')
     numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
@@ -443,7 +444,7 @@ class Personas(models.Model):
     pais_nacimiento = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True)
     sexo = models.CharField(max_length=1, choices=Sexo.choices, db_column='T010Cod_Sexo')
-    estado_civil = models.CharField(choices=EstadoCivil.choices, null=True, blank=True, db_column='T010Cod_Estado_Civil')
+    estado_civil = models.CharField(max_length=1, choices=EstadoCivil.choices, null=True, blank=True, db_column='T010Cod_Estado_Civil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
@@ -478,7 +479,7 @@ class HistoricoDireccion(models.Model):
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
     cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015Cod_MunicipioEnCol')
-    cod_pais_exterior = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T015Cod_PaisEnElExterior')
+    cod_pais_exterior = models.CharField(max_length=2, choices=paises_CHOICES,null=True, db_column='T015Cod_PaisEnElExterior')
     tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES.choices,db_column='T015TipoDeDireccion')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
         
@@ -557,7 +558,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
-    tipo_usuario = models.CharField(max_length=1, choices=tipo_usuario_CHOICES.choices, db_column='TztipoUsuario') #Juan Camilo Text Choices
+    tipo_usuario = models.CharField(max_length=1,null=True, choices=tipo_usuario_CHOICES.choices, db_column='TztipoUsuario') #Juan Camilo Text Choices
     email = models.EmailField( unique=True, db_column='TzemailUsuario') #Añadido por Juan
     
     USERNAME_FIELD = 'email'
@@ -620,7 +621,7 @@ class HistoricoActivacion(models.Model):
 
     id_historico = models.AutoField(primary_key=True, editable=False, db_column='T014IdHistorico')
     id_usuario_afectado = models.ForeignKey(User, on_delete=models.CASCADE, db_column='T014Id_Usuario_Afectado')
-    cod_operacion = models.CharField(choices=OperacionesSobreUsuario.choices, db_column='T014Cod_Operacion')
+    cod_operacion = models.CharField(max_length=1, choices=OperacionesSobreUsuario.choices, db_column='T014Cod_Operacion')
     fecha_operacion = models.DateTimeField(auto_now = True, db_column='T014fechaOperacion')
     justificacion = models.TextField( db_column='T014justificacion')
     usuario_operador = models.ForeignKey(User, related_name='usuarioOperador',on_delete=models.CASCADE, db_column='T014usuarioOperador')  #Añadido por Juan
