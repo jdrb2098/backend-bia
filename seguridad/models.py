@@ -298,8 +298,16 @@ class Municipio (models.Model):
 
 
 class Permisos(models.Model):
+    
+    class cod_permiso_CHOICES(models.TextChoices):
+        crear = "CR", "Crear"
+        borrar = "BO", "Borrar"
+        actualizar= "CO","Consultar"
+        ejecutar="EJ","Ejecutar"
+        aprobar="AP","Aprobar"
+        
     nombre_permiso = models.CharField(max_length=20, db_column='TznombrePermiso')
-    cod_permiso = models.CharField(max_length=2,primary_key=True, editable=False, db_column='TzCodPermiso')
+    cod_permiso = models.CharField(max_length=2,primary_key=True, editable=False,choices=cod_permiso_CHOICES.choices, db_column='TzCodPermiso')
 
     def __str__(self):
         return self.nombre_permiso
@@ -308,8 +316,6 @@ class Permisos(models.Model):
         db_table = "TzPermisos"
         verbose_name='Permiso'
         verbose_name_plural='Permisos'
-
-
 
 class OperacionesSobreUsuario(models.Model):
     cod_operacion = models.AutoField(primary_key=True, editable=False, db_column='T008CodOperacion')
@@ -351,9 +357,17 @@ class Roles(models.Model):
     
         
 class Modulos(models.Model):
+    class subsistema_CHOICES(models.TextChoices):
+        conservacion="CONS","Conservación"
+        gestion_Documental="GEST","Gestión Documental"
+        recurso_hidrico="RECU","Recurso Hídrico"
+        tramites_servicio="TRAM","Trámites y servicios"
+        seguimiento_planes="PLAN","Seguimiento a planes"
+        recaudo="RECA","Recaudo"
+        
     id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
     nombre_modulo=models.CharField(max_length=70,db_column='TznombreModulo')
-    subsistema=models.CharField(max_length=4,db_column='Tzsubsistema')# Juan camilo textchoices 
+    subsistema=models.CharField(max_length=4,choices=subsistema_CHOICES.choices,db_column='Tzsubsistema')# Juan camilo textchoices 
     descripcion = models.CharField(max_length=255, db_column='Tzdescripcion')
     
     class Meta:
@@ -365,6 +379,7 @@ class Modulos(models.Model):
          return self.nombre_modulo
 
 class PermisosModulo(models.Model):
+    
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzIdModulo')
     cod_permiso=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso') #juan Camilo Text Choices
   
@@ -453,17 +468,18 @@ class Personas(models.Model):
         verbose_name_plural='Personas'
         
 class HistoricoDireccion(models.Model):
-    tipo_direccion_CHOICES = (
-        ('L', 'Laboral'),
-        ('R', 'Residencia'),
-        ('N', 'Notificación'),
-    )
+    
+    class tipo_direccion_CHOICES(models.TextChoices):
+        Laboral = "L", "Laboral"
+        Residencia = "J", "Residencia"
+        Notificacion = "N","Notificacion"
+        
     id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
     cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015Cod_MunicipioEnCol')
     cod_pais_exterior = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T015Cod_PaisEnElExterior')
-    tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES,db_column='T015TipoDeDireccion')
+    tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES.choices,db_column='T015TipoDeDireccion')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
         
     def __str__(self):
@@ -527,7 +543,11 @@ class SucursalesEmpresas(models.Model):
         
 class User(AbstractBaseUser,PermissionsMixin):
     
-    id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
+    class tipo_usuario_CHOICES(models.TextChoices):
+        interno="I","Interno"
+        externo="E","Externo"
+        
+    id_usuario = models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
     persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True,db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
@@ -537,7 +557,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
-    tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario') #Juan Camilo Text Choices
+    tipo_usuario = models.CharField(max_length=1, choices=tipo_usuario_CHOICES.choices, db_column='TztipoUsuario') #Juan Camilo Text Choices
     email = models.EmailField( unique=True, db_column='TzemailUsuario') #Añadido por Juan
     
     USERNAME_FIELD = 'email'
@@ -563,12 +583,22 @@ class UsuariosRol(models.Model):
         verbose_name_plural='Roles de usuario'
 
 class Auditorias(models.Model):
+    
+    class subsistema_CHOICES(models.TextChoices):
+        Almacen="ALMA","Almacen"
+        Conservacion="CONS","Conservación"
+        Gestion_Documental="GEST","Gestión Documental"
+        Recurso_hidrico="RECU","Recurso Hídrico"
+        tramites_servicios="TRAM","Trámites y servicios"
+        Seguimiento_planes="PLAN","Seguimiento a planes"
+        Recaudo="RECA","Recaudo"
+        
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
     id_usuario=models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
     id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Operacion')
     fecha_accion=models.DateField(db_column='TzfechaAccion')
-    subsistema=models.CharField(max_length=4, db_column='Tzsubsistema') #Juan camilo text choices
+    subsistema=models.CharField(max_length=4,choices=subsistema_CHOICES.choices, db_column='Tzsubsistema') #Juan camilo text choices
     dirip=models.CharField(max_length=255,db_column='Tzdirip')
     descripcion=models.TextField(db_column='Tzdescripcion')
     valores_actualizados=models.CharField(max_length=255, null=True, blank=True, db_column='TzvaloresActualizado')
