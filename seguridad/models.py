@@ -7,6 +7,244 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
 
 # Create your models here.
+paises_CHOICES = (
+    ('AF', 'AFGHANISTAN'),
+    ('AL', 'ALBANIA'),
+    ('DZ', 'ALGERIA'),
+    ('AS', 'AMERICAN SAMOA'),
+    ('AD', 'ANDORRA'),
+    ('AO', 'ANGOLA'),
+    ('AI', 'ANGUILLA'),
+    ('AQ', 'ANTARCTICA'),
+    ('AG', 'ANTIGUA AND BARBUDA'),
+    ('AR', 'ARGENTINA'),
+    ('AM', 'ARMENIA'),
+    ('AW', 'ARUBA'),
+    ('AU', 'AUSTRALIA'),
+    ('AT', 'AUSTRIA'),
+    ('AZ', 'AZERBAIJAN'),
+    ('BS', 'BAHAMAS'),
+    ('BH', 'BAHRAIN'),
+    ('BD', 'BANGLADESH'),
+    ('BB', 'BARBADOS'),
+    ('BY', 'BELARUS'),
+    ('BE', 'BELGIUM'),
+    ('BZ', 'BELIZE'),
+    ('BJ', 'BENIN'),
+    ('BM', 'BERMUDA'),
+    ('BT', 'BHUTAN'),
+    ('BO', 'BOLIVIA'),
+    ('BA', 'BOSNIA AND HERZEGOVINA'),
+    ('BW', 'BOTSWANA'),
+    ('BV', 'BOUVET ISLAND'),
+    ('BR', 'BRAZIL'),
+    ('IO', 'BRITISH INDIAN OCEAN TERRITORY'),
+    ('BN', 'BRUNEI DARUSSALAM'),
+    ('BG', 'BULGARIA'),
+    ('BF', 'BURKINA FASO'),
+    ('BI', 'BURUNDI'),
+    ('KH', 'CAMBODIA'),
+    ('CM', 'CAMEROON'),
+    ('CA', 'CANADA'),
+    ('CV', 'CAPE VERDE'),
+    ('KY', 'CAYMAN ISLANDS'),
+    ('CF', 'CENTRAL AFRICAN REPUBLIC'),
+    ('TD', 'CHAD'),
+    ('CL', 'CHILE'),
+    ('CN', 'CHINA'),
+    ('CX', 'CHRISTMAS ISLAND'),
+    ('CC', 'COCOS (KEELING) ISLANDS'),
+    ('CO', 'COLOMBIA'),
+    ('KM', 'COMOROS'),
+    ('CG', 'CONGO'),
+    ('CD', 'CONGO, THE DEMOCRATIC REPUBLIC OF'),
+    ('CK', 'COOK ISLANDS'),
+    ('CR', 'COSTA RICA'),
+    ('CI', "CÃ”TE D'IVOIRE"),
+    ('HR', 'CROATIA'),
+    ('CU', 'CUBA'),
+    ('CY', 'CYPRUS'),
+    ('CZ', 'CZECH REPUBLIC'),
+    ('DK', 'DENMARK'),
+    ('DJ', 'DJIBOUTI'),
+    ('DM', 'DOMINICA'),
+    ('DO', 'DOMINICAN REPUBLIC'),
+    ('EC', 'ECUADOR'),
+    ('EG', 'EGYPT'),
+    ('SV', 'EL SALVADOR'),
+    ('GQ', 'EQUATORIAL GUINEA'),
+    ('ER', 'ERITREA'),
+    ('EE', 'ESTONIA'),
+    ('ET', 'ETHIOPIA'),
+    ('FK', 'FALKLAND ISLANDS (MALVINAS)'),
+    ('FO', 'FAROE ISLANDS'),
+    ('FJ', 'FIJI'),
+    ('FI', 'FINLAND'),
+    ('FR', 'FRANCE'),
+    ('GF', 'FRENCH GUIANA'),
+    ('PF', 'FRENCH POLYNESIA'),
+    ('TF', 'FRENCH SOUTHERN TERRITORIES'),
+    ('GA', 'GABON'),
+    ('GM', 'GAMBIA'),
+    ('GE', 'GEORGIA'),
+    ('DE', 'GERMANY'),
+    ('GH', 'GHANA'),
+    ('GI', 'GIBRALTAR'),
+    ('GR', 'GREECE'),
+    ('GL', 'GREENLAND'),
+    ('GD', 'GRENADA'),
+    ('GP', 'GUADELOUPE'),
+    ('GU', 'GUAM'),
+    ('GT', 'GUATEMALA'),
+    ('GN', 'GUINEA'),
+    ('GW', 'GUINEA'),
+    ('GY', 'GUYANA'),
+    ('HT', 'HAITI'),
+    ('HM', 'HEARD ISLAND AND MCDONALD ISLANDS'),
+    ('HN', 'HONDURAS'),
+    ('HK', 'HONG KONG'),
+    ('HU', 'HUNGARY'),
+    ('IS', 'ICELAND'),
+    ('IN', 'INDIA'),
+    ('ID', 'INDONESIA'),
+    ('IR', 'IRAN, ISLAMIC REPUBLIC OF'),
+    ('IQ', 'IRAQ'),
+    ('IE', 'IRELAND'),
+    ('IL', 'ISRAEL'),
+    ('IT', 'ITALY'),
+    ('JM', 'JAMAICA'),
+    ('JP', 'JAPAN'),
+    ('JO', 'JORDAN'),
+    ('KZ', 'KAZAKHSTAN'),
+    ('KE', 'KENYA'),
+    ('KI', 'KIRIBATI'),
+    ('KP', "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF"),
+    ('KR', 'KOREA, REPUBLIC OF'),
+    ('KW', 'KUWAIT'),
+    ('KG', 'KYRGYZSTAN'),
+    ('LA', "LAO PEOPLE'S DEMOCRATIC REPUBLIC"),
+    ('LV', 'LATVIA'),
+    ('LB', 'LEBANON'),
+    ('LS', 'LESOTHO'),
+    ('LR', 'LIBERIA'),
+    ('LY', 'LIBYAN ARAB JAMAHIRIYA'),
+    ('LI', 'LIECHTENSTEIN'),
+    ('LT', 'LITHUANIA'),
+    ('LU', 'LUXEMBOURG'),
+    ('MO', 'MACAO'),
+    ('MK', 'MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF'),
+    ('MG', 'MADAGASCAR'),
+    ('MW', 'MALAWI'),
+    ('MY', 'MALAYSIA'),
+    ('MV', 'MALDIVES'),
+    ('ML', 'MALI'),
+    ('MT', 'MALTA'),
+    ('MH', 'MARSHALL ISLANDS'),
+    ('MQ', 'MARTINIQUE'),
+    ('MR', 'MAURITANIA'),
+    ('MU', 'MAURITIUS'),
+    ('YT', 'MAYOTTE'),
+    ('MX', 'MEXICO'),
+    ('FM', 'MICRONESIA, FEDERATED STATES OF'),
+    ('MD', 'MOLDOVA, REPUBLIC OF'),
+    ('MC', 'MONACO'),
+    ('MN', 'MONGOLIA'),
+    ('MS', 'MONTSERRAT'),
+    ('MA', 'MOROCCO'),
+    ('MZ', 'MOZAMBIQUE'),
+    ('MM', 'MYANMAR'),
+    ('NA', 'NAMIBIA'),
+    ('NR', 'NAURU'),
+    ('NP', 'NEPAL'),
+    ('NL', 'NETHERLANDS'),
+    ('AN', 'NETHERLANDS ANTILLES'),
+    ('NC', 'NEW CALEDONIA'),
+    ('NZ', 'NEW ZEALAND'),
+    ('NI', 'NICARAGUA'),
+    ('NE', 'NIGER'),
+    ('NG', 'NIGERIA'),
+    ('NU', 'NIUE'),
+    ('NF', 'NORFOLK ISLAND'),
+    ('MP', 'NORTHERN MARIANA ISLANDS'),
+    ('NO', 'NORWAY'),
+    ('OM', 'OMAN'),
+    ('PK', 'PAKISTAN'),
+    ('PW', 'PALAU'),
+    ('PS', 'PALESTINIAN TERRITORY, OCCUPIED'),
+    ('PA', 'PANAMA'),
+    ('PG', 'PAPUA NEW GUINEA'),
+    ('PY', 'PARAGUAY'),
+    ('PE', 'PERU'),
+    ('PH', 'PHILIPPINES'),
+    ('PN', 'PITCAIRN'),
+    ('PL', 'POLAND'),
+    ('PT', 'PORTUGAL'),
+    ('PR', 'PUERTO RICO'),
+    ('QA', 'QATAR'),
+    ('RE', 'RÃ‰UNION'),
+    ('RO', 'ROMANIA'),
+    ('RU', 'RUSSIAN FEDERATION'),
+    ('RW', 'RWANDA'),
+    ('SH', 'SAINT HELENA'),
+    ('KN', 'SAINT KITTS AND NEVIS'),
+    ('LC', 'SAINT LUCIA'),
+    ('PM', 'SAINT PIERRE AND MIQUELON'),
+    ('VC', 'SAINT VINCENT AND THE GRENADINES'),
+    ('WS', 'SAMOA'),
+    ('SM', 'SAN MARINO'),
+    ('ST', 'SAO TOME AND PRINCIPE'),
+    ('SA', 'SAUDI ARABIA'),
+    ('SN', 'SENEGAL'),
+    ('CS', 'SERBIA AND MONTENEGRO'),
+    ('SC', 'SEYCHELLES'),
+    ('SL', 'SIERRA LEONE'),
+    ('SG', 'SINGAPORE'),
+    ('SK', 'SLOVAKIA'),
+    ('SI', 'SLOVENIA'),
+    ('SB', 'SOLOMON ISLANDS'),
+    ('SO', 'SOMALIA'),
+    ('ZA', 'SOUTH AFRICA'),
+    ('GS', 'SOUTH GEORGIA AND SOUTH SANDWICH ISLANDS'),
+    ('ES', 'SPAIN'),
+    ('LK', 'SRI LANKA'),
+    ('SD', 'SUDAN'),
+    ('SR', 'SURINAME'),
+    ('SJ', 'SVALBARD AND JAN MAYEN'),
+    ('SZ', 'SWAZILAND'),
+    ('SE', 'SWEDEN'),
+    ('CH', 'SWITZERLAND'),
+    ('SY', 'SYRIAN ARAB REPUBLIC'),
+    ('TW', 'TAIWAN, PROVINCE OF CHINA'),
+    ('TJ', 'TAJIKISTAN'),
+    ('TZ', 'TANZANIA, UNITED REPUBLIC OF'),
+    ('TH', 'THAILAND'),
+    ('TL', 'TIMOR'),
+    ('TG', 'TOGO'),
+    ('TK', 'TOKELAU'),
+    ('TO', 'TONGA'),
+    ('TT', 'TRINIDAD AND TOBAGO'),
+    ('TN', 'TUNISIA'),
+    ('TR', 'TURKEY'),
+    ('TM', 'TURKMENISTAN'),
+    ('TC', 'TURKS AND CAICOS ISLANDS'),
+    ('TV', 'TUVALU'),
+    ('UG', 'UGANDA'),
+    ('UA', 'UKRAINE'),
+    ('AE', 'UNITED ARAB EMIRATES'),
+    ('GB', 'UNITED KINGDOM'),
+    ('US', 'UNITED STATES'),
+    ('UM', 'UNITED STATES MINOR OUTLYING ISLANDS'),
+    ('UY', 'URUGUAY'),
+    ('UZ', 'UZBEKISTAN'),
+    ('VU', 'VANUATU'),
+    ('VN', 'VIET NAM'),
+    ('VG', 'VIRGIN ISLANDS, BRITISH'),
+    ('VI', 'VIRGIN ISLANDS, U.S.'),
+    ('WF', 'WALLIS AND FUTUNA'),
+    ('EH', 'WESTERN SAHARA'),
+    ('YE', 'YEMEN'),
+    ('ZW', 'ZIMBABWE')
+)
 class Paises(models.Model):
     nombre = models.CharField(max_length=50, db_column='T003nombre')
     cod_pais = models.CharField(primary_key=True,max_length=2, db_column='T003CodPais')
@@ -32,7 +270,7 @@ class EstadoCivil (models.Model):
 
 class Departamento (models.Model):
     nombre = models.CharField(max_length=30, db_column='T002nombre')
-    pais = models.ForeignKey(Paises, on_delete=models.CASCADE, db_column='T002Cod_Pais')
+    pais = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T002Cod_Pais')
     cod_departamento = models.CharField(primary_key=True, max_length=2, db_column='T002CodDepartamento')
 
     def __str__(self):
@@ -115,7 +353,7 @@ class Roles(models.Model):
 class Modulos(models.Model):
     id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
     nombre_modulo=models.CharField(max_length=70,db_column='TznombreModulo')
-    subsistema=models.CharField(max_length=4,db_column='Tzsubsistema')
+    subsistema=models.CharField(max_length=4,db_column='Tzsubsistema')# Juan camilo textchoices 
     descripcion = models.CharField(max_length=255, db_column='Tzdescripcion')
     
     class Meta:
@@ -128,7 +366,7 @@ class Modulos(models.Model):
 
 class PermisosModulo(models.Model):
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzIdModulo')
-    cod_permiso=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso')
+    cod_permiso=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso') #juan Camilo Text Choices
   
     class Meta:
         db_table= 'TzPermisos_Modulo'
@@ -150,10 +388,28 @@ class Personas(models.Model):
         Hombre = "H", "Hombre"
         Mujer = "M", "Mujer"
         InterSexual = "I", "Intersexual"  
-    
+    class EstadoCivil(models.TextChoices):
+        Casado = "C", "Casado"
+        Soltero = "S", "soltero"
+        UnionLibre = "U", "Unión Libre"
+        Viudo = "V", "Viudo"
+        Divorciado = "D", "Divorciado"
+    class TiposDocumento(models.TextChoices):
+        NUIP = "UN", "NUIP"
+        CedulaExtrangeria = "CE", "Cédula Extrangeria"
+        Pasaporte = "PA", "Pasaporte"
+        PermisoEspecialDePermanencia = "PE", "Permiso Especial de Permanencia"
+        RegistroCivil = "RC", "Registro Civil"
+        TarjetaDeIdentidad = "TI", "Tarjeta de Identidad"
+        CedulaDeCiudadania = "CC", "Cédula de Ciudadania"
+
+    class TipoPersona(models.TextChoices):
+        Natural = "N", "Natural"
+        Juridica = "J", "Juridica"
+
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
-    tipo_persona = models.CharField(max_length=1, db_column='T010tipoPersona')
-    tipo_documento = models.ForeignKey(TiposDocumento, on_delete=models.CASCADE, db_column='T010Cod_TipoDocumento')
+    tipo_persona = models.CharField(choices=-TipoPersona.choices, db_column='T010tipoPersona')
+    tipo_documento = models.CharField(choices=TiposDocumento.choices, db_column='T010Cod_TipoDocumento')
     numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
@@ -162,17 +418,17 @@ class Personas(models.Model):
     segundo_apellido = models.CharField(max_length=30, null=True, blank=True, db_column='T010segundoApellido')
     nombre_comercial = models.CharField(max_length=200, null=True, blank=True, db_column='T010nombreComercial')
     razon_social = models.CharField(max_length=200, null=True, blank=True, db_column='T010razonSocial')
-    pais_residencia = models.ForeignKey(Paises, on_delete=models.CASCADE, null=True, blank=True, db_column='T010codPaisResidencia')
+    pais_residencia = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010codPaisResidencia')
     municipio_residencia = models.ForeignKey(Municipio, on_delete=models.CASCADE, null=True, blank=True, related_name='municipio_residencia', db_column='T010Cod_MunicipioResidenciaNal')
     direccion_residencia = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidencia')
     direccion_residencia_ref = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirResidenciaReferencia')
     ubicacion_georeferenciada = models.CharField(max_length=50, db_column='T010ubicacionGeoreferenciada')
     direccion_laboral = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirLaboralNal')
     direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
-    pais_nacimiento = models.ForeignKey(Paises, on_delete=models.SET_NULL, related_name='pais_nacimiento', null=True, db_column='T010Cod_Pais_Nacimiento')
+    pais_nacimiento = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True)
     sexo = models.CharField(max_length=1, choices=Sexo.choices, db_column='T010Cod_Sexo')
-    estado_civil = models.ForeignKey(EstadoCivil, on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_Estado_Civil')
+    estado_civil = models.CharField(choices=EstadoCivil.choices, null=True, blank=True, db_column='T010Cod_Estado_Civil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
@@ -183,7 +439,7 @@ class Personas(models.Model):
     cod_municipio_notificacion_nal = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, related_name='municipio_notificacion', db_column='T010Cod_MunicipioNotificacionNal')
     telefono_celular_empresa = models.CharField(max_length=15, blank=True, null=True, db_column='T010telCelularEmpresa')
     telefono_empresa_2 =models.CharField(max_length=15, null=True, blank=True, db_column='T010telEmpresa2')
-    cod_pais_nacionalidad_empresa = models.ForeignKey(Paises,related_name='pais_nacionalidad_empreza', on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_PaisNacionalidadDeEmpresa')
+    cod_pais_nacionalidad_empresa = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010Cod_PaisNacionalidadDeEmpresa')
     acepta_notificacion_sms = models.BooleanField(default=False, db_column='T010AceptaNotificacionSMS')
     acepta_notificacion_email = models.BooleanField(default=False, db_column='T010AceptaNotificacionEmail')
     acepta_tratamiento_datos = models.BooleanField(default=False, db_column='T010AceptaTratamientoDeDatos')
@@ -206,7 +462,7 @@ class HistoricoDireccion(models.Model):
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
     cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015Cod_MunicipioEnCol')
-    cod_pais_exterior = models.ForeignKey(Paises, on_delete=models.SET_NULL, blank=True, null=True, db_column='T015Cod_PaisEnElExterior')
+    cod_pais_exterior = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T015Cod_PaisEnElExterior')
     tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES,db_column='T015TipoDeDireccion')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
         
@@ -255,7 +511,7 @@ class SucursalesEmpresas(models.Model):
     municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T012codMunicipio')
     direccion = models.CharField(max_length=255, db_column='T012direccion')
     direccion_sucursal_georeferenciada = models.CharField(max_length=50, db_column='T012ubicacionGeoreferenciada') ##Foreing_Key con tabla persoas??
-    pais_sucursal_exterior = models.ForeignKey(Paises, on_delete=models.SET_NULL, null=True, blank=True, db_column='T012cod_sucursal_exterior')
+    pais_sucursal_exterior = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T012cod_sucursal_exterior')
     direccion_correspondencias = models.CharField(max_length=50, db_column='T012direccionCorrespondencias')
     email_sucursal = models.EmailField(max_length=255, db_column='T012emailSucursal')
     telefono_sucursal = models.CharField(max_length=10, db_column='T012telContactoSucursal')
@@ -270,6 +526,7 @@ class SucursalesEmpresas(models.Model):
         verbose_name_plural='Sucursales'
         
 class User(AbstractBaseUser,PermissionsMixin):
+    
     id_usuario: models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
     persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True,db_column='TzId_Persona')
@@ -280,7 +537,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
-    tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario')
+    tipo_usuario = models.CharField(max_length=1, db_column='TztipoUsuario') #Juan Camilo Text Choices
     email = models.EmailField( unique=True, db_column='TzemailUsuario') #Añadido por Juan
     
     USERNAME_FIELD = 'email'
@@ -311,7 +568,7 @@ class Auditorias(models.Model):
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
     id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Operacion')
     fecha_accion=models.DateField(db_column='TzfechaAccion')
-    subsistema=models.CharField(max_length=4, db_column='Tzsubsistema')
+    subsistema=models.CharField(max_length=4, db_column='Tzsubsistema') #Juan camilo text choices
     dirip=models.CharField(max_length=255,db_column='Tzdirip')
     descripcion=models.TextField(db_column='Tzdescripcion')
     valores_actualizados=models.CharField(max_length=255, null=True, blank=True, db_column='TzvaloresActualizado')
@@ -325,9 +582,15 @@ class Auditorias(models.Model):
          return str(self.id_auditoria)   
       
 class HistoricoActivacion(models.Model):
+    class OperacionesSobreUsuario(models.TextChoices):
+        Activar = "A", "Activar"
+        Desactivar = "D", "Desactivar"
+        Bloquear = "B", "Bloquear"
+        Unlock = "U", "Unlock"
+
     id_historico = models.AutoField(primary_key=True, editable=False, db_column='T014IdHistorico')
     id_usuario_afectado = models.ForeignKey(User, on_delete=models.CASCADE, db_column='T014Id_Usuario_Afectado')
-    cod_operacion = models.ForeignKey(OperacionesSobreUsuario, on_delete=models.CASCADE, db_column='T014Cod_Operacion')
+    cod_operacion = models.CharField(choices=OperacionesSobreUsuario.choices, db_column='T014Cod_Operacion')
     fecha_operacion = models.DateTimeField(auto_now = True, db_column='T014fechaOperacion')
     justificacion = models.TextField( db_column='T014justificacion')
     usuario_operador = models.ForeignKey(User, related_name='usuarioOperador',on_delete=models.CASCADE, db_column='T014usuarioOperador')  #Añadido por Juan
