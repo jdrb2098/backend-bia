@@ -1595,7 +1595,7 @@ class Personas(models.Model):
 
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=1, choices=TipoPersona.choices, db_column='T010tipoPersona')
-    tipo_documento = models.ForeignKey(TipoDocumento,on_delete=models.CASCADE, db_column='T010Cod_TipoDocumento')
+    tipo_documento = models.ForeignKey(TipoDocumento,on_delete=models.SET_NULL, null=True, db_column='T010Cod_TipoDocumento')
     numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
