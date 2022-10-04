@@ -1435,6 +1435,7 @@ municipios_CHOICES = (
 ('99001', 'Puerto Carreño'),
 ('99624', 'Santa Rosalía'),
 )
+
 class Paises(models.Model):
     nombre = models.CharField(max_length=50, db_column='T003nombre')
     cod_pais = models.CharField(primary_key=True,max_length=2, db_column='T003CodPais')
@@ -1444,19 +1445,6 @@ class Paises(models.Model):
         db_table = "T003Paises"
         verbose_name='Pais'
         verbose_name_plural='Paises'
-        
-
-class EstadoCivil (models.Model):
-    nombre = models.CharField(max_length=20, db_column='T005nombre')
-    cod_estado_civil = models.CharField(primary_key=True,max_length=1, db_column='T005CodEstadoCivil')
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        db_table = 'T005EstadoCivil'
-        verbose_name='Estado civil'
-        verbose_name_plural='Estado civil'
 
 class Departamento (models.Model):
     nombre = models.CharField(max_length=30, db_column='T002nombre')
@@ -1519,17 +1507,6 @@ class OperacionesSobreUsuario(models.Model):
         verbose_name='Operacion sobre usuario'
         verbose_name_plural='Operaciones sobre usuario'
 
-class TiposDocumento(models.Model):
-    cod_tipo_documento = models.AutoField(primary_key=True, editable=False, db_column='T006CodTipoDocumento')
-    nombre = models.CharField(max_length=40, db_column='T006nombre')
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        db_table = 'T006TiposDocumento'
-        verbose_name='Tipo de documento'
-        verbose_name_plural='Tipos de documento'
 
     
 class Roles(models.Model):
@@ -1587,26 +1564,30 @@ class PermisosModuloRol(models.Model):
         db_table= 'TzPermisos_Modulo_Rol'
         verbose_name='Permiso de modulo de rol'
         verbose_name_plural='Permisos de modulo de roles'
+        
+class TipoDocumento(models.Model):
+    cod_tipo_documento=models.CharField(max_length=2,primary_key=True,db_column='T006CodTipoDocumento')
+    nombre=models.CharField(max_length=40,db_column='T006nombre')
+    
+    class Meta:
+        db_table='T006TiposDocumento'
+        verbose_name='Tipo documento'
+        verbose_name_plural='Tipos de documento'
+
+class EstadoCivil(models.Model):
+    cod_estado_civil=models.CharField(max_length=1,primary_key=True,db_column='T005CodEstadoCivil')
+    nombre=models.CharField(max_length=20,db_column='T005nombre')
+    
+    class Meta:
+        db_table='T005EstadoCivil'
+        verbose_name='Estado civil'
+        verbose_name_plural='Estado civil'
     
 class Personas(models.Model):
     class Sexo(models.TextChoices):
         Hombre = "H", "Hombre"
         Mujer = "M", "Mujer"
         InterSexual = "I", "Intersexual"  
-    class EstadoCivil(models.TextChoices):
-        Casado = "C", "Casado"
-        Soltero = "S", "soltero"
-        UnionLibre = "U", "Unión Libre"
-        Viudo = "V", "Viudo"
-        Divorciado = "D", "Divorciado"
-    class TiposDocumento(models.TextChoices):
-        NUIP = "UN", "NUIP"
-        CedulaExtrangeria = "CE", "Cédula Extrangeria"
-        Pasaporte = "PA", "Pasaporte"
-        PermisoEspecialDePermanencia = "PE", "Permiso Especial de Permanencia"
-        RegistroCivil = "RC", "Registro Civil"
-        TarjetaDeIdentidad = "TI", "Tarjeta de Identidad"
-        CedulaDeCiudadania = "CC", "Cédula de Ciudadania"
 
     class TipoPersona(models.TextChoices):
         Natural = "N", "Natural"
@@ -1614,7 +1595,7 @@ class Personas(models.Model):
 
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=1, choices=TipoPersona.choices, db_column='T010tipoPersona')
-    tipo_documento = models.CharField(max_length=2, choices=TiposDocumento.choices, db_column='T010Cod_TipoDocumento')
+    tipo_documento = models.ForeignKey(TipoDocumento,on_delete=models.CASCADE, db_column='T010Cod_TipoDocumento')
     numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
@@ -1634,7 +1615,7 @@ class Personas(models.Model):
     pais_nacimiento = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True)
     sexo = models.CharField(max_length=1, choices=Sexo.choices, db_column='T010Cod_Sexo')
-    estado_civil = models.CharField(max_length=1, choices=EstadoCivil.choices, null=True, blank=True, db_column='T010Cod_Estado_Civil')
+    estado_civil = models.ForeignKey(EstadoCivil,on_delete=models.SET_NULL,null=True, blank=True, db_column='T010Cod_EstadoCivil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
