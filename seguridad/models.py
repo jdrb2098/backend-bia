@@ -1575,7 +1575,7 @@ class TipoDocumento(models.Model):
         verbose_name_plural='Tipos de documento'
 
 class EstadoCivil(models.Model):
-    cod_estado_civil=models.CharField(max_length=1,primary_key=True,db_column='T005CodEstadoCivil')
+    cod_estado_civil=models.CharField(max_length=1,primary_key=True,db_column='T005Cod_Estado_Civil')
     nombre=models.CharField(max_length=20,db_column='T005nombre')
     
     class Meta:
