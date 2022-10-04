@@ -1474,6 +1474,7 @@ class Municipio (models.Model):
         verbose_name='Municipio'
         verbose_name_plural='Municipios'
 
+#----------------------------------------->Revisar modelo Permisos<-----------------------------------------------------------
 
 class Permisos(models.Model):
     
@@ -1485,7 +1486,7 @@ class Permisos(models.Model):
         aprobar="AP","Aprobar"
         
     nombre_permiso = models.CharField(max_length=20, db_column='TznombrePermiso')
-    cod_permiso = models.CharField(max_length=2,primary_key=True, editable=False,choices=cod_permiso_CHOICES.choices, db_column='TzCodPermiso')
+    cod_permiso = models.CharField(max_length=2, primary_key=True, choices=cod_permiso_CHOICES.choices, db_column='TzCodPermiso')
 
     def __str__(self):
         return self.nombre_permiso
