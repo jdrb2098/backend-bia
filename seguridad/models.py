@@ -1746,7 +1746,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         verbose_name_plural='Usuarios'
 
 class UsuariosRol(models.Model):
-    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, blank=True, db_column='TzIdRol')
+    id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL,null=True, db_column='TzIdRol')
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzIdUsuario')
 
     class Meta:

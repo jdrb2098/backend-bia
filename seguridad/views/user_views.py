@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken  
+from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRoles  
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -29,7 +29,6 @@ def registerUser(request):
     data = request.data
     try:
         user = User.objects.create(
-            first_name=data['name'],
             username=data['email'],
             email=data['email'],
             password=make_password(data['password'])
@@ -48,8 +47,7 @@ def updateUserProfile(request):
     serializer = UserSerializerWithToken(user, many=False)
 
     data = request.data
-    user.first_name = data['name']
-    user.username = data['email']
+    user.nombre_de_usuario = data['email']
     user.email = data['email']
 
     if data['password'] != '':
@@ -58,6 +56,15 @@ def updateUserProfile(request):
     user.save()
 
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def roles(request):
+    roles = UsuariosRol.objects.all()
+    serializers = UserRoles(roles, many=True)
+    return Response(serializers.data)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -76,23 +83,21 @@ def getUsers(request):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def getUserById(request, pk):
-    user = User.objects.get(id=pk)
+    user = User.objects.get(id_usuario=pk)
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUser(request, pk):
-    user = User.objects.get(id=pk)
+    user = User.objects.get(id_usuario=pk)
 
     data = request.data
 
-    user.first_name = data['name']
-    user.username = data['email']
+    user.nombre_de_usuario= data['email']
     user.email = data['email']
     user.is_staff = data['isAdmin']
-    user.is_developer = data['isDeveloper']
-    user.is_lead_developer = data['isLeadDeveloper']
+    
 
     user.save()
 

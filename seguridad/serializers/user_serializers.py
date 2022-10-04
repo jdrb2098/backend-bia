@@ -2,17 +2,15 @@
 from dataclasses import field
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from seguridad.models import User
+from seguridad.models import User, UsuariosRol
 
 class UserSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField(read_only=True)
     _id = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
-    roles = serializers.SerializerMethodField(read_only= True)
 
     class Meta:
         model = User
-        fields = ['id_usuario', '_id', 'nombre_de_usuario', 'email', 'name', 'isAdmin', 'roles']
+        fields = ['id_usuario', '_id', 'nombre_de_usuario', 'email', 'isAdmin']
 
     def get__id(self, obj):
         return obj.id_usuario
@@ -20,15 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
     def get_isAdmin(self, obj):
         return obj.is_staff
 
-    def get_roles(self, obj):
-        return obj.roles
-
-    def get_name(self, obj):
-        name = obj.persona
-        if name == '':
-            name = obj.email
-
-        return name
 
 
 class UserSerializerWithToken(UserSerializer):
@@ -36,9 +25,14 @@ class UserSerializerWithToken(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['id_usuario', '_id', 'nombre_de_usuario', 'email', 'name', 'isAdmin', 'token', 'roles']
+        fields = ['id_usuario', '_id', 'nombre_de_usuario', 'email', 'isAdmin', 'token']
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
 
+class UserRoles(serializers.ModelSerializer):
+
+    class Meta:
+        model = UsuariosRol
+        fields = '__all__'
