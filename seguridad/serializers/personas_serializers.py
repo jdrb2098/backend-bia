@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.serializers import ReadOnlyField
 from seguridad.models import (
     Personas, 
     TipoDocumento, 
@@ -25,10 +26,22 @@ class TipoDocumentoSerializer(serializers.ModelSerializer):
         
         
 class PersonasSerializer(serializers.ModelSerializer):
+    #tipoDocumento = serializers.SerializerMethodField(read_only=True)
+        
     class Meta:
         model = Personas
         fields = '__all__'
         
+    def get_tipoDocumento(self, instance):
+        response = super().to_representation(instance)
+        response['tipo_documento'] = TipoDocumentoSerializer(instance.tipo_documento).data
+        return response
+    
+    def get_estadoCivil(self, instance):
+        response = super().to_representation(instance)
+        response['estado_civil'] = EstadoCivilSerializer(instance.estado_civil).data
+        return response
+           
 
 class ApoderadoPersonaSerializer(serializers.ModelSerializer):
     class Meta:
