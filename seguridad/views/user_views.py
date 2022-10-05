@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRoles  
+from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer  
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -61,7 +61,7 @@ def updateUserProfile(request):
 @api_view(['GET'])
 def roles(request):
     roles = UsuariosRol.objects.all()
-    serializers = UserRoles(roles, many=True)
+    serializers = UserRolesSerializer(roles, many=True)
     return Response(serializers.data)
 
 
