@@ -26,6 +26,7 @@ from seguridad.serializers.personas_serializers import (
     ClasesTerceroPersonaSerializer
 )  
 
+# Views for Estado Civil
 
 @api_view(['POST'])
 def registerEstadoCivil(request):
@@ -73,3 +74,62 @@ def deleteEstadoCivil(request, pk):
     return Response('Estado Civil was deleted')
 
 
+# Views for Tipo Documento
+
+@api_view(['POST'])
+def registerTipoDocumento(request):
+    data = request.data
+    tipoDocumento = TipoDocumento.objects.create(
+        cod_tipo_documento=data['cod_tipo_documento'],
+        nombre=data['nombre']
+    )
+    serializer = TipoDocumentoSerializer(tipoDocumento, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getTipoDocumento(request):
+    tipoDocumento = TipoDocumento.objects.all()
+    serializer = TipoDocumentoSerializer(tipoDocumento, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getTipoDocumentoById(request, pk):
+    tipoDocumento = TipoDocumento.objects.get(cod_tipo_documento=pk)
+    serializer = TipoDocumentoSerializer(tipoDocumento, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+def updateTipoDocumento(request, pk):
+    tipoDocumento = TipoDocumento.objects.get(cod_tipo_documento=pk)
+    
+    data = request.data
+    
+    tipoDocumento.nombre = data['nombre']
+    tipoDocumento.save()
+    
+    serializer = TipoDocumentoSerializer(tipoDocumento, many=False)
+
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+def deleteTipoDocumento(request, pk):
+    tipoDocumentoForDeletion = TipoDocumento.objects.get(cod_tipo_documento=pk)
+    tipoDocumentoForDeletion.delete()
+    return Response('Estado Civil was deleted')
+
+
+# Views for Personas
+
+
+@api_view(['POST'])
+def registerPersonas(request):
+    data = request.data
+    personas = Personas.objects.create(
+        cod_tipo_documento=data['cod_tipo_documento'],
+        nombre=data['nombre']
+    )
+    serializer = PersonasSerializer(personas, many=False)
+    return Response(serializer.data)
