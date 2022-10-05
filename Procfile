@@ -1,2 +1,2 @@
-web: gunicorn backend-bia.wsgi
-web: python manage.py migrate && gunicorn ISAMC_Knowledge.wsgi
+web: gunicorn backend.wsgi --log-file -
+web: python manage.py migrate && gunicorn backend.wsgi
