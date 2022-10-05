@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol
 
-from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer  
 
@@ -36,7 +35,7 @@ def verPermiso(request,pk):
 def insertarPermiso(request):
     data = request.data
     try:
-       permiso = Permisos.objects.create(nombre_permiso = data['nombre_permiso']) 
+       permiso = Permisos.objects.create(cod_permiso = data['cod_permiso'], nombre_permiso = data['nombre_permiso']) 
        serializer = PermisosSerializer(permiso, many=False)
        return Response(serializer.data)
     except:
@@ -51,3 +50,61 @@ def deletePermiso(request,pk):
         
 
 #----------------------------------------------------->Vistas tabla PermisosModulo
+@api_view(['GET'])
+def listarPermisosModulo(request):
+    permisos_modulo = PermisosModulo.objects.all()
+    permisos_moodulo_serializer = PermisosModuloSerializer(permisos_modulo, many = True)
+    return Response(permisos_moodulo_serializer.data)
+
+@api_view(['GET'])
+def verPermisosModulo(request, pk ):
+    permiso_modulo = PermisosModulo.objects.get(cod_permiso = pk)
+    permisos_modulo_serilizer = PermisosModuloSerializer(permiso_modulo)
+    return Response(permisos_modulo_serilizer.data)
+
+@api_view(['DELETE'])
+def deletePermisosModulo(request,pk):
+    permiso_modulo = PermisosModulo.objects.get(cod_permiso=pk)
+    permiso_modulo.delete()
+    return Response('Eliminado correctamente')
+
+@api_view(['POST'])
+def insertarPermisosModulo(request):
+    data = request.data
+    try: 
+        permisos_modulo = PermisosModulo.objects.create(id_modulo = data['id_modulo'], cod_permiso = data['cod_permiso'])
+        serializer = PermisosModuloSerializer(permisos_modulo, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'Error' : 'No se pudo crear permiso modulo'}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
+    
+#----------------------------------------------------->Vistas tabla PermisosModuloRol
+@api_view(['GET'])
+def listarPermisosModuloRol(request):
+    permisos_modulo_rol = PermisosModuloRol.objects.all()
+    permisos_moodulo_rol_serializer = PermisosModuloRolSerializer(permisos_modulo_rol, many = True)
+    return Response(permisos_moodulo_rol_serializer.data)
+
+@api_view(['GET'])
+def verPermisosModuloRol(request, pk ):
+    permiso_modulo_rol = PermisosModuloRol.objects.get(id_rol = pk)
+    permisos_modulo_rol_serilizer = PermisosModuloRolSerializer(permiso_modulo_rol)
+    return Response(permisos_modulo_rol_serilizer.data)
+
+@api_view(['DELETE'])
+def deletePermisosModuloRol(request,pk):
+    permiso_modulo_rol = PermisosModuloRol.objects.get(id_rol=pk)
+    permiso_modulo_rol.delete()
+    return Response('Eliminado correctamente')
+
+@api_view(['POST'])
+def insertarPermisosModuloRol(request):
+    data = request.data
+    try: 
+        permisos_modulo = PermisosModuloRol.objects.create(id_rol = data['id_rol'], id_modulo = data['id_modulo'], cod_permiso = data['cod_permiso'])
+        serializer = PermisosModuloRolSerializer(permisos_modulo, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'Error' : 'No se pudo crear permiso modulo'}
+        return Response(message, status=status.HTTP_404_NOT_FOUND)
