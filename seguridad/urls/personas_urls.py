@@ -8,6 +8,4 @@ urlpatterns = [
     path('updateestadocivil/<str:pk>/', views.updateEstadoCivil, name='estado-civil-update'),
     path('deleteestadocivil/<str:pk>/', views.deleteEstadoCivil, name='estado-civil-delete'),
     path('getestadocivil/<str:pk>/', views.getEstadoCivilById, name='estado-civil-id-get'),
-
-
 ]
