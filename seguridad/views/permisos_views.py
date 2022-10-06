@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol
 
 from rest_framework import status
-from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer  
+from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer, ModulosSerializers
+  
 
  #----------------------------------------------------->Vistas tabla Permisos
 @api_view(['PUT'])
