@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from seguridad.models import User, UsuariosRol, HistoricoActivacion
 from seguridad.serializers.personas_serializers import PersonasSerializer
+from seguridad.serializers.roles_serializers import RolesSerializer
 
 class HistoricoActivacionSerializers(serializers.ModelSerializer):
     class Meta:
@@ -11,10 +12,12 @@ class HistoricoActivacionSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRolesSerializer(serializers.ModelSerializer):
+    id_rol = RolesSerializer(read_only=True)
 
     class Meta:
         model = UsuariosRol
         fields = '__all__'
+        
 class UsuarioCreadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
