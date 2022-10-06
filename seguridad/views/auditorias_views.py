@@ -83,8 +83,8 @@ def eliminarModulo(request, pk):
 @api_view(['GET'])
 def mostrarListaModulo(request):
     modulo = Modulos.objects.all()
-    auditoria_serializers = AuditoriasSerializers(modulo, many=True)
-    return Response(auditoria_serializers.data, status=status.HTTP_200_OK)
+    modulo_serializers = ModulosSerializers(modulo, many=True)
+    return Response(modulo_serializers.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
