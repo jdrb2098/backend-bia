@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol
 
 from rest_framework import status
-from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer, ModulosSerializers
+from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloPostSerializer, PermisosModuloRolPostSerializer, PermisosModuloRolSerializer, ModulosSerializers
   
 
  #----------------------------------------------------->Vistas tabla Permisos
@@ -67,7 +67,7 @@ def deletePermisosModulo(request,pk):
 
 @api_view(['POST'])
 def insertarPermisosModulo(request):
-    modulo_serializers = PermisosModuloSerializer(data=request.data)
+    modulo_serializers = PermisosModuloPostSerializer(data=request.data)
     if modulo_serializers.is_valid():
         modulo_serializers.save()
         return Response(modulo_serializers.data, status=status.HTTP_200_OK)
@@ -103,7 +103,7 @@ def deletePermisosModuloRol(request,pk):
     
 @api_view(['POST'])
 def insertarPermisosModuloRol(request):
-    modulo_serializers = PermisosModuloRolSerializer(data=request.data)
+    modulo_serializers = PermisosModuloRolPostSerializer(data=request.data)
     if modulo_serializers.is_valid():
         modulo_serializers.save()
         return Response(modulo_serializers.data, status=status.HTTP_200_OK)
