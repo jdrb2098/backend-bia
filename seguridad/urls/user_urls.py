@@ -13,6 +13,6 @@ urlpatterns = [
    
     path('roles/', views.roles, name='roles'),
     path("", views.getUsers, name="get-users"),
-    path("<str:pk>/", views.getUsers, name="get-users"), 
+    path("<str:pk>/", views.getUserById, name="get-users"), 
 
 ]
