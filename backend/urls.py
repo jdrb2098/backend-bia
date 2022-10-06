@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/auditorias/', include('seguridad.urls.auditoria_urls')),
     path('api/roles/', include('seguridad.urls.roles_urls')),
     path('api/personas/', include('seguridad.urls.personas_urls')), 
+    path('api/permisos/', include('seguridad.urls.permisos_urls')), 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

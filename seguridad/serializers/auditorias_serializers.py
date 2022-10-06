@@ -1,15 +1,8 @@
 from rest_framework import serializers
-from seguridad.models import Auditorias, Modulos
+from seguridad.models import Auditorias
 from seguridad.serializers.user_serializers import UserSerializer
-from seguridad.serializers.permisos_serializers import PermisosSerializer
+from seguridad.serializers.permisos_serializers import PermisosSerializer, ModulosSerializers
 
-
-    
-class ModulosSerializers(serializers.ModelSerializer):
-    class Meta:
-        model=Modulos
-        fields='__all__'
-        
 class AuditoriasSerializers(serializers.ModelSerializer):
     id_modulo=ModulosSerializers(read_only=True)
     id_usuario=UserSerializer(read_only=True)

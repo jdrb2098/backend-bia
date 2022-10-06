@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
 from seguridad.models import Auditorias, Modulos
-from seguridad.serializers.auditorias_serializers import AuditoriasSerializers, ModulosSerializers
+from seguridad.serializers.auditorias_serializers import AuditoriasSerializers
+from seguridad.serializers.permisos_serializers import  ModulosSerializers
 
 
 @api_view(['GET'])

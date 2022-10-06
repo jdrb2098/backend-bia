@@ -6,17 +6,18 @@ from rest_framework.response import Response
 from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol
 
 from rest_framework import status
-from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer  
+from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloRolSerializer, ModulosSerializers
+  
 
  #----------------------------------------------------->Vistas tabla Permisos
 @api_view(['PUT'])
 def updatePermiso(request, pk):
     permiso = Permisos.objects.get(cod_permiso=pk)
-    data = request.data
-    permiso.nombre_permiso = data['nombre_permiso']
-    permiso.save() 
-    serializer = PermisosSerializer(permiso, many = False) 
-    return Response(serializer.data)
+    serializer = PermisosSerializer(permiso, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 @api_view(['GET'])
 def listarPermisos(request):
@@ -29,18 +30,14 @@ def verPermiso(request,pk):
     permiso = Permisos.objects.get(cod_permiso=pk)
     permiso_serializer = PermisosSerializer(permiso)
     return Response(permiso_serializer.data)
- 
-
+    
 @api_view(['POST'])
 def insertarPermiso(request):
-    data = request.data
-    try:
-       permiso = Permisos.objects.create(cod_permiso = data['cod_permiso'], nombre_permiso = data['nombre_permiso']) 
-       serializer = PermisosSerializer(permiso, many=False)
-       return Response(serializer.data)
-    except:
-        message = {'Error' : 'No se pudo crear permiso'}
-        return Response(message, status=status.HTTP_404_NOT_FOUND)
+    modulo_serializers = PermisosSerializer(data=request.data)
+    if modulo_serializers.is_valid():
+        modulo_serializers.save()
+        return Response(modulo_serializers.data, status=status.HTTP_200_OK)
+    return Response(modulo_serializers.errors)
 
 @api_view(['DELETE'])
 def deletePermiso(request,pk):
@@ -70,15 +67,21 @@ def deletePermisosModulo(request,pk):
 
 @api_view(['POST'])
 def insertarPermisosModulo(request):
-    data = request.data
-    try: 
-        permisos_modulo = PermisosModulo.objects.create(id_modulo = data['id_modulo'], cod_permiso = data['cod_permiso'])
-        serializer = PermisosModuloSerializer(permisos_modulo, many=False)
+    modulo_serializers = PermisosModuloSerializer(data=request.data)
+    if modulo_serializers.is_valid():
+        modulo_serializers.save()
+        return Response(modulo_serializers.data, status=status.HTTP_200_OK)
+    return Response(modulo_serializers.errors)
+
+@api_view(['PUT'])
+def updatePermisosModulo(request, pk):
+    permiso = PermisosModulo.objects.get(cod_permiso=pk)
+    serializer = PermisosSerializer(permiso, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
         return Response(serializer.data)
-    except:
-        message = {'Error' : 'No se pudo crear permiso modulo'}
-        return Response(message, status=status.HTTP_404_NOT_FOUND)
-    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 #----------------------------------------------------->Vistas tabla PermisosModuloRol
 @api_view(['GET'])
 def listarPermisosModuloRol(request):
@@ -97,14 +100,11 @@ def deletePermisosModuloRol(request,pk):
     permiso_modulo_rol = PermisosModuloRol.objects.get(id_rol=pk)
     permiso_modulo_rol.delete()
     return Response('Eliminado correctamente')
-
+    
 @api_view(['POST'])
 def insertarPermisosModuloRol(request):
-    data = request.data
-    try: 
-        permisos_modulo = PermisosModuloRol.objects.create(id_rol = data['id_rol'], id_modulo = data['id_modulo'], cod_permiso = data['cod_permiso'])
-        serializer = PermisosModuloRolSerializer(permisos_modulo, many=False)
-        return Response(serializer.data)
-    except:
-        message = {'Error' : 'No se pudo crear permiso modulo'}
-        return Response(message, status=status.HTTP_404_NOT_FOUND)
+    modulo_serializers = PermisosModuloRolSerializer(data=request.data)
+    if modulo_serializers.is_valid():
+        modulo_serializers.save()
+        return Response(modulo_serializers.data, status=status.HTTP_200_OK)
+    return Response(modulo_serializers.errors)
