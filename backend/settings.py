@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-#i9hilnt48#&)x)gt@q-#x9-x82di)l+*2mk1t-#8nb520v!s$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-e5dc.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'web-production-e5dc.up.railway.app', 'backend-bia-production.up.railway.app']
 
 
 # Application definition
@@ -133,12 +133,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -149,6 +143,7 @@ DATABASES = {
         'PORT': os.environ.get('BIA_DB_PORT'),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
