@@ -105,7 +105,7 @@ def updateTipoDocumento(request,pk):
 
 
 @api_view(['POST'])
-def registerEstadoCivil(request):
+def registerTipoDocumento(request):
     tipo_documento_serializer = TipoDocumentoSerializer(data=request.data)
     if tipo_documento_serializer.is_valid():
         tipo_documento_serializer.save()
@@ -193,7 +193,7 @@ def updateApoderadoPersona(request,pk):
 
 
 @api_view(['POST'])
-def registerPersona(request):
+def registerApoderadoPersona(request):
     apoderado_persona_serializer = ApoderadoPersona(data=request.data)
     if apoderado_persona_serializer.is_valid():
         apoderado_persona_serializer.save()
@@ -313,23 +313,23 @@ def deleteHistoricoDireccion(request, pk):
 
 
 @api_view(['PUT'])  
-def updateHistoricoEmail(request,pk):
-    historico_email = HistoricoEmails.objects.filter(id_histo_email=pk).first() ##consulta por id
-    if historico_email:  ## si existe auditoria
-        historico_email_serializer = HistoricoEmailsSerializer(historico_email ,data=request.data) ## envia al serializador la información actualizada
-        if historico_email_serializer.is_valid():
-            historico_email_serializer.save() #guarda nueva información
-            return Response(historico_email_serializer.data,status=status.HTTP_200_OK)
-        return Response(historico_email_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+def updateHistoricoDireccion(request,pk):
+    historico_direccion = HistoricoDireccion.objects.filter(id_historico_direccion=pk).first() ##consulta por id
+    if historico_direccion:  ## si existe auditoria
+        historico_direccion_serializer = HistoricoDireccionSerializer(historico_direccion ,data=request.data) ## envia al serializador la información actualizada
+        if historico_direccion_serializer.is_valid():
+            historico_direccion_serializer.save() #guarda nueva información
+            return Response(historico_direccion_serializer.data,status=status.HTTP_200_OK)
+        return Response(historico_direccion_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
-def registerHistoricoEmail(request):
-    historico_email_serializer = HistoricoEmails(data=request.data)
-    if historico_email_serializer.is_valid():
-        historico_email_serializer.save()
-        return Response(historico_email_serializer.data,status=status.HTTP_200_OK)
-    return Response(historico_email_serializer.errors)
+def registerHistoricoDireccion(request):
+    historico_direccion_serializer = HistoricoDireccion(data=request.data)
+    if historico_direccion_serializer.is_valid():
+        historico_direccion_serializer.save()
+        return Response(historico_direccion_serializer.data,status=status.HTTP_200_OK)
+    return Response(historico_direccion_serializer.errors)
 
 
 # Views for Clases Tercero
@@ -356,6 +356,26 @@ def deleteClaseTercero(request, pk):
     return Response('Clase Tercero was deleted')
 
 
+@api_view(['PUT'])  
+def updateClaseTercero(request,pk):
+    clase_tercero = ClasesTercero.objects.filter(id_clase_tercero=pk).first() ##consulta por id
+    if clase_tercero:  ## si existe auditoria
+        clase_tercero_serializer = ClasesTerceroSerializer(clase_tercero ,data=request.data) ## envia al serializador la información actualizada
+        if clase_tercero_serializer.is_valid():
+            clase_tercero_serializer.save() #guarda nueva información
+            return Response(clase_tercero_serializer.data,status=status.HTTP_200_OK)
+        return Response(clase_tercero_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def registerClaseTercero(request):
+    clase_tercero_serializer = ClasesTercero(data=request.data)
+    if clase_tercero_serializer.is_valid():
+        clase_tercero_serializer.save()
+        return Response(clase_tercero_serializer.data,status=status.HTTP_200_OK)
+    return Response(clase_tercero_serializer.errors)
+
+
 # Views for Clases Tercero Persona
 
 
@@ -378,3 +398,23 @@ def deleteClaseTerceroPersona(request, pk):
     clase_tercero_persona = ClasesTerceroPersona.objects.get(id_clase_tercero=pk)
     clase_tercero_persona.delete()
     return Response('Clase Tercero was deleted')
+
+
+@api_view(['PUT'])  
+def updateClaseTerceroPersona(request,pk):
+    clase_tercero_persona = ClasesTerceroPersona.objects.filter(id_clase_tercero=pk).first() ##consulta por id
+    if clase_tercero_persona:  ## si existe auditoria
+        clase_tercero_persona_serializer = ClasesTerceroSerializer(clase_tercero_persona ,data=request.data) ## envia al serializador la información actualizada
+        if clase_tercero_persona_serializer.is_valid():
+            clase_tercero_persona_serializer.save() #guarda nueva información
+            return Response(clase_tercero_persona_serializer.data,status=status.HTTP_200_OK)
+        return Response(clase_tercero_persona_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def registerClaseTerceroPersona(request):
+    clase_tercero_persona_serializer = ClasesTerceroPersona(data=request.data)
+    if clase_tercero_persona_serializer.is_valid():
+        clase_tercero_persona_serializer.save()
+        return Response(clase_tercero_persona_serializer.data,status=status.HTTP_200_OK)
+    return Response(clase_tercero_persona_serializer.errors)
