@@ -23,11 +23,21 @@ class PermisosModuloSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermisosModulo
         fields = '__all__'
-        
+
+class PermisosModuloPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PermisosModulo
+        fields = '__all__'
+
 class PermisosModuloRolSerializer(serializers.ModelSerializer):
     cod_permiso = PermisosSerializer(read_only=True)
     id_rol = RolesSerializer(read_only=True)
     id_modulo = PermisosModuloSerializer(read_only=True)
     class Meta:
+        model = PermisosModuloRol
+        fields = '__all__'
+        
+class PermisosModuloRolPostSerializer(serializers.ModelSerializer):
+     class Meta:
         model = PermisosModuloRol
         fields = '__all__'
