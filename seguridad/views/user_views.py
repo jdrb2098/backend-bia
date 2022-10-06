@@ -5,10 +5,11 @@ from rest_framework.response import Response
 from seguridad.models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer  
+from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -29,15 +30,19 @@ def registerUser(request):
     data = request.data
     try:
         user = User.objects.create(
-            username=data['email'],
+            nombre_de_usuario=data['nombre_de_usuario'],
             email=data['email'],
-            password=make_password(data['password'])
+            password=make_password(data['password']),
+            persona =data['persona'],
+            id_usuario_creador = data['id_usuario_creador'],
+            activated_at = data['activated_at'],
+            tipo_usuario = data['tipo_usuario'] 
         )
 
         serializer = UserSerializerWithToken(user, many=False)
         return Response(serializer.data)
     except:
-        message = {'detail': 'User with this email already exists'}
+        message = {'detail': 'error'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
@@ -111,3 +116,8 @@ def deleteUser(request, pk):
     userForDeletion = User.objects.get(id_usuario=pk)
     userForDeletion.delete()
     return Response('User was deleted')
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
