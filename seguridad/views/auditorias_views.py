@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
 from seguridad.models import Auditorias, Modulos
-from seguridad.serializers.auditorias_serializers import AuditoriasSerializers
+from seguridad.serializers.auditorias_serializers import AuditoriasSerializers,AuditoriasPostSerializers
 from seguridad.serializers.permisos_serializers import  ModulosSerializers
 
 
@@ -20,7 +20,7 @@ def consultarAuditoria(request, pk):
 def actualizarAuditoria(request, pk):
     auditoria = Auditorias.objects.get(id_auditoria=pk) 
     if auditoria:
-        auditoria_serializer = AuditoriasSerializers(auditoria, data=request.data)
+        auditoria_serializer = AuditoriasPostSerializers(auditoria, data=request.data)
         if auditoria_serializer.is_valid():
             auditoria_serializer.save()
             return Response(auditoria_serializer.data, status=status.HTTP_200_OK)
@@ -44,7 +44,7 @@ def mostrarListaAuditoria(request):
 
 @api_view(['POST'])
 def enviarDatosAuditoria(request):
-    auditoria_serializers = AuditoriasSerializers(data=request.data)
+    auditoria_serializers = AuditoriasPostSerializers(data=request.data)
     if auditoria_serializers.is_valid():
         auditoria_serializers.save()
         return Response(auditoria_serializers.data, status=status.HTTP_200_OK)
