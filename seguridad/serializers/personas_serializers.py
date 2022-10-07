@@ -53,12 +53,24 @@ class PersonasSerializer(serializers.ModelSerializer):
         representante_legal = obj.representantelegal_set.all()
         serializer = RepresentanteLegalSerializer(representante_legal, many=True)
         return serializer.data
+    
+    
+class PersonasPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Personas
+        fields = '__all__'
            
 
 class ApoderadoPersonaSerializer(serializers.ModelSerializer):
     persona_poderdante = PersonasSerializer(read_only=True)
     persona_apoderada = PersonasSerializer(read_only=True)
     
+    class Meta:
+        model = ApoderadoPersona
+        fields = '__all__'
+        
+        
+class ApoderadoPersonaPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApoderadoPersona
         fields = '__all__'
@@ -72,8 +84,20 @@ class SucursalesEmpresasSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
+class SucursalesEmpresasPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SucursalesEmpresas
+        fields = '__all__'
+        
+
 class HistoricoEmailsSerializer(serializers.ModelSerializer):
     id_persona = PersonasSerializer(read_only=True)
+    class Meta:
+        model = HistoricoEmails
+        fields = '__all__'
+        
+
+class HistoricoEmailsPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoEmails
         fields = '__all__'
@@ -82,6 +106,12 @@ class HistoricoEmailsSerializer(serializers.ModelSerializer):
 class HistoricoDireccionSerializer(serializers.ModelSerializer):
     id_persona = PersonasSerializer(read_only=True)
     
+    class Meta:
+        model = HistoricoDireccion
+        fields = '__all__'
+        
+        
+class HistoricoDireccionPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoDireccion
         fields = '__all__'
@@ -96,6 +126,12 @@ class ClasesTerceroSerializer(serializers.ModelSerializer):
 class ClasesTerceroPersonaSerializer(serializers.ModelSerializer):
     id_clase_tercero = ClasesTerceroSerializer(read_only=True)
     id_persona = PersonasSerializer(read_only=True)
+    class Meta:
+        model = ClasesTerceroPersona
+        fields = '__all__'
+        
+
+class ClasesTerceroPersonapostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClasesTerceroPersona
         fields = '__all__'

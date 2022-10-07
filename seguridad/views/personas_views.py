@@ -18,12 +18,17 @@ from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
     TipoDocumentoSerializer,
     PersonasSerializer,
+    PersonasPostSerializer,
     ApoderadoPersonaSerializer,
+    ApoderadoPersonaPostSerializer,
     SucursalesEmpresasSerializer,
+    SucursalesEmpresasPostSerializer,
     HistoricoEmailsSerializer,
+    HistoricoEmailsPostSerializer,
     HistoricoDireccionSerializer,
     ClasesTerceroSerializer,
-    ClasesTerceroPersonaSerializer
+    ClasesTerceroPersonaSerializer,
+    ClasesTerceroPersonapostSerializer
 )
 
 # Views for Estado Civil
@@ -141,7 +146,7 @@ def deletePersona(request, pk):
 def updatePersona(request,pk):
     persona = Personas.objects.filter(id_persona=pk).first() ##consulta por id
     if persona:  ## si existe auditoria
-        personas_serializer = PersonasSerializer(persona,data=request.data) ## envia al serializador la información actualizada
+        personas_serializer = PersonasPostSerializer(persona,data=request.data) ## envia al serializador la información actualizada
         if personas_serializer.is_valid():
             personas_serializer.save() #guarda nueva información
             return Response(personas_serializer.data,status=status.HTTP_200_OK)
@@ -150,7 +155,7 @@ def updatePersona(request,pk):
 
 @api_view(['POST'])
 def registerPersona(request):
-    personas_serializer = Personas(data=request.data)
+    personas_serializer = PersonasPostSerializer(data=request.data)
     if personas_serializer.is_valid():
         personas_serializer.save()
         return Response(personas_serializer.data,status=status.HTTP_200_OK)
@@ -185,7 +190,7 @@ def deleteApoderadoPersona(request, pk):
 def updateApoderadoPersona(request,pk):
     apoderado_persona = ApoderadoPersona.objects.filter(consecutivo_del_proceso=pk).first() ##consulta por id
     if apoderado_persona:  ## si existe auditoria
-        apoderado_persona_serializer = ApoderadoPersonaSerializer(apoderado_persona ,data=request.data) ## envia al serializador la información actualizada
+        apoderado_persona_serializer = ApoderadoPersonaPostSerializer(apoderado_persona ,data=request.data) ## envia al serializador la información actualizada
         if apoderado_persona_serializer.is_valid():
             apoderado_persona_serializer.save() #guarda nueva información
             return Response(apoderado_persona_serializer.data,status=status.HTTP_200_OK)
@@ -194,7 +199,7 @@ def updateApoderadoPersona(request,pk):
 
 @api_view(['POST'])
 def registerApoderadoPersona(request):
-    apoderado_persona_serializer = ApoderadoPersona(data=request.data)
+    apoderado_persona_serializer = ApoderadoPersonaPostSerializer(data=request.data)
     if apoderado_persona_serializer.is_valid():
         apoderado_persona_serializer.save()
         return Response(apoderado_persona_serializer.data,status=status.HTTP_200_OK)
@@ -237,7 +242,7 @@ def updateSucursalEmpresa(request,pk):
 
 @api_view(['POST'])
 def registerSucursalEmpresa(request):
-    sucursal_empresa_serializer = SucursalesEmpresas(data=request.data)
+    sucursal_empresa_serializer = SucursalesEmpresasPostSerializer(data=request.data)
     if sucursal_empresa_serializer.is_valid():
         sucursal_empresa_serializer.save()
         return Response(sucursal_empresa_serializer.data,status=status.HTTP_200_OK)
@@ -281,7 +286,7 @@ def updateHistoricoEmail(request,pk):
 
 @api_view(['POST'])
 def registerHistoricoEmail(request):
-    historico_email_serializer = HistoricoEmails(data=request.data)
+    historico_email_serializer = HistoricoEmailsPostSerializer(data=request.data)
     if historico_email_serializer.is_valid():
         historico_email_serializer.save()
         return Response(historico_email_serializer.data,status=status.HTTP_200_OK)
@@ -325,7 +330,7 @@ def updateHistoricoDireccion(request,pk):
 
 @api_view(['POST'])
 def registerHistoricoDireccion(request):
-    historico_direccion_serializer = HistoricoDireccion(data=request.data)
+    historico_direccion_serializer = HistoricoDireccionPostSerializer(data=request.data)
     if historico_direccion_serializer.is_valid():
         historico_direccion_serializer.save()
         return Response(historico_direccion_serializer.data,status=status.HTTP_200_OK)
@@ -367,13 +372,27 @@ def updateClaseTercero(request,pk):
         return Response(clase_tercero_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+"""@api_view(['POST'])
 def registerClaseTercero(request):
-    clase_tercero_serializer = ClasesTercero(data=request.data)
+    clase_tercero_serializer = ClasesTerceroSerializer(data=request.data)
     if clase_tercero_serializer.is_valid():
         clase_tercero_serializer.save()
         return Response(clase_tercero_serializer.data,status=status.HTTP_200_OK)
-    return Response(clase_tercero_serializer.errors)
+    return Response(clase_tercero_serializer.errors)"""
+
+@api_view(['POST'])
+def registerClaseTercero(request):
+    data = request.data
+    try:
+        clase_tercero = ClasesTercero.objects.create(
+            nombre=data['nombre']
+        )
+        
+        serializer = ClasesTerceroSerializer(clase_tercero, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'detail': 'Clase tercero no pudo ser añadido'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Views for Clases Tercero Persona
@@ -413,7 +432,7 @@ def updateClaseTerceroPersona(request,pk):
 
 @api_view(['POST'])
 def registerClaseTerceroPersona(request):
-    clase_tercero_persona_serializer = ClasesTerceroPersona(data=request.data)
+    clase_tercero_persona_serializer = ClasesTerceroPersonapostSerializer(data=request.data)
     if clase_tercero_persona_serializer.is_valid():
         clase_tercero_persona_serializer.save()
         return Response(clase_tercero_persona_serializer.data,status=status.HTTP_200_OK)

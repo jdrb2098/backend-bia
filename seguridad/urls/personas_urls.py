@@ -58,13 +58,13 @@ urlpatterns = [
     path('getclasetercero/<str:pk>/', views.getClaseTerceroById, name='clase-tercero-id-get'),
     path('deleteclasetercero/<str:pk>/', views.deleteClaseTercero, name='clase-tercero-delete'),
     path('updateclasetercero/<str:pk>/', views.updateClaseTercero, name='clase-tercero-update'),
-    path('registerclasetercero/', views.updateClaseTercero, name='clase-tercero-register'),
+    path('registerclasetercero/', views.registerClaseTercero, name='clase-tercero-register'),
     
     # Clases Tercero
     path('getclasesterceropersonas/', views.getClasesTerceroPersonas, name="clases-tercero-personas-get"),
     path('getclaseterceropersona/<str:pk>/', views.getClaseTerceroPersonaById, name='clase-tercero-persona-id-get'),
     path('deleteclaseterceropersona/<str:pk>/', views.deleteClaseTerceroPersona, name='clase-tercero-persona-delete'),
     path('updateclaseterceropersona/<str:pk>/', views.updateClaseTerceroPersona, name='clase-tercero-persona-update'),
-    path('registerclaseterceropersona/', views.updateClaseTerceroPersona, name='clase-tercero-persona-register'),
+    path('registerclaseterceropersona/', views.registerClaseTerceroPersona, name='clase-tercero-persona-register'),
 
 ]
