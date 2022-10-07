@@ -5,6 +5,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from seguridad.models import User, UsuariosRol, HistoricoActivacion
 from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.serializers.roles_serializers import RolesSerializer
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
 
 class HistoricoActivacionSerializers(serializers.ModelSerializer):
     class Meta:
@@ -59,12 +61,55 @@ class UserSerializer(serializers.ModelSerializer):
         return user_instance
 
 
+class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+            required=True,
+            validators=[UniqueValidator(queryset=User.objects.all())]
+            )
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('nombre_de_usuario', 'password', 'password2', 'email', 'persona','id_usuario_creador','activated_at','tipo_usuario')
+        extra_kwargs = {
+            'nombre_de_usuario': {'required': True},
+            'persona': {'required': True},
+            'id_usuario_creador':  {'required': True},
+            'tipo_usuario': {'required': True},
+            'activated_at': {'required': True},
+
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            nombre_de_usuario= validated_data['nombre_de_usuario'],
+            email=validated_data['email'],
+            activated_at=validated_data['activated_at'],
+            persona =validated_data['persona'],
+            id_usuario_creador=validated_data['id_usuario_creador'],
+            tipo_usuario=validated_data['tipo_usuario']
+        )
+
+        
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
 class UserSerializerWithToken(UserSerializer):
     token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id_usuario', '_id', 'nombre_de_usuario', 'email', 'isAdmin', 'token']
+        fields = "__all__"
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
