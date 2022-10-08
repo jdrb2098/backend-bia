@@ -35,7 +35,25 @@ class PermisosModuloRolSerializer(serializers.ModelSerializer):
     id_modulo = PermisosModuloSerializer(read_only=True)
     class Meta:
         model = PermisosModuloRol
-        fields = '__all__'
+        fields = ('id',
+                  'id_rol',
+                  'id_modulo',
+                  'cod_permiso',
+                  )
+
+class PermisosModuloRolSerializerHyper(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = PermisosModuloRol
+        fields = ('id',
+                  'id_rol',
+                  'id_modulo',
+                  'cod_permiso',
+                  )
+        extra_kwargs = {
+            'id_rol' : {'view_name': 'roles_app:rol-id', 'lookup_field':'pk'},
+            'id_modulo' : {'view_name': 'auditorias:consultar-módulo', 'lookup_field':'pk'},
+            'cod_permiso' : {'view_name': 'permisos_app:permiso-ver', 'lookup_field':'pk'}
+        }
         
 class PermisosModuloRolPostSerializer(serializers.ModelSerializer):
      class Meta:
