@@ -59,7 +59,22 @@ class PersonasPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
         fields = '__all__'
-           
+        extra_kwargs = {
+                'id_persona': {'required': True},
+                'tipo_persona': {'required': True},
+                'numero_documento': {'required': True},
+                'pais_residencia': {'required': True},
+                'departamento_residencia': {'required': True},
+                'ubicacion_georeferenciada': {'required': True},
+                'pais_nacimiento': {'required': True},
+                'sexo': {'required': True},
+                'email': {'required': True},
+                'cod_pais_nacionalidad_empresa': {'required': True},
+                'acepta_notificacion_sms': {'required': True},
+                'acepta_notificacion_email': {'required': True},
+                'acepta_tratamiento_datos': {'required': True},
+            }
+
 
 class ApoderadoPersonaSerializer(serializers.ModelSerializer):
     persona_poderdante = PersonasSerializer(read_only=True)

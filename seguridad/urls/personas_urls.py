@@ -22,8 +22,8 @@ urlpatterns = [
     path('getpersonas/', views.getPersonas, name="personas-get"),
     path('getpersona/<str:pk>/', views.getPersonaById, name='persona-id-get'),
     path('deletepersona/<str:pk>/', views.deletePersona, name='persona-delete'),
-    path('updatepersona/<str:pk>/', views.updatePersona, name='persona-update'),
-    path('registerpersona/', views.registerPersona, name='persona-register'),
+    path('updatepersona/<str:pk>/', views.UpdatePersona.as_view(), name='persona-update'),
+    path('registerpersona/', views.RegisterPersona.as_view(), name='persona-register'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona, name="apoderados-personas-get"),
@@ -47,11 +47,11 @@ urlpatterns = [
     path('registerhistoricoemail/', views.registerHistoricoEmail, name='historico-email-register'),
     
     # Historico Direcciones
-    path('gethistoricodirecciones/', views.getHistoricoDirecciones, name="historico-direcciones-get"),
-    path('gethistoricodireccion/<str:pk>/', views.getHistoricoDireccionById, name='historico-direccion-id-get'),
-    path('deletehistoricodireccion/<str:pk>/', views.deleteHistoricoDireccion, name='historico-direccion-delete'),
-    path('updatehistoricodireccion/<str:pk>/', views.updateHistoricoDireccion, name='historico-direccion-update'),
-    path('registerhistoricodireccion/', views.registerHistoricoDireccion, name='historico-direccion-register'),
+    path('gethistoricodirecciones/', views.GetHistoricoDirecciones.as_view(), name="historico-direcciones-get"),
+    path('gethistoricodireccion/<str:pk>/', views.GetHistoricoDireccionById.as_view(), name='historico-direccion-id-get'),
+    path('deletehistoricodireccion/<str:pk>/', views.DeleteHistoricoDireccion.as_view(), name='historico-direccion-delete'),
+    path('updatehistoricodireccion/<str:pk>/', views.UpdateHistoricoDireccion.as_view(), name='historico-direccion-update'),
+    path('registerhistoricodireccion/', views.RegisterHistoricoDireccion.as_view(), name='historico-direccion-register'),
     
     # Clases Tercero
     path('getclasestercero/', views.getClasesTercero, name="clases-tercero-get"),

@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from rest_framework import generics
+from rest_framework.generics  import RetrieveUpdateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from seguridad.models import (
@@ -26,6 +28,7 @@ from seguridad.serializers.personas_serializers import (
     HistoricoEmailsSerializer,
     HistoricoEmailsPostSerializer,
     HistoricoDireccionSerializer,
+    HistoricoDireccionPostSerializer,
     ClasesTerceroSerializer,
     ClasesTerceroPersonaSerializer,
     ClasesTerceroPersonapostSerializer
@@ -151,17 +154,14 @@ def updatePersona(request,pk):
             personas_serializer.save() #guarda nueva información
             return Response(personas_serializer.data,status=status.HTTP_200_OK)
         return Response(personas_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class UpdatePersona(RetrieveUpdateAPIView):
+    serializer_class = PersonasPostSerializer
+    queryset = Personas.objects.all()
 
-
-@api_view(['POST'])
-def registerPersona(request):
-    personas_serializer = PersonasPostSerializer(data=request.data)
-    if personas_serializer.is_valid():
-        personas_serializer.save()
-        return Response(personas_serializer.data,status=status.HTTP_200_OK)
-    return Response(personas_serializer.errors)
-
-
+class RegisterPersona(generics.CreateAPIView):
+    queryset = Personas.objects.all()
+    serializer_class = PersonasPostSerializer
 
 # Views for apoderados persona
 
@@ -295,47 +295,25 @@ def registerHistoricoEmail(request):
 
 # Views for Historico Direcciones
 
+class GetHistoricoDirecciones(generics.ListAPIView):
+    queryset = HistoricoDireccion.objects.all()
+    serializer_class = HistoricoDireccionSerializer
 
-@api_view(['GET'])
-def getHistoricoDirecciones(request):
-    historico_direcciones = HistoricoDireccion.objects.all()
-    serializer = HistoricoDireccionSerializer(historico_direcciones, many=True)
-    return Response(serializer.data)
+class GetHistoricoDireccionById(generics.RetrieveAPIView):
+    queryset = HistoricoDireccion.objects.all()
+    serializer_class = HistoricoDireccionSerializer
 
+class DeleteHistoricoDireccion(generics.DestroyAPIView):
+    queryset = HistoricoDireccion.objects.all()
+    serializer_class = HistoricoDireccionSerializer
 
-@api_view(['GET'])
-def getHistoricoDireccionById(request, pk):
-    historico_direccion = HistoricoDireccion.objects.get(id_historico_direccion=pk)
-    serializer = HistoricoDireccionSerializer(historico_direccion, many=False)
-    return Response(serializer.data)
+class UpdateHistoricoDireccion(generics.RetrieveUpdateAPIView):
+    queryset = HistoricoDireccion.objects.all()
+    serializer_class = HistoricoDireccionPostSerializer
 
-
-@api_view(['DELETE'])
-def deleteHistoricoDireccion(request, pk):
-    historico_direccion = HistoricoDireccion.objects.get(id_historico_direccion=pk)
-    historico_direccion.delete()
-    return Response('Historico Direccion was deleted')
-
-
-@api_view(['PUT'])  
-def updateHistoricoDireccion(request,pk):
-    historico_direccion = HistoricoDireccion.objects.filter(id_historico_direccion=pk).first() ##consulta por id
-    if historico_direccion:  ## si existe auditoria
-        historico_direccion_serializer = HistoricoDireccionSerializer(historico_direccion ,data=request.data) ## envia al serializador la información actualizada
-        if historico_direccion_serializer.is_valid():
-            historico_direccion_serializer.save() #guarda nueva información
-            return Response(historico_direccion_serializer.data,status=status.HTTP_200_OK)
-        return Response(historico_direccion_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-def registerHistoricoDireccion(request):
-    historico_direccion_serializer = HistoricoDireccionPostSerializer(data=request.data)
-    if historico_direccion_serializer.is_valid():
-        historico_direccion_serializer.save()
-        return Response(historico_direccion_serializer.data,status=status.HTTP_200_OK)
-    return Response(historico_direccion_serializer.errors)
-
+class RegisterHistoricoDireccion(generics.CreateAPIView):
+    queryset = HistoricoDireccion.objects.all()
+    serializer_class = HistoricoDireccionPostSerializer
 
 # Views for Clases Tercero
 
