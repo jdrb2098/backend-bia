@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from rest_framework import generics
+from rest_framework.generics  import RetrieveUpdateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from seguridad.models import (
@@ -151,17 +153,14 @@ def updatePersona(request,pk):
             personas_serializer.save() #guarda nueva información
             return Response(personas_serializer.data,status=status.HTTP_200_OK)
         return Response(personas_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class UpdatePersona(RetrieveUpdateAPIView):
+    serializer_class = PersonasPostSerializer
+    queryset = Personas.objects.all()
 
-
-@api_view(['POST'])
-def registerPersona(request):
-    personas_serializer = PersonasPostSerializer(data=request.data)
-    if personas_serializer.is_valid():
-        personas_serializer.save()
-        return Response(personas_serializer.data,status=status.HTTP_200_OK)
-    return Response(personas_serializer.errors)
-
-
+class RegisterPersona(generics.CreateAPIView):
+    queryset = Personas.objects.all()
+    serializer_class = PersonasPostSerializer
 
 # Views for apoderados persona
 
