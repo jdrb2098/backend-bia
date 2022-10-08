@@ -1,55 +1,35 @@
+from sre_parse import State
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework import generics
+from rest_framework.generics import RetrieveUpdateAPIView
 from seguridad.models import Auditorias, Modulos
 from seguridad.serializers.auditorias_serializers import AuditoriasSerializers,AuditoriasPostSerializers
 from seguridad.serializers.permisos_serializers import  ModulosSerializers
 
 
-@api_view(['GET'])
-def consultarAuditoria(request, pk):
-    auditoria = Auditorias.objects.get(id_auditoria=pk)
-    if auditoria:
-        auditoria_serializer = AuditoriasSerializers(auditoria)
-        return Response(auditoria_serializer.data, status=status.HTTP_200_OK)
-    return Response(auditoria_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UpdateApiViews(RetrieveUpdateAPIView):
+    serializer_class=AuditoriasPostSerializers
+    queryset = Auditorias.objects.all()
+    
+class DestroyApiViews(generics.DestroyAPIView):
+    serializer_class=AuditoriasSerializers
+    queryset = Auditorias.objects.all()
+    
+class ConsultarApiViews(generics.RetrieveAPIView):
+    serializer_class=AuditoriasSerializers
+    queryset = Auditorias.objects.all()
 
+class ListApiViews(generics.ListAPIView):
+    serializer_class=AuditoriasSerializers
+    queryset = Auditorias.objects.all()
 
-@api_view(['PUT'])
-def actualizarAuditoria(request, pk):
-    auditoria = Auditorias.objects.get(id_auditoria=pk) 
-    if auditoria:
-        auditoria_serializer = AuditoriasPostSerializers(auditoria, data=request.data)
-        if auditoria_serializer.is_valid():
-            auditoria_serializer.save()
-            return Response(auditoria_serializer.data, status=status.HTTP_200_OK)
-        return Response(auditoria_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['DELETE'])
-def eliminarAuditoria(request, pk):
-    auditoria = Auditorias.objects.get(id_auditoria=pk)
-    if auditoria:  
-        auditoria.delete()  
-        return Response({'message': 'eliminado correctamente'}, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])  
-def mostrarListaAuditoria(request):
-    auditoria = Auditorias.objects.all()
-    auditoria_serializers = AuditoriasSerializers(auditoria, many=True)
-    return Response(auditoria_serializers.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def enviarDatosAuditoria(request):
-    auditoria_serializers = AuditoriasPostSerializers(data=request.data)
-    if auditoria_serializers.is_valid():
-        auditoria_serializers.save()
-        return Response(auditoria_serializers.data, status=status.HTTP_200_OK)
-    return Response(auditoria_serializers.errors)
-
+class RegisterApiViews(generics.CreateAPIView):
+    queryset = Auditorias.objects.all()
+    serializer_class = AuditoriasPostSerializers
+    
 ##___________________________________________________________________________##
 
 
@@ -95,3 +75,5 @@ def enviarDatosModulo(request):
         modulo_serializers.save()
         return Response(modulo_serializers.data, status=status.HTTP_200_OK)
     return Response(modulo_serializers.errors)
+
+

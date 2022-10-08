@@ -22,8 +22,8 @@ urlpatterns = [
     path('getpersonas/', views.getPersonas, name="personas-get"),
     path('getpersona/<str:pk>/', views.getPersonaById, name='persona-id-get'),
     path('deletepersona/<str:pk>/', views.deletePersona, name='persona-delete'),
-    path('updatepersona/<str:pk>/', views.updatePersona, name='persona-update'),
-    path('registerpersona/', views.registerPersona, name='persona-register'),
+    path('updatepersona/<str:pk>/', views.UpdatePersona.as_view(), name='persona-update'),
+    path('registerpersona/', views.RegisterPersona.as_view(), name='persona-register'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona, name="apoderados-personas-get"),
