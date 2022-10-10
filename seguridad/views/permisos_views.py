@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol
+from seguridad.models import Permisos, PermisosModulo, PermisosModuloRol, Modulos
 
 from rest_framework import status
 from seguridad.serializers.permisos_serializers import PermisosSerializer, PermisosModuloSerializer, PermisosModuloPostSerializer, PermisosModuloRolPostSerializer, PermisosModuloRolSerializer, ModulosSerializers, PermisosModuloRolSerializerHyper
@@ -73,3 +73,25 @@ class DetailPermisosModuloRol(RetrieveAPIView):
 class DeletePermisosModuloRol(DestroyAPIView):
     serializer_class = PermisosModuloRolPostSerializer
     queryset = PermisosModuloRol.objects.all()
+    
+#----------------------------------------------------->Tabla Modulos
+
+class InsertarModulo(CreateAPIView):
+    serializer_class = ModulosSerializers
+
+class UpdateModulo(RetrieveUpdateAPIView):
+    serializer_class = ModulosSerializers
+    queryset = Modulos.objects.all()
+           
+class ListarModulo(ListAPIView):
+    serializer_class = ModulosSerializers
+    def get_queryset(self):
+        return Modulos.objects.all()
+    
+class DetailModulo(RetrieveAPIView):
+    serializer_class = ModulosSerializers
+    queryset = Modulos.objects.filter()
+
+class DeleteModulo(DestroyAPIView):
+    serializer_class = ModulosSerializers
+    queryset = Modulos.objects.all()
