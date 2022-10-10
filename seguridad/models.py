@@ -190,14 +190,14 @@ class Personas(models.Model):
     direccion_laboral = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirLaboralNal')
     direccion_notificaciones = models.CharField(max_length=255, null=True, blank=True, db_column='T010dirNotificacion')
     pais_nacimiento = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T010Cod_Pais_Nacimiento')
-    fecha_nacimiento = models.DateField(blank=True,null=True)
+    fecha_nacimiento = models.DateField(blank=True,null=True, db_column='T010FechaNacimiento')
     sexo = models.CharField(max_length=1, choices=Sexo.choices, db_column='T010Cod_Sexo')
     estado_civil = models.ForeignKey(EstadoCivil, related_name="estado_civil", on_delete=models.SET_NULL,null=True, blank=True, db_column='T010Cod_EstadoCivil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
     telefono_fijo_residencial = models.CharField(max_length=15, null=True, blank=True, db_column='T010telFijoResidencial')
-    telefono_celular = models.CharField(max_length=15, null=True, blank=True, db_column='T010telCelular')
+    telefono_celular = models.CharField(max_length=15, null=True, blank=True, db_column='T010telCelularPersona')
     telefono_empresa = models.CharField(max_length=15, null=True, blank=True, db_column='T010telEmpresa')
     cod_municipio_laboral_nal = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T010Cod_MunicipioLaboralNal')
     cod_municipio_notificacion_nal = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T010Cod_MunicipioNotificacionNal')
@@ -298,7 +298,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         
     id_usuario = models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
-    persona = models.OneToOneField(Personas, on_delete=models.SET_NULL, null=True,db_column='TzId_Persona')
+    persona = models.OneToOneField(Personas, on_delete=models.CASCADE,db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
