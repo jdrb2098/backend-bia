@@ -2,9 +2,9 @@
 from dataclasses import field
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from seguridad.models import User, UsuariosRol, HistoricoActivacion
+from seguridad.models import User, UsuariosRol, HistoricoActivacion, PermisosModuloRol
 from seguridad.serializers.personas_serializers import PersonasSerializer
-from seguridad.serializers.roles_serializers import RolesSerializer
+from seguridad.serializers.permisos_serializers import PermisosModuloRolSerializer
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
@@ -14,11 +14,15 @@ class HistoricoActivacionSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRolesSerializer(serializers.ModelSerializer):
-    id_rol = RolesSerializer(read_only=True)
-
+    permisos_rol = serializers.SerializerMethodField()
+    
     class Meta:
         model = UsuariosRol
         fields = '__all__'
+
+    def get_permisos_rol(self, obj):
+        permisos_rol = PermisosModuloRol.objects.filter(id_rol=obj.id_rol)
+        return PermisosModuloRolSerializer(permisos_rol, many=True).data
         
 class UsuarioCreadorSerializer(serializers.ModelSerializer):
     class Meta:
