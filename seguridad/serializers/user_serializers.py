@@ -2,11 +2,8 @@
 from dataclasses import field
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-<<<<<<< HEAD
 from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
-=======
 from seguridad.models import User, UsuariosRol, HistoricoActivacion, PermisosModuloRol
->>>>>>> 87ccc125ba8dfaa12474ddb987b514b216033cf1
 from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.serializers.permisos_serializers import PermisosModuloRolSerializer
 from rest_framework.validators import UniqueValidator
