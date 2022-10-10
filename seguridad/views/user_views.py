@@ -6,10 +6,11 @@ from seguridad.models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  
+from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -121,3 +122,47 @@ def deleteUser(request, pk):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+
+#__________Login
+    
+class LoginUpdateApiViews(RetrieveUpdateAPIView):
+    serializer_class=LoginPostSerializers
+    queryset = Login.objects.all()
+    
+class LoginDestroyApiViews(generics.DestroyAPIView):
+    serializer_class=LoginSerializers
+    queryset = Login.objects.all()
+    
+class LoginConsultarApiViews(generics.RetrieveAPIView):
+    serializer_class=LoginSerializers
+    queryset = Login.objects.all()
+
+class LoginListApiViews(generics.ListAPIView):
+    serializer_class=LoginSerializers
+    queryset = Login.objects.all()
+
+class LoginRegisterApiViews(generics.CreateAPIView):
+    queryset = Login.objects.all()
+    serializer_class = LoginPostSerializers
+
+#__________________LoginErroneo
+
+class LoginErroneoUpdateApiViews(RetrieveUpdateAPIView):
+    serializer_class=LoginErroneoPostSerializers
+    queryset = LoginErroneo.objects.all()
+    
+class LoginErroneoDestroyApiViews(generics.DestroyAPIView):
+    serializer_class=LoginErroneoSerializers
+    queryset = LoginErroneo.objects.all()
+    
+class LoginErroneoConsultarApiViews(generics.RetrieveAPIView):
+    serializer_class=LoginErroneoSerializers
+    queryset = LoginErroneo.objects.all()
+
+class LoginErroneoListApiViews(generics.ListAPIView):
+    serializer_class=LoginErroneoSerializers
+    queryset = LoginErroneo.objects.all()
+
+class LoginErroneoRegisterApiViews(generics.CreateAPIView):
+    queryset = LoginErroneo.objects.all()
+    serializer_class = LoginErroneoPostSerializers

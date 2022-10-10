@@ -82,8 +82,8 @@ class OperacionesSobreUsuario(models.Model):
     
 class Roles(models.Model):
     id_rol=models.AutoField(primary_key=True, editable=False, db_column='TzIdRol')
-    nombre_rol=models.CharField(max_length=100, db_column='TznombreRol')
-    descripcion_rol=models.CharField(max_length=255,db_column='TzdescripcionRol')
+    nombre_rol=models.CharField(max_length=100, db_column='Tznombre')
+    descripcion_rol=models.CharField(max_length=255,db_column='Tzdescripcion')
     
     class Meta:
         db_table= 'TzRoles'
@@ -290,6 +290,22 @@ class SucursalesEmpresas(models.Model):
         verbose_name='Sucursal'
         verbose_name_plural='Sucursales'
         
+class Login(models.Model):
+    id_login=models.AutoField(primary_key=True, editable=False,db_column='TzIdLogin')
+    id_usuario=models.ForeignKey(User, on_delete=models.CASCADE,db_column='TzId_Usuario')
+    dirip=models.CharField(max_length=40,db_column='TzdirIP')
+    disposito_conexion=models.CharField(max_length=30,db_column='TzdispositivoConexion')
+    fecha_login=models.DateField(auto_now=True,db_columns='TzfechaLogin')
+    fecha_hora_cierre_sesion=models.DateField(auto_now=True,blank=True,null=True, db_name='TzfechaHoraCierreSesion')
+    
+class LoginErroneo(models.Model):
+    id_login_error=models.AutoField(primary_key=True, editable=False,db_columns='TzIdLoginError')
+    id_usuario=models.ForeignKey(User,on_delete=models.CASCADE,db_name='TzId_Usuario')
+    dirip=models.CharField(max_length=40,db_name='TzdirIP')
+    dispositivo_conexion=models.CharField(max_length=30,db_name='TzdispositivoConexion')
+    fecha_login_error=models.DateField(auto_now=True,db_columns='TzfechaLoginError')
+    contador=models.IntegerField(db_name='Tzcontador')
+    
 class User(AbstractBaseUser,PermissionsMixin):
     
     class tipo_usuario_CHOICES(models.TextChoices):
@@ -345,7 +361,7 @@ class Auditorias(models.Model):
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
     id_usuario=models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
-    id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Operacion')
+    id_cod_permiso_accion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_PermisoAccion')
     fecha_accion=models.DateField(db_column='TzfechaAccion')
     subsistema=models.CharField(max_length=4,choices=subsistema_CHOICES.choices, db_column='Tzsubsistema') #Juan camilo text choices
     dirip=models.CharField(max_length=255,db_column='Tzdirip')

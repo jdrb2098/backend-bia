@@ -21,7 +21,7 @@ class AuditoriasPostSerializers(serializers.ModelSerializer):
                 'id_auditoria': {'required': True},
                 'id_usuario': {'required': True},
                 'id_modulo':  {'required': True},
-                'id_cod_operacion': {'required': True},
+                'id_cod_permiso_accion': {'required': True},
                 'fecha_accion': {'required': True},
                 'subsistema': {'required': True},
                 'dirip': {'required': True},

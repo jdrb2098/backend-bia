@@ -2,7 +2,7 @@
 from dataclasses import field
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from seguridad.models import User, UsuariosRol, HistoricoActivacion
+from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
 from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.serializers.roles_serializers import RolesSerializer
 from rest_framework.validators import UniqueValidator
@@ -114,3 +114,41 @@ class UserSerializerWithToken(UserSerializer):
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
+
+from seguridad.models import Login,LoginErroneo
+
+class LoginSerializers(serializers.ModelSerializer):
+    id_usuario=UserSerializer(read_only=True)
+    class Meta:
+        model=Login
+        fields= '__all__'
+        
+class LoginPostSerializers(serializers.ModelSerializer):
+    model=Login
+    fields= '__all__'
+    extra_kwargs = {
+                'id_login': {'required': True},
+                'id_usuario': {'required': True},
+                'dirip':  {'required': True},
+                'dispositivo_conexion': {'required': True},
+                'fecha_login': {'required': True},
+            }
+    
+class LoginErroneoSerializers(serializers.ModelSerializer):
+    id_usuario=UserSerializer(read_only=True)
+    class Meta:
+        model=LoginErroneo
+        fields= '__all__'
+
+class LoginErroneoPostSerializers(serializers.ModelSerializer):
+    model=LoginErroneo
+    fields= '__all__'
+    extra_kwargs = {
+                'id_login_error': {'required': True},
+                'id_usuario': {'required': True},
+                'dirip':  {'required': True},
+                'dispositivo_conexion': {'required': True},
+                'fecha_login_error': {'required': True},
+                'contador': {'required': True},  
+            }
+    
