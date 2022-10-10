@@ -30,6 +30,7 @@ class RepresentanteLegalSerializer(serializers.ModelSerializer):
         model = Personas
         fields = '__all__'
 
+
 class PersonasSerializer(serializers.ModelSerializer):
     tipo_documento = TipoDocumentoSerializer(read_only=True)
     estado_civil = EstadoCivilSerializer(read_only=True)
@@ -38,21 +39,6 @@ class PersonasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
         fields = '__all__'
-        
-    def get_tipo_documento(self, obj):
-        tipo_documento = obj.tipodocumento_set.all()
-        serializer = TipoDocumentoSerializer(tipo_documento, many=True)
-        return serializer.data
-    
-    def get_estado_civil(self, obj):
-        estado_civil = obj.estadocivil_set.all()
-        serializer = EstadoCivilSerializer(estado_civil, many=True)
-        return serializer.data
-    
-    def get_representante_legal(self, obj):
-        representante_legal = obj.representantelegal_set.all()
-        serializer = RepresentanteLegalSerializer(representante_legal, many=True)
-        return serializer.data
     
     
 class PersonasPostSerializer(serializers.ModelSerializer):
@@ -89,6 +75,12 @@ class ApoderadoPersonaPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApoderadoPersona
         fields = '__all__'
+        extra_kwargs = {
+                'persona_poderdante': {'required': True},
+                'id_proceso': {'required': True},
+                'persona_apoderada': {'required': True},
+                'fecha_inicio': {'required': True},
+            }
         
         
 class SucursalesEmpresasSerializer(serializers.ModelSerializer):
@@ -103,6 +95,16 @@ class SucursalesEmpresasPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = SucursalesEmpresas
         fields = '__all__'
+        extra_kwargs = {
+                'id_empresa': {'required': True},
+                'sucursal': {'required': True},
+                'direccion': {'required': True},
+                'direccion_sucursal_georeferenciada': {'required': True},
+                'pais_sucursal_exterior': {'required': True},
+                'direccion_correspondencias': {'required': True},
+                'email_sucursal': {'required': True},
+                'telefono_sucursal': {'required': True},
+            }
         
 
 class HistoricoEmailsSerializer(serializers.ModelSerializer):
@@ -116,6 +118,10 @@ class HistoricoEmailsPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoEmails
         fields = '__all__'
+        extra_kwargs = {
+                'id_persona': {'required': True},
+                'email_notificacion': {'required': True},
+            }
         
         
 class HistoricoDireccionSerializer(serializers.ModelSerializer):
@@ -130,6 +136,11 @@ class HistoricoDireccionPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoDireccion
         fields = '__all__'
+        extra_kwargs = {
+                'id_persona': {'required': True},
+                'direccion': {'required': True},
+                'tipo_direccion': {'required': True},
+            }
         
 
 class ClasesTerceroSerializer(serializers.ModelSerializer):
@@ -150,4 +161,7 @@ class ClasesTerceroPersonapostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClasesTerceroPersona
         fields = '__all__'
-        
+        extra_kwargs = {
+                'id_persona': {'required': True},
+                'id_clase_tercero': {'required': True},
+            }

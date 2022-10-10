@@ -70,7 +70,21 @@ def roles(request):
     serializers = UserRolesSerializer(roles, many=True)
     return Response(serializers.data)
 
+class GetUserRoles(generics.ListAPIView):
+    queryset = UsuariosRol.objects.all()
+    serializer_class = UserRolesSerializer
 
+class DeleteUserRoles(generics.DestroyAPIView):
+    queryset = UsuariosRol.objects.all()
+    serializer_class = UserRolesSerializer
+
+class UpdateUserRoles(generics.RetrieveUpdateAPIView):
+    queryset = UsuariosRol.objects.all()
+    serializer_class = UserRolesSerializer
+
+class RegisterUserRoles(generics.CreateAPIView):
+    queryset = UsuariosRol.objects.all()
+    serializer_class = UserRolesSerializer
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
