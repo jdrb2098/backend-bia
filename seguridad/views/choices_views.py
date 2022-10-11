@@ -1,10 +1,10 @@
 from seguridad.choices.paises_choices import paises_CHOICES
 from seguridad.choices.departamentos_choices import departamentos_CHOICES
 from seguridad.choices.municipios_choices import municipios_CHOICES
+from seguridad.choices.estado_civil_choices import estado_civil_CHOICES
 from seguridad.choices.sexo_choices import sexo_CHOICES
-from seguridad.choices.auditorias_subsistemas_choices import auditorias_subsistemas_CHOICES
+from seguridad.choices.subsistemas_choices import subsistemas_CHOICES
 from seguridad.choices.cod_permiso_choices import cod_permiso_CHOICES
-from seguridad.choices.modulos_subsistemas_choices import modulos_subsistemas_CHOICES
 from seguridad.choices.opciones_usuario_choices import opciones_usuario_CHOICES
 from seguridad.choices.tipo_direccion_choices import tipo_direccion_CHOICES
 from seguridad.choices.tipo_documento_choices import tipo_documento_CHOICES
@@ -28,24 +28,24 @@ class MunicipiosChoices(APIView):
         choices = municipios_CHOICES
         return Response(choices)
     
+class EstadoCivilChoices(APIView):
+    def get(self,request):
+        choices = estado_civil_CHOICES
+        return Response(choices)
+    
 class SexoChoices(APIView):
     def get(self,request):
         choices = sexo_CHOICES
         return Response(choices)
 
-class AuditoriasSubsistemasChoices(APIView):
+class SubsistemasChoices(APIView):
     def get(self,request):
-        choices = auditorias_subsistemas_CHOICES
+        choices = subsistemas_CHOICES
         return Response(choices)
 
 class CodPermisoChoices(APIView):
     def get(self,request):
         choices = cod_permiso_CHOICES
-        return Response(choices)
-    
-class ModulosSubsistemasChoices(APIView):
-    def get(self,request):
-        choices = modulos_subsistemas_CHOICES
         return Response(choices)
     
 class OpcionesUsuarioChoices(APIView):
