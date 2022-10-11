@@ -327,7 +327,7 @@ class Login(models.Model):
     id_login=models.AutoField(primary_key=True, editable=False,db_column='TzIdLogin')
     id_usuario=models.ForeignKey(User, on_delete=models.CASCADE,db_column='TzId_Usuario')
     dirip=models.CharField(max_length=40,db_column='TzdirIP')
-    disposito_conexion=models.CharField(max_length=30,db_column='TzdispositivoConexion')
+    dispositivo_conexion=models.CharField(max_length=30,db_column='TzdispositivoConexion')
     fecha_login=models.DateField(auto_now=True,db_column='TzfechaLogin')
     fecha_hora_cierre_sesion=models.DateField(auto_now=True,blank=True,null=True, db_column='TzfechaHoraCierreSesion')
     
@@ -335,6 +335,9 @@ class Login(models.Model):
         db_table='TzLogin'
         verbose_name='Login'
         verbose_name_plural='Login'
+    
+    def __str__(self):
+        return str(self.dirip)
     
 class LoginErroneo(models.Model):
     id_login_error=models.AutoField(primary_key=True, editable=False,db_column='TzIdLoginError')
@@ -348,6 +351,9 @@ class LoginErroneo(models.Model):
         db_table='TzLoginErroneo'
         verbose_name='Login Erroneo'
         verbose_name_plural='Login Erroneo'
+        
+    def __str__(self):
+        return str(self.dirip)
 
 class UsuariosRol(models.Model):
     id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL,null=True, db_column='TzIdRol')

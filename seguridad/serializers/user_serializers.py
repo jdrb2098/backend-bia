@@ -101,9 +101,10 @@ class LoginSerializers(serializers.ModelSerializer):
         fields= '__all__'
         
 class LoginPostSerializers(serializers.ModelSerializer):
-    model=Login
-    fields= '__all__'
-    extra_kwargs = {
+    class Meta:
+        model=Login
+        fields= '__all__'
+        extra_kwargs = {
                 'id_login': {'required': True},
                 'id_usuario': {'required': True},
                 'dirip':  {'required': True},
@@ -118,9 +119,10 @@ class LoginErroneoSerializers(serializers.ModelSerializer):
         fields= '__all__'
 
 class LoginErroneoPostSerializers(serializers.ModelSerializer):
-    model=LoginErroneo
-    fields= '__all__'
-    extra_kwargs = {
+    class Meta:
+     model=LoginErroneo
+     fields= '__all__'
+     extra_kwargs = {
                 'id_login_error': {'required': True},
                 'id_usuario': {'required': True},
                 'dirip':  {'required': True},
