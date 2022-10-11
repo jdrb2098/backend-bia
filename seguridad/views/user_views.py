@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from seguridad.renderers.user_renderers import UserRender
 from seguridad.models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -148,6 +149,7 @@ def deleteUser(request, pk):
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+    renderer_classes = (UserRender,)
 
     def post(self, request):
         user = request.data
