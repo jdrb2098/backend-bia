@@ -52,7 +52,8 @@ class Permisos(models.Model):
     class cod_permiso_CHOICES(models.TextChoices):
         crear = "CR", "Crear"
         borrar = "BO", "Borrar"
-        actualizar= "CO","Consultar"
+        actualizar= "AC","Actualizar"
+        consultar= "CO","Consultar"
         ejecutar="EJ","Ejecutar"
         aprobar="AP","Aprobar"
         
@@ -97,11 +98,12 @@ class Roles(models.Model):
         
 class Modulos(models.Model):
     class subsistema_CHOICES(models.TextChoices):
+        almacen="ALMA","Almacen"
         conservacion="CONS","Conservación"
         gestion_Documental="GEST","Gestión Documental"
         recurso_hidrico="RECU","Recurso Hídrico"
-        tramites_servicio="TRAM","Trámites y servicios"
-        seguimiento_planes="PLAN","Seguimiento a planes"
+        tramites_servicio="TRAM","Trámites y Servicios"
+        seguimiento_planes="PLAN","Seguimiento a Planes"
         recaudo="RECA","Recaudo"
         
     id_modulo=models.AutoField(primary_key=True, editable=False, db_column='TzIdModulo')
@@ -220,16 +222,16 @@ class Personas(models.Model):
 class HistoricoDireccion(models.Model):
     
     class tipo_direccion_CHOICES(models.TextChoices):
-        Laboral = "L", "Laboral"
-        Residencia = "J", "Residencia"
-        Notificacion = "N","Notificacion"
+        Residencia = "RES", "Residencia"
+        Laboral = "LAB", "Laboral"
+        Notificacion = "NOT","Notificación"
         
     id_historico_direccion = models.AutoField(primary_key=True, editable=False, db_column='T015IdHistoDireccion')
     id_persona = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column = 'T015Id_Persona')    
     direccion = models.CharField(max_length=255, db_column='T015direccion')
     cod_municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True, db_column='T015Cod_MunicipioEnCol')
     cod_pais_exterior = models.CharField(max_length=2, choices=paises_CHOICES,null=True, db_column='T015Cod_PaisEnElExterior')
-    tipo_direccion = models.CharField(max_length=1, choices=tipo_direccion_CHOICES.choices,db_column='T015TipoDeDireccion')
+    tipo_direccion = models.CharField(max_length=3, choices=tipo_direccion_CHOICES.choices,db_column='T015TipoDeDireccion')
     fecha_cambio = models.DateTimeField(auto_now_add=True, db_column='T015fechaCambio')
         
     def __str__(self):
@@ -375,8 +377,8 @@ class Auditorias(models.Model):
         Conservacion="CONS","Conservación"
         Gestion_Documental="GEST","Gestión Documental"
         Recurso_hidrico="RECU","Recurso Hídrico"
-        tramites_servicios="TRAM","Trámites y servicios"
-        Seguimiento_planes="PLAN","Seguimiento a planes"
+        Tramites_servicios="TRAM","Trámites y Servicios"
+        Seguimiento_planes="PLAN","Seguimiento a Planes"
         Recaudo="RECA","Recaudo"
         
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
