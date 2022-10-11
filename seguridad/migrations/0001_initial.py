@@ -294,7 +294,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id_login', models.AutoField(db_column='TzIdLogin', editable=False, primary_key=True, serialize=False)),
                 ('dirip', models.CharField(db_column='TzdirIP', max_length=40)),
-                ('disposito_conexion', models.CharField(db_column='TzdispositivoConexion', max_length=30)),
+                ('dispositivo_conexion', models.CharField(db_column='TzdispositivoConexion', max_length=30)),
                 ('fecha_login', models.DateField(auto_now=True, db_column='TzfechaLogin')),
                 ('fecha_hora_cierre_sesion', models.DateField(auto_now=True, db_column='TzfechaHoraCierreSesion', null=True)),
                 ('id_usuario', models.ForeignKey(db_column='TzId_Usuario', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),

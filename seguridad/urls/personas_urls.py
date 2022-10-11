@@ -68,6 +68,4 @@ urlpatterns = [
     path('updateclaseterceropersona/<str:pk>/', views.updateClaseTerceroPersona.as_view(), name='clase-tercero-persona-update'),
     path('registerclaseterceropersona/', views.registerClaseTerceroPersona.as_view(), name='clase-tercero-persona-register'),
 
-    path('paises/', views.PaisesChoices.as_view(), name='paises')
-
 ]

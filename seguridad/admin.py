@@ -263,7 +263,7 @@ class AuditoriasAdmin(admin.ModelAdmin):
 
 @admin.register(Login)
 class LoginAdmin(admin.ModelAdmin):
-    list_display = ('id_usuario','dirip', 'disposito_conexion', 'fecha_login',)
+    list_display = ('id_usuario','dirip', 'dispositivo_conexion', 'fecha_login',)
     list_display_links = list_display
     search_fields = (
         'dirip',
