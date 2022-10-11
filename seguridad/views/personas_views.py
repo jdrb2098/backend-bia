@@ -295,5 +295,5 @@ class PaisesChoices(APIView):
         paises = {"paises": dict(paises_choices.paises_CHOICES)}
         departamentos = {"departamentos": dict(departamentos_choices.departamentos_CHOICES)}
         municipios = {"municipios": dict(municipios_choices.municipios_CHOICES)}
-        response = {paises,departamentos,municipios}
+        response = [paises,departamentos,municipios]
         return Response(response)
