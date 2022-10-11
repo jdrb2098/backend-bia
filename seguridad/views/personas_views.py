@@ -292,8 +292,8 @@ class registerClaseTerceroPersona(generics.CreateAPIView):
 
 class PaisesChoices(APIView):
     def get(self,request):
-        paises = {"paises": dict(paises_choices.paises_CHOICES)}
-        departamentos = {"departamentos": dict(departamentos_choices.departamentos_CHOICES)}
-        municipios = {"municipios": dict(municipios_choices.municipios_CHOICES)}
-        response = {paises,departamentos,municipios}
+        paises = paises_choices.paises_CHOICES
+        departamentos = departamentos_choices.departamentos_CHOICES
+        municipios = municipios_choices.municipios_CHOICES
+        response = paises
         return Response(response)
