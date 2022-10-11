@@ -12,7 +12,9 @@ urlpatterns = [
     path('profile/update/', views.updateUserProfile, name="user-profile-update"), 
    
     path('roles/', views.roles, name='roles'),
-    path("", views.getUsers, name="get-users"),
-    path("<str:pk>/", views.getUserById, name="get-users"), 
+    path("get/", views.getUsers, name="get-users"),
+    path('email-varify/', views.VerifyEmail.as_view(), name='email-verify'),
+    path("get/<str:pk>/", views.getUserById, name="get-users"), 
+    
 
 ]

@@ -62,47 +62,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-            required=True,
-            validators=[UniqueValidator(queryset=User.objects.all())]
-            )
-
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
-
+    password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
     class Meta:
         model = User
-        fields = ('nombre_de_usuario', 'password', 'password2', 'email', 'persona','id_usuario_creador','activated_at','tipo_usuario')
-        extra_kwargs = {
-            'nombre_de_usuario': {'required': True},
-            'persona': {'required': True},
-            'id_usuario_creador':  {'required': True},
-            'tipo_usuario': {'required': True},
-            'activated_at': {'required': True},
-
-        }
+        fields = ["email", 'nombre_de_usuario', 'persona', 'password', 'id_usuario_creador', 'tipo_usuario']
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-
+        email= attrs.get('email', '')
+        nombre_de_usuario=attrs.get('nombre_de_usuario', '')
+        if not nombre_de_usuario.isalnum():
+            raise serializers.ValidationError("El Nombre de usuario solo debe tener caracteres alfanumericos")
         return attrs
-
     def create(self, validated_data):
-        user = User.objects.create(
-            nombre_de_usuario= validated_data['nombre_de_usuario'],
-            email=validated_data['email'],
-            activated_at=validated_data['activated_at'],
-            persona =validated_data['persona'],
-            id_usuario_creador=validated_data['id_usuario_creador'],
-            tipo_usuario=validated_data['tipo_usuario']
-        )
-
-        
-        user.set_password(validated_data['password'])
-        user.save()
-
-        return user
+        return User.objects.create_user(**validated_data)
 
 class UserSerializerWithToken(UserSerializer):
     token = serializers.SerializerMethodField(read_only=True)
