@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from seguridad.choices import paises_choices, departamentos_choices, municipios_choices, sexo_choices
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.generics  import RetrieveUpdateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -291,3 +293,13 @@ class registerClaseTerceroPersona(generics.CreateAPIView):
     queryset = ClasesTerceroPersona.objects.all()
     serializer_class = ClasesTerceroPersonapostSerializer
 
+
+
+
+class PaisesChoices(APIView):
+    def get(self,request):
+        paises = paises_choices.paises_CHOICES
+        departamentos = departamentos_choices.departamentos_CHOICES
+        municipios = municipios_choices.municipios_CHOICES
+        response = paises
+        return Response(response)
