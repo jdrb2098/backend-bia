@@ -16,7 +16,7 @@ urlpatterns = [
     path('gettipodocumento/<str:pk>/', views.getTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
     path('deletetipodocumento/<str:pk>/', views.deleteTipoDocumento.as_view(), name='tipo-documento-delete'),
     path('updatetipodocumento/<str:pk>/', views.updateTipoDocumento.as_view(), name='tipo-documento-update'),
-    path('registertipodocumento/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
+    #path('registertipodocumento/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
     
     # Personas 
     path('getpersonas/', views.getPersonas.as_view(), name="personas-get"),
@@ -24,6 +24,7 @@ urlpatterns = [
     path('deletepersona/<str:pk>/', views.deletePersona.as_view(), name='persona-delete'),
     path('updatepersona/<str:pk>/', views.UpdatePersona.as_view(), name='persona-update'),
     path('registerpersona/', views.RegisterPersona.as_view(), name='persona-register'),
+    path('getpersonabydocument/<str:pk>', views.getPersonaByDocument, name='persona-document-get'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),

@@ -101,7 +101,13 @@ class getPersonas(generics.ListAPIView):
 class getPersonaById(generics.RetrieveAPIView):
     serializer_class = PersonasSerializer
     queryset = Personas.objects.all()
-
+    
+@api_view(['GET'])
+def getPersonaByDocument(request,pk):
+    persona = Personas.objects.get(numero_documento=pk)
+    serializer = PersonasSerializer(persona, many=False)
+    return Response(serializer.data)
+    
 
 class deletePersona(generics.DestroyAPIView):
     serializer_class = PersonasSerializer
