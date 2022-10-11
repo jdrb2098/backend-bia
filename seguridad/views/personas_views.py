@@ -288,18 +288,12 @@ class registerClaseTerceroPersona(generics.CreateAPIView):
     serializer_class = ClasesTerceroPersonapostSerializer
 
 
-@api_view(['POST'])
-def registerClaseTerceroPersona(request):
-    clase_tercero_persona_serializer = ClasesTerceroPersonapostSerializer(data=request.data)
-    if clase_tercero_persona_serializer.is_valid():
-        clase_tercero_persona_serializer.save()
-        return Response(clase_tercero_persona_serializer.data,status=status.HTTP_200_OK)
-    return Response(clase_tercero_persona_serializer.errors)
+
 
 class PaisesChoices(APIView):
     def get(self,request):
         paises = {"paises": dict(paises_choices.paises_CHOICES)}
         departamentos = {"departamentos": dict(departamentos_choices.departamentos_CHOICES)}
         municipios = {"municipios": dict(municipios_choices.municipios_CHOICES)}
-        response = [paises,departamentos,municipios]
+        response = {paises,departamentos,municipios}
         return Response(response)
