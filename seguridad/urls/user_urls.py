@@ -12,12 +12,11 @@ urlpatterns = [
     path('profile/update/', views.updateUserProfile, name="user-profile-update"), 
    
     path('roles/', views.roles, name='roles'),
-<<<<<<< HEAD
     path("get/", views.getUsers, name="get-users"),
     path('email-varify/', views.VerifyEmail.as_view(), name='email-verify'),
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
     
-=======
+
     path("", views.getUsers, name="get-users"),
     path("<str:pk>/", views.getUserById, name="get-users"), 
     
@@ -37,6 +36,5 @@ urlpatterns = [
     path('roles/register/', views.RegisterUserRoles.as_view(), name='user-rol-register'),
     path('roles/update/<int:pk>/', views.UpdateUserRoles.as_view(), name='user-rol-update'),
     path('roles/delete/<int:pk>/', views.DeleteUserRoles.as_view(), name='user-rol-delete'),
->>>>>>> 38405da6a61af13246ba99c4021a50e727449c1f
 
 ]

@@ -8,7 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
-<<<<<<< HEAD
+
 from django.contrib.sites.shortcuts import get_current_site
 from seguridad.utils import Util
 from django.contrib.auth.hashers import make_password
@@ -16,13 +16,13 @@ from rest_framework import status
 import jwt
 from django.conf import settings
 from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  
-=======
+
 from rest_framework.generics import RetrieveUpdateAPIView
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
->>>>>>> 38405da6a61af13246ba99c4021a50e727449c1f
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -146,7 +146,6 @@ def deleteUser(request, pk):
 
 
 class RegisterView(generics.CreateAPIView):
-<<<<<<< HEAD
     serializer_class = RegisterSerializer
 
     def post(self, request):
@@ -187,13 +186,7 @@ class VerifyEmail(generics.GenericAPIView):
         
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-
-=======
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-
-#__________Login
-    
+ 
 class LoginUpdateApiViews(RetrieveUpdateAPIView):
     serializer_class=LoginPostSerializers
     queryset = Login.objects.all()
@@ -235,4 +228,3 @@ class LoginErroneoListApiViews(generics.ListAPIView):
 class LoginErroneoRegisterApiViews(generics.CreateAPIView):
     queryset = LoginErroneo.objects.all()
     serializer_class = LoginErroneoPostSerializers
->>>>>>> 38405da6a61af13246ba99c4021a50e727449c1f
