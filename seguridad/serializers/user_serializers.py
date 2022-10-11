@@ -2,9 +2,10 @@
 from dataclasses import field
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from seguridad.models import User, UsuariosRol, HistoricoActivacion
+from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
+from seguridad.models import User, UsuariosRol, HistoricoActivacion, PermisosModuloRol
 from seguridad.serializers.personas_serializers import PersonasSerializer
-from seguridad.serializers.roles_serializers import RolesSerializer
+from seguridad.serializers.permisos_serializers import PermisosModuloRolSerializer
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
@@ -14,11 +15,15 @@ class HistoricoActivacionSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRolesSerializer(serializers.ModelSerializer):
-    id_rol = RolesSerializer(read_only=True)
-
+    permisos_rol = serializers.SerializerMethodField()
+    
     class Meta:
         model = UsuariosRol
         fields = '__all__'
+
+    def get_permisos_rol(self, obj):
+        permisos_rol = PermisosModuloRol.objects.filter(id_rol=obj.id_rol)
+        return PermisosModuloRolSerializer(permisos_rol, many=True).data
         
 class UsuarioCreadorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,3 +91,41 @@ class UserSerializerWithToken(UserSerializer):
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
+
+from seguridad.models import Login,LoginErroneo
+
+class LoginSerializers(serializers.ModelSerializer):
+    id_usuario=UserSerializer(read_only=True)
+    class Meta:
+        model=Login
+        fields= '__all__'
+        
+class LoginPostSerializers(serializers.ModelSerializer):
+    model=Login
+    fields= '__all__'
+    extra_kwargs = {
+                'id_login': {'required': True},
+                'id_usuario': {'required': True},
+                'dirip':  {'required': True},
+                'dispositivo_conexion': {'required': True},
+                'fecha_login': {'required': True},
+            }
+    
+class LoginErroneoSerializers(serializers.ModelSerializer):
+    id_usuario=UserSerializer(read_only=True)
+    class Meta:
+        model=LoginErroneo
+        fields= '__all__'
+
+class LoginErroneoPostSerializers(serializers.ModelSerializer):
+    model=LoginErroneo
+    fields= '__all__'
+    extra_kwargs = {
+                'id_login_error': {'required': True},
+                'id_usuario': {'required': True},
+                'dirip':  {'required': True},
+                'dispositivo_conexion': {'required': True},
+                'fecha_login_error': {'required': True},
+                'contador': {'required': True},  
+            }
+    

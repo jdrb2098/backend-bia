@@ -82,8 +82,8 @@ class OperacionesSobreUsuario(models.Model):
     
 class Roles(models.Model):
     id_rol=models.AutoField(primary_key=True, editable=False, db_column='TzIdRol')
-    nombre_rol=models.CharField(max_length=100, db_column='TznombreRol')
-    descripcion_rol=models.CharField(max_length=255,db_column='TzdescripcionRol')
+    nombre_rol=models.CharField(max_length=100, db_column='Tznombre')
+    descripcion_rol=models.CharField(max_length=255,db_column='Tzdescripcion')
     
     class Meta:
         db_table= 'TzRoles'
@@ -290,6 +290,7 @@ class SucursalesEmpresas(models.Model):
         verbose_name='Sucursal'
         verbose_name_plural='Sucursales'
         
+
 class User(AbstractBaseUser,PermissionsMixin):
     
     class tipo_usuario_CHOICES(models.TextChoices):
@@ -298,7 +299,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         
     id_usuario = models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
     nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
-    persona = models.OneToOneField(Personas, on_delete=models.CASCADE,db_column='TzId_Persona')
+    persona = models.OneToOneField(Personas, on_delete=models.SET_NULL,null=True,db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
@@ -321,6 +322,32 @@ class User(AbstractBaseUser,PermissionsMixin):
         db_table = 'TzUsuarios'
         verbose_name='Usuario'
         verbose_name_plural='Usuarios'
+        
+class Login(models.Model):
+    id_login=models.AutoField(primary_key=True, editable=False,db_column='TzIdLogin')
+    id_usuario=models.ForeignKey(User, on_delete=models.CASCADE,db_column='TzId_Usuario')
+    dirip=models.CharField(max_length=40,db_column='TzdirIP')
+    disposito_conexion=models.CharField(max_length=30,db_column='TzdispositivoConexion')
+    fecha_login=models.DateField(auto_now=True,db_column='TzfechaLogin')
+    fecha_hora_cierre_sesion=models.DateField(auto_now=True,blank=True,null=True, db_column='TzfechaHoraCierreSesion')
+    
+    class Meta:
+        db_table='TzLogin'
+        verbose_name='Login'
+        verbose_name_plural='Login'
+    
+class LoginErroneo(models.Model):
+    id_login_error=models.AutoField(primary_key=True, editable=False,db_column='TzIdLoginError')
+    id_usuario=models.ForeignKey(User,on_delete=models.CASCADE,db_column='TzId_Usuario')
+    dirip=models.CharField(max_length=40,db_column='TzdirIP')
+    dispositivo_conexion=models.CharField(max_length=30,db_column='TzdispositivoConexion')
+    fecha_login_error=models.DateField(auto_now=True,db_column='TzfechaLoginError')
+    contador=models.IntegerField(db_column='Tzcontador')
+    
+    class Meta:
+        db_table='TzLoginErroneo'
+        verbose_name='Login Erroneo'
+        verbose_name_plural='Login Erroneo'
 
 class UsuariosRol(models.Model):
     id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL,null=True, db_column='TzIdRol')
@@ -345,7 +372,7 @@ class Auditorias(models.Model):
     id_auditoria=models.AutoField(db_column='TzIdAuditoria',primary_key=True, editable=False)
     id_usuario=models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo=models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
-    id_cod_operacion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Operacion')
+    id_cod_permiso_accion=models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_PermisoAccion')
     fecha_accion=models.DateField(db_column='TzfechaAccion')
     subsistema=models.CharField(max_length=4,choices=subsistema_CHOICES.choices, db_column='Tzsubsistema') #Juan camilo text choices
     dirip=models.CharField(max_length=255,db_column='Tzdirip')
