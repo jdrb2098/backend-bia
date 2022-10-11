@@ -286,14 +286,3 @@ class updateClaseTerceroPersona(generics.RetrieveUpdateAPIView):
 class registerClaseTerceroPersona(generics.CreateAPIView):
     queryset = ClasesTerceroPersona.objects.all()
     serializer_class = ClasesTerceroPersonapostSerializer
-
-
-
-
-class PaisesChoices(APIView):
-    def get(self,request):
-        paises = paises_choices.paises_CHOICES
-        departamentos = departamentos_choices.departamentos_CHOICES
-        municipios = municipios_choices.municipios_CHOICES
-        response = paises
-        return Response(response)
