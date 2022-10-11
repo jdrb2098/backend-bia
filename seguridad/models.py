@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
+from rest_framework_simplejwt.tokens import RefreshToken
 from seguridad.choices.paises_choices import paises_CHOICES
 from seguridad.choices.departamentos_choices import departamentos_CHOICES
 from seguridad.choices.municipios_choices import municipios_CHOICES
@@ -318,6 +319,9 @@ class User(AbstractBaseUser,PermissionsMixin):
     def __str__(self):
         return str(self.email)
     
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return{'refresh': str(refresh), 'access': str(refresh.access_token)}
     class Meta:
         db_table = 'TzUsuarios'
         verbose_name='Usuario'

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -7,7 +6,9 @@ from seguridad.models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import generics
+from rest_framework import generics, views
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from django.contrib.sites.shortcuts import get_current_site
 from seguridad.utils import Util
@@ -15,13 +16,13 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import jwt
 from django.conf import settings
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  
+from seguridad.serializers.user_serializers import EmailVerificationSerializer, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
 
 from rest_framework.generics import RetrieveUpdateAPIView
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
+from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -171,7 +172,11 @@ class RegisterView(generics.CreateAPIView):
         
         return Response(user_data, status=status.HTTP_201_CREATED)
 
-class VerifyEmail(generics.GenericAPIView):
+class VerifyEmail(views.APIView):
+
+    serializer_class = EmailVerificationSerializer
+    token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+    @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         token = request.GET.get('token')
         try:
@@ -187,6 +192,7 @@ class VerifyEmail(generics.GenericAPIView):
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
  
+
 class LoginUpdateApiViews(RetrieveUpdateAPIView):
     serializer_class=LoginPostSerializers
     queryset = Login.objects.all()
@@ -228,3 +234,13 @@ class LoginErroneoListApiViews(generics.ListAPIView):
 class LoginErroneoRegisterApiViews(generics.CreateAPIView):
     queryset = LoginErroneo.objects.all()
     serializer_class = LoginErroneoPostSerializers
+
+
+class LoginApiView(generics.GenericAPIView):
+    serializer_class=LoginSerializer
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

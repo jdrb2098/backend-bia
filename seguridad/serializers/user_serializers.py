@@ -1,6 +1,6 @@
-
-from dataclasses import field
 from rest_framework import serializers
+from django.contrib import auth
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
 from seguridad.models import User, UsuariosRol, HistoricoActivacion, PermisosModuloRol
@@ -99,7 +99,31 @@ class LoginSerializers(serializers.ModelSerializer):
     class Meta:
         model=Login
         fields= '__all__'
+
+class LoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255, min_length=3)
+    password= serializers.CharField(max_length=68, min_length=6, write_only=True)
+    nombre_de_usuario = serializers.CharField(max_length=68, min_length=6, read_only=True)
+    tokens = serializers.CharField(max_length=255, min_length=3, read_only=True)
+    class Meta:
+        model=Login
+        fields= ['email', 'password', 'nombre_de_usuario', 'tokens']
+    
+    def validate(self, attrs):
+        email = attrs.get('email', '')
+        password = attrs.get('password', '')
+        user= auth.authenticate(email=email, password=password)
+
+        if not user:
+            raise AuthenticationFailed('Credenciales invalidas intenta denuevo')
         
+        if not user.is_active:
+            raise AuthenticationFailed('Cuenta no verificada')
+        if user.is_blocked:
+            raise AuthenticationFailed('Tu cuenta ha sido bloqueada, contacta un Admin')
+
+        return {'email': user.email, 'nombre_de_usuario': user.nombre_de_usuario, 'tokens': user.tokens()}
+ 
 class LoginPostSerializers(serializers.ModelSerializer):
     class Meta:
         model=Login
@@ -131,3 +155,9 @@ class LoginErroneoPostSerializers(serializers.ModelSerializer):
                 'contador': {'required': True},  
             }
     
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+
+    class Meta:
+        models = User
+        fields = ['token']
