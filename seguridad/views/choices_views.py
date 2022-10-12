@@ -1,4 +1,5 @@
 from seguridad.choices.paises_choices import paises_CHOICES
+from seguridad.choices.indicativo_paises_choices import indicativo_paises_CHOICES
 from seguridad.choices.departamentos_choices import departamentos_CHOICES
 from seguridad.choices.municipios_choices import municipios_CHOICES
 from seguridad.choices.estado_civil_choices import estado_civil_CHOICES
@@ -16,6 +17,11 @@ from rest_framework.response import Response
 class PaisesChoices(APIView):
     def get(self,request):
         choices = paises_CHOICES
+        return Response(choices)
+
+class IndicativoPaisesChoices(APIView):
+    def get(self,request):
+        choices = indicativo_paises_CHOICES
         return Response(choices)
 
 class DepartamentosChoices(APIView):

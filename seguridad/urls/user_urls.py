@@ -29,7 +29,8 @@ urlpatterns = [
     path('consultarloginerroneo/<int:pk>', views.LoginErroneoConsultarApiViews.as_view(),name='consultar-login-erroneo'),
     path('eliminarloginerroneo/<int:pk>', views.LoginErroneoDestroyApiViews.as_view(),name='actualizar-login-erroneo'),
     path('actualizarloginerroneo/<int:pk>', views.LoginErroneoUpdateApiViews.as_view(),name='eliminar-login-erroneo'),
-    
-   
-
+    #UserRoles
+    path('roles/register/', views.RegisterUserRoles.as_view(), name='user-rol-register'),
+    path('roles/update/<int:pk>/', views.UpdateUserRoles.as_view(), name='user-rol-update'),
+    path('roles/delete/<int:pk>/', views.DeleteUserRoles.as_view(), name='user-rol-delete')
 ]
