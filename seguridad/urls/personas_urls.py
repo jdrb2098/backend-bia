@@ -25,6 +25,7 @@ urlpatterns = [
     path('updatepersona/<str:pk>/', views.UpdatePersona.as_view(), name='persona-update'),
     path('registerpersona/', views.RegisterPersona.as_view(), name='persona-register'),
     path('getpersonabydocument/<str:pk>', views.getPersonaByDocument, name='persona-document-get'),
+    path('getpersonabyemail/<str:pk>', views.getPersonaByEmail, name='persona-email-get'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
