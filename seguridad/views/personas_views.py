@@ -106,9 +106,14 @@ class getPersonaById(generics.RetrieveAPIView):
     
 @api_view(['GET'])
 def getPersonaByDocument(request,pk):
-    persona = Personas.objects.get(numero_documento=pk)
-    serializer = PersonasSerializer(persona, many=False)
-    return Response(serializer.data)
+    try:
+        persona = Personas.objects.get(numero_documento=pk)
+       
+        serializer = PersonasSerializer(persona, many=False)
+        return Response(serializer.data)
+    except:
+        return Response({"aaaahhhh": "no existo papi"})
+
     
 
 class deletePersona(generics.DestroyAPIView):
