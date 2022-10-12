@@ -157,19 +157,21 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
+        
         user = User.objects.get(email=user_data['email'])
 
         token = RefreshToken.for_user(user).access_token
         
         current_site=get_current_site(request).domain
 
-        
+        persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('email-verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
-        email_body = 'Hola '+ user.nombre_de_usuario + ' utiliza el siguiente link para verificar tu usuario \n' + absurl
+        email_body = 'Hola '+ user.persona.primer_nombre + ' utiliza el siguiente link para verificar tu usuario \n' + absurl
         data = {'email_body': email_body, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
         Util.send_email(data)
+        Util.send_sms(persona.telefono_celular, email_body)
 
         
         return Response(user_data, status=status.HTTP_201_CREATED)
