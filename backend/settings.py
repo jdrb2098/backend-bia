@@ -203,9 +203,9 @@ EMAIL_HOST_PASSWORD='macarenia123'
 # Send SMS with Twilio
 # https://www.twilio.com/blog/verify-phone-numbers-django-twilio-verify
 
-TWILIO_VERIFY_SERVICE_SID='VA57cd2219aa134ae53ec4419117eccf63'
-TWILIO_ACCOUNT_SID='ACa1eb6c47cd82b1c9feec2056abba70be'
-TWILIO_AUTH_TOKEN='451f633dafcaafd861e158ff34aac3c3'
+TWILIO_VERIFY_SERVICE_SID=os.environ.get('TWILIO_VERIFY_SERVICE_SID')
+TWILIO_ACCOUNT_SID=os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
