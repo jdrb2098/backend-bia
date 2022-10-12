@@ -41,24 +41,38 @@ class PersonasSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     
-class PersonasPostSerializer(serializers.ModelSerializer):
+class PersonaNaturalPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
-        fields = '__all__'
+        fields = ['id_persona', 'tipo_persona', 'tipo_documento', 'numero_documento', 'digito_verificacion', 'nombre_comercial', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'fecha_nacimiento', 'email', 'telefono_celular',]
         extra_kwargs = {
                 'id_persona': {'required': True},
                 'tipo_persona': {'required': True},
+                'tipo_documento': {'required': True},
                 'numero_documento': {'required': True},
-                'pais_residencia': {'required': True},
-                'departamento_residencia': {'required': True},
-                'ubicacion_georeferenciada': {'required': True},
-                'pais_nacimiento': {'required': True},
-                'sexo': {'required': True},
+                'primer_nombre': {'required': True},
+                'primer_apellido': {'required': True},
+                'fecha_nacimiento': {'required': True},
                 'email': {'required': True},
-                'cod_pais_nacionalidad_empresa': {'required': True},
-                'acepta_notificacion_sms': {'required': True},
-                'acepta_notificacion_email': {'required': True},
-                'acepta_tratamiento_datos': {'required': True},
+                'telefono_celular': {'required': True},
+            }
+        
+        
+class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Personas
+        fields = ['id_persona', 'tipo_persona', 'tipo_documento', 'numero_documento', 'digito_verificacion', 'razon_social', 'email', 'telefono_celular', 'direccion_notificaciones', 'departamento_residencia', 'municipio_residencia',]
+        extra_kwargs = {
+                'id_persona': {'required': True},
+                'tipo_persona': {'required': True},
+                'tipo_documento': {'required': True},
+                'numero_documento': {'required': True},
+                'razon_social': {'required': True},
+                'email': {'required': True},
+                'telefono_celular': {'required': True},
+                'direccion_notificaciones': {'required': True},
+                'departamento_residencia': {'required': True},
+                'municipio_residencia': {'required': True},
             }
 
 

@@ -22,7 +22,8 @@ from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
     TipoDocumentoSerializer,
     PersonasSerializer,
-    PersonasPostSerializer,
+    PersonaNaturalPostSerializer,
+    PersonaJuridicaPostSerializer,
     ApoderadoPersonaSerializer,
     ApoderadoPersonaPostSerializer,
     SucursalesEmpresasSerializer,
@@ -105,18 +106,25 @@ class getPersonaById(generics.RetrieveAPIView):
     queryset = Personas.objects.all()
  
     
+
 @api_view(['GET'])
 def getPersonaByDocument(request,pk):
-    persona = Personas.objects.get(numero_documento=pk)
-    serializer = PersonasSerializer(persona, many=False)
-    return Response(serializer.data)
-
+    try:
+        persona = Personas.objects.get(numero_documento=pk)
+        serializer = PersonasSerializer(persona, many=False)
+        return Response(serializer.data)
+    except:
+        return Response({"aaaahhhh": "no existo papi"})
+    
 
 @api_view(['GET'])
 def getPersonaByEmail(request,pk):
-    persona = Personas.objects.get(email=pk)
-    serializer = PersonasSerializer(persona, many=False)
-    return Response(serializer.data)
+    try:
+        persona = Personas.objects.get(email=pk)
+        serializer = PersonasSerializer(persona, many=False)
+        return Response(serializer.data)
+    except:
+        return Response({"aaaahhhh": "no existo papi"})
     
 
 class deletePersona(generics.DestroyAPIView):
@@ -124,13 +132,23 @@ class deletePersona(generics.DestroyAPIView):
     queryset = Personas.objects.all()
 
 
-class UpdatePersona(generics.RetrieveUpdateAPIView):
-    serializer_class = PersonasPostSerializer
+class UpdatePersonaNatural(generics.RetrieveUpdateAPIView):
+    serializer_class = PersonaNaturalPostSerializer
     queryset = Personas.objects.all()
 
 
-class RegisterPersona(generics.CreateAPIView):
-    serializer_class = PersonasPostSerializer
+class RegisterPersonaNatural(generics.CreateAPIView):
+    serializer_class = PersonaNaturalPostSerializer
+    queryset = Personas.objects.all()
+    
+    
+class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
+    serializer_class = PersonaJuridicaPostSerializer
+    queryset = Personas.objects.all()
+
+
+class RegisterPersonaJuridica(generics.CreateAPIView):
+    serializer_class = PersonaJuridicaPostSerializer
     queryset = Personas.objects.all()
 
 
