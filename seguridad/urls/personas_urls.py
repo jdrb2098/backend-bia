@@ -22,9 +22,12 @@ urlpatterns = [
     path('getpersonas/', views.getPersonas.as_view(), name="personas-get"),
     path('getpersona/<str:pk>/', views.getPersonaById.as_view(), name='persona-id-get'),
     path('deletepersona/<str:pk>/', views.deletePersona.as_view(), name='persona-delete'),
-    path('updatepersona/<str:pk>/', views.UpdatePersona.as_view(), name='persona-update'),
-    path('registerpersona/', views.RegisterPersona.as_view(), name='persona-register'),
+    path('updatepersonanatural/<str:pk>/', views.UpdatePersonaNatural.as_view(), name='persona-natural-update'),
+    path('registerpersonanatural/', views.RegisterPersonaNatural.as_view(), name='persona-natural-register'),
+    path('registerpersonajuridica/', views.RegisterPersonaJuridica.as_view(), name='persona-juridica-register'),
+    path('updatepersonajuridica/<str:pk>/', views.UpdatePersonaJuridica.as_view(), name='persona-juridica-update'),
     path('getpersonabydocument/<str:pk>', views.getPersonaByDocument, name='persona-document-get'),
+    path('getpersonabyemail/<str:pk>', views.getPersonaByEmail, name='persona-email-get'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
