@@ -117,6 +117,7 @@ def getPersonaByDocument(request,pk):
         return Response({"aaaahhhh": "no existo papi"})
     
 
+
 @api_view(['GET'])
 def getPersonaByEmail(request,pk):
     try:
