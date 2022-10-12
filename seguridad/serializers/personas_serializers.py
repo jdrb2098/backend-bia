@@ -44,7 +44,38 @@ class PersonasSerializer(serializers.ModelSerializer):
 class PersonaNaturalPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
-        fields = ['id_persona', 'tipo_persona', 'tipo_documento', 'numero_documento', 'digito_verificacion', 'nombre_comercial', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'fecha_nacimiento', 'email', 'telefono_celular',]
+        fields = [
+            'id_persona', 
+            'tipo_persona', 
+            'tipo_documento', 
+            'numero_documento', 
+            'digito_verificacion', 
+            'nombre_comercial', 
+            'primer_nombre', 
+            'segundo_nombre', 
+            'primer_apellido', 
+            'segundo_apellido', 
+            'fecha_nacimiento', 
+            'email', 
+            'telefono_celular',
+            'sexo',
+            'estado_civil',
+            'pais_nacimiento',
+            'email_empresarial',
+            'ubicacion_georeferenciada',
+            'telefono_fijo_residencial',            
+            'telefono_empresa',
+            'pais_residencia',
+            'departamento_residencia',
+            'municipio_residencia',
+            'direccion_residencia',
+            'direccion_residencia_ref',
+            'direccion_notificaciones',
+            'cod_municipio_laboral_nal',
+            'acepta_notificacion_sms',
+            'acepta_notificacion_email',
+            'acepta_tratamiento_datos'
+        ]
         extra_kwargs = {
                 'id_persona': {'required': True},
                 'tipo_persona': {'required': True},
@@ -61,7 +92,31 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
 class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
-        fields = ['id_persona', 'tipo_persona', 'tipo_documento', 'numero_documento', 'digito_verificacion', 'razon_social', 'email', 'telefono_celular', 'direccion_notificaciones', 'departamento_residencia', 'municipio_residencia',]
+        fields = [
+            'id_persona', 
+            'tipo_persona', 
+            'tipo_documento', 
+            'numero_documento', 
+            'digito_verificacion', 
+            'nombre_comercial',
+            'razon_social', 
+            'email', 
+            'email_empresarial',
+            'telefono_celular', 
+            'direccion_notificaciones', 
+            'direccion_residencia',
+            'pais_residencia',
+            'departamento_residencia', 
+            'municipio_residencia',
+            'cod_municipio_notificacion_nal',
+            'ubicacion_georeferenciada',
+            'telefono_celular_empresa',
+            'telefono_empresa_2',
+            'telefono_empresa',
+            'acepta_notificacion_sms',
+            'acepta_notificacion_email',
+            'acepta_tratamiento_datos'
+        ]
         extra_kwargs = {
                 'id_persona': {'required': True},
                 'tipo_persona': {'required': True},
