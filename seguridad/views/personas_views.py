@@ -20,7 +20,9 @@ from seguridad.models import (
 from rest_framework import status
 from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
+    EstadoCivilPostSerializer,
     TipoDocumentoSerializer,
+    TipoDocumentoPostSerializer,
     PersonasSerializer,
     PersonaNaturalPostSerializer,
     PersonaJuridicaPostSerializer,
@@ -53,15 +55,35 @@ class getEstadoCivilById(generics.RetrieveAPIView):
 class deleteEstadoCivil(generics.DestroyAPIView):
     serializer_class = EstadoCivilSerializer
     queryset = EstadoCivil.objects.all()
+    
+    def delete(self, request, pk):
+        estado_civil = EstadoCivil.objects.get(cod_estado_civil=pk)
+        if estado_civil.precargado == False:
+            estado_civil.delete()
+            return Response({'message' :'Eliminado Exitosamente'})
+        else: 
+            return Response({ 'message' : 'No puedes eliminar un estado civil precargado'})
 
 
 class updateEstadoCivil(generics.RetrieveUpdateAPIView):
-    serializer_class = EstadoCivilSerializer
+    serializer_class = EstadoCivilPostSerializer
     queryset = EstadoCivil.objects.all()
+    
+    
+    def update(self, request, pk):
+        estado_civil = EstadoCivil.objects.get(cod_estado_civil=pk)
+        data = request.data
+        if estado_civil.precargado == False:
+            estado_civil.cod_estado_civil = data['cod_estado_civil']
+            estado_civil.nombre = data['nombre']
+            estado_civil.save()
+            return Response({'message': 'Actualizado exitosamente'})
+        else:
+            return Response({'message': 'No puedes actualizar un estado civil precargado'})       
 
 
 class registerEstadoCivil(generics.CreateAPIView):
-    serializer_class = EstadoCivilSerializer
+    serializer_class = EstadoCivilPostSerializer
     queryset = EstadoCivil.objects.all()
     
 
@@ -81,15 +103,34 @@ class getTipoDocumentoById(generics.RetrieveAPIView):
 class deleteTipoDocumento(generics.DestroyAPIView):
     serializer_class = TipoDocumentoSerializer
     queryset = TipoDocumento.objects.all()
-
-
+    
+    def delete(self, request, pk):
+        tipo_documento = TipoDocumento.objects.get(cod_tipo_documento=pk)
+        if tipo_documento.precargado == False:
+            tipo_documento.delete()
+            return Response({'message' :'Eliminado Exitosamente'})
+        else: 
+            return Response({ 'message' : 'No puedes eliminar un tipo de documento precargado'})
+            
+        
 class updateTipoDocumento(generics.RetrieveUpdateAPIView):
-    serializer_class = TipoDocumentoSerializer
+    serializer_class = TipoDocumentoPostSerializer
     queryset = TipoDocumento.objects.all()
+
+    def update(self, request, pk):
+        tipo_documento = TipoDocumento.objects.get(cod_tipo_documento=pk)
+        data = request.data
+        if tipo_documento.precargado == False:
+            tipo_documento.cod_tipo_documento = data['cod_tipo_documento']
+            tipo_documento.nombre = data['nombre']
+            tipo_documento.save()
+            return Response({'message': 'Actualizado exitosamente'})
+        else:
+            return Response({'message': 'No puedes actualizar un tipo de documento precargado'})
 
 
 class registerTipoDocumento(generics.CreateAPIView):
-    serializer_class = TipoDocumentoSerializer
+    serializer_class = TipoDocumentoPostSerializer
     queryset = TipoDocumento.objects.all()
 
 

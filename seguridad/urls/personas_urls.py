@@ -16,7 +16,7 @@ urlpatterns = [
     path('gettipodocumento/<str:pk>/', views.getTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
     path('deletetipodocumento/<str:pk>/', views.deleteTipoDocumento.as_view(), name='tipo-documento-delete'),
     path('updatetipodocumento/<str:pk>/', views.updateTipoDocumento.as_view(), name='tipo-documento-update'),
-    #path('registertipodocumento/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
+    path('registertipodocumento/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
     
     # Personas 
     path('getpersonas/', views.getPersonas.as_view(), name="personas-get"),
