@@ -13,7 +13,7 @@ urlpatterns = [
    
     path('roles/', views.roles, name='roles'),
     path("get/", views.getUsers, name="get-users"),
-    path('email-varify/', views.VerifyEmail.as_view(), name='email-verify'),
+    path('verify/', views.Verify.as_view(), name='verify'),
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
     
     

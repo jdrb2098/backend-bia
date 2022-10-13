@@ -24,7 +24,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
-
+from django.template.loader import render_to_string
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -166,17 +166,19 @@ class RegisterView(generics.CreateAPIView):
 
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
-        relativeLink= reverse('email-verify')
+        relativeLink= reverse('verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
-        email_body = 'Hola '+ user.persona.primer_nombre + ' utiliza el siguiente link para verificar tu usuario \n' + absurl
-        data = {'email_body': email_body, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
+        sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + absurl
+        context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}
+        template = render_to_string(('email-verification.html'), context)
+        data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
         Util.send_email(data)
-        Util.send_sms(persona.telefono_celular, email_body)
+        Util.send_sms(persona.telefono_celular, sms)
 
         
         return Response(user_data, status=status.HTTP_201_CREATED)
 
-class VerifyEmail(views.APIView):
+class Verify(views.APIView):
 
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
@@ -189,6 +191,10 @@ class VerifyEmail(views.APIView):
             if not user.is_active:
                 user.is_active = True
                 user.save()
+                context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido}
+                template = render_to_string(('email-verified.html'), context)
+                data = {'template': template, 'email_subject': 'Verificación Exitosa', 'to_email': user.email}
+                Util.send_email(data)
             return Response({'email': 'succesfully activated'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
             return Response({'error': 'activation link expired'}, status=status.HTTP_400_BAD_REQUEST)

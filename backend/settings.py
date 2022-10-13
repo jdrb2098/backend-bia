@@ -113,7 +113,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'build')
+            os.path.join(BASE_DIR, 'build'),
+            os.path.join(BASE_DIR, 'templates')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -203,6 +204,7 @@ EMAIL_HOST_PASSWORD='macarenia123'
 # Send SMS with Twilio
 # https://www.twilio.com/blog/verify-phone-numbers-django-twilio-verify
 
+TWILIO_MESSAGING_SERVICE_SID=os.environ.get('TWILIO_MESSAGING_SERVICE_SID')
 TWILIO_VERIFY_SERVICE_SID=os.environ.get('TWILIO_VERIFY_SERVICE_SID')
 TWILIO_ACCOUNT_SID=os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
