@@ -5,6 +5,7 @@ from seguridad.views import choices_views as views
 urlpatterns = [
     # Choices
     path('paises/', views.PaisesChoices.as_view(), name='paises'),
+    path('indicativo-paises/', views.IndicativoPaisesChoices.as_view(), name='indicativo-paises'),
     path('departamentos/', views.DepartamentosChoices.as_view(), name='departamentos'),
     path('municipios/', views.MunicipiosChoices.as_view(), name='municipios'),
     path('estado-civil/', views.EstadoCivilChoices.as_view(), name='sexo'),
