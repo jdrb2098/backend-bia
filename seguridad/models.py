@@ -102,7 +102,7 @@ class EstadoCivil(models.Model):
 class Personas(models.Model):
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=1, choices=tipo_persona_CHOICES, db_column='T010tipoPersona')
-    tipo_documento = models.CharField(max_length=2, choices=tipo_documento_CHOICES, db_column='T010Cod_TipoDocumento')
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True, db_column='T010Cod_TipoDocumento')
     numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
@@ -122,7 +122,7 @@ class Personas(models.Model):
     pais_nacimiento = models.CharField(max_length=2, null=True, blank=True, choices=paises_CHOICES, db_column='T010Cod_Pais_Nacimiento')
     fecha_nacimiento = models.DateField(blank=True,null=True, db_column='T010FechaNacimiento')
     sexo = models.CharField(max_length=1, null=True, blank=True, choices=sexo_CHOICES, db_column='T010Cod_Sexo')
-    estado_civil = models.CharField(max_length=1, choices=estado_civil_CHOICES, null=True, blank=True, db_column='T010Cod_EstadoCivil')
+    estado_civil = models.ForeignKey(EstadoCivil, related_name="estado_civil", on_delete=models.SET_NULL, null=True, blank=True, db_column='T010Cod_EstadoCivil')
     representante_legal = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,blank=True, db_column='T010Id_PersonaRepLegal')
     email = models.EmailField(max_length=255, unique=True, db_column='T010emailNotificación')
     email_empresarial = models.EmailField(max_length=255, null=True, blank=True, db_column='T010emailEmpresarial')
