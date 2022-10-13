@@ -5,6 +5,8 @@ from seguridad.models import Roles, User,UsuariosRol
 from rest_framework import status,viewsets,mixins
 from seguridad.serializers.roles_serializers import RolesSerializer, UsuarioRolesSerializers
 
+from rest_framework.response import Response    
+
 
 class UserRolViewSet(viewsets.GenericViewSet,mixins.CreateModelMixin):
 
