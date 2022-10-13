@@ -1,9 +1,24 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from seguridad.models import Roles
-from rest_framework import status
-from seguridad.serializers.roles_serializers import RolesSerializer
+from seguridad.models import Roles, User,UsuariosRol
+from rest_framework import status,viewsets,mixins
+from seguridad.serializers.roles_serializers import RolesSerializer, UsuarioRolesSerializers
+
+
+class UserRolViewSet(viewsets.GenericViewSet,mixins.CreateModelMixin):
+
+    #I took the liberty to change the model to queryset
+    queryset = UsuariosRol.objects.all()
+    serializer_class = UsuarioRolesSerializers
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 @api_view(['GET'])
 def getRoles(request):

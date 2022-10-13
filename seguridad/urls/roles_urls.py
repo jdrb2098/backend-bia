@@ -7,4 +7,5 @@ urlpatterns = [
     path('register/', views.registerRol, name='rol-register'),
     path('update/<int:pk>/', views.updateRol, name='rol-update'),
     path('delete/<int:pk>/', views.deleteRol, name='rol-delete'),  
+    path('add-user-roles/',views.UserRolViewSet.as_view({'get': 'create'}),name='add-user-roles')
 ]
