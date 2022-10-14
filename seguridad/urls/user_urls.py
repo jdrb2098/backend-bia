@@ -15,7 +15,7 @@ urlpatterns = [
     path("get/", views.getUsers, name="get-users"),
     path('verify/', views.Verify.as_view(), name='verify'),
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
-    
+    path('get-by-numero-documento/<str:pk>', views.getUserByPersonDocument, name='get-users-by-doc'),
     
     #Login
     path('listarlogin/', views.LoginListApiViews.as_view(),name='mostrar-lista-login'),

@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from django.contrib.sites.shortcuts import get_current_site
+from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.utils import Util
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
@@ -120,6 +121,23 @@ def getUserById(request, pk):
     user = User.objects.get(id_usuario=pk)
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def getUserByPersonDocument(request, pk):
+    try:
+        personas = Personas.objects.get(numero_documento=pk)
+        if personas:
+            try:
+                user = User.objects.get(persona=personas.id_persona)
+                serializer = UserSerializer(user, many=False)
+                return Response(serializer.data)
+            except:
+                
+                return Response({'message': 'No existe ningún usuario asociado a esta persona'})
+    except:
+        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema'})
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
