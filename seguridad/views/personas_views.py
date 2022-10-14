@@ -17,7 +17,7 @@ from seguridad.models import (
     ClasesTerceroPersona
 )
 
-from rest_framework import status
+from rest_framework import filters
 from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
     TipoDocumentoSerializer,
@@ -94,7 +94,11 @@ class registerTipoDocumento(generics.CreateAPIView):
 
 
 # Views for Personas
-
+class SearchViewSet(generics.ListAPIView):
+    serializer_class=PersonasSerializer
+    queryset=Personas.objects.all()
+    filter_backends=[filters.SearchFilter]
+    search_fields=['primer_nombre','primer_apellido']
 
 class getPersonas(generics.ListAPIView):
     serializer_class = PersonasSerializer

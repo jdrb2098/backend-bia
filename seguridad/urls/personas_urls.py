@@ -28,6 +28,7 @@ urlpatterns = [
     path('updatepersonajuridica/<str:pk>/', views.UpdatePersonaJuridica.as_view(), name='persona-juridica-update'),
     path('getpersonabydocument/<str:pk>', views.getPersonaByDocument, name='persona-document-get'),
     path('getpersonabyemail/<str:pk>', views.getPersonaByEmail, name='persona-email-get'),
+    path('getpersonabynombreandapellido/', views.SearchViewSet.as_view(), name='buscar-por-nombre-y-apellido'),
     
     # Apoderados Personas
     path('getapoderadospersonas/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),

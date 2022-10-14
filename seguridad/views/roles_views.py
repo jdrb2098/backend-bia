@@ -4,11 +4,24 @@ from rest_framework.response import Response
 from seguridad.models import Roles, User,UsuariosRol
 from rest_framework import status,viewsets,mixins
 from seguridad.serializers.roles_serializers import RolesSerializer, UsuarioRolesSerializers
-
+from seguridad.serializers.user_serializers import UsuarioRolesLookSerializers
+from django.db.models import Q
 from rest_framework.response import Response    
+from rest_framework.generics import ListAPIView, CreateAPIView , RetrieveAPIView, DestroyAPIView, UpdateAPIView, RetrieveUpdateAPIView
 
+class GetRolesByUser(ListAPIView):
+    serializer_class = UsuarioRolesLookSerializers
+    def get_queryset(self):
+        queryset = UsuariosRol.objects.all()
+        query = self.request.query_params.get('keyword')
+        if query == None:
+            query = ''
+        queryset = queryset.filter(
+            Q(id_usuario__in = query)
+        )
+        return queryset
 
-class UserRolViewSet(viewsets.GenericViewSet,mixins.CreateModelMixin):
+class UserRolViewSet(viewsets.ModelViewSet):
 
     #I took the liberty to change the model to queryset
     queryset = UsuariosRol.objects.all()
@@ -20,7 +33,6 @@ class UserRolViewSet(viewsets.GenericViewSet,mixins.CreateModelMixin):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 @api_view(['GET'])
 def getRoles(request):

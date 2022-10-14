@@ -64,7 +64,12 @@ class UserSerializer(serializers.ModelSerializer):
         for user in usuario_creador:
             User.objects.create(user=user_instance,**user)
         return user_instance
-
+    
+class UsuarioRolesLookSerializers(serializers.ModelSerializer):
+    id_usuario = UserSerializer(read_only=True)
+    class Meta:
+        model=UsuariosRol
+        fields='__all__'
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
