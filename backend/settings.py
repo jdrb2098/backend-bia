@@ -59,6 +59,16 @@ INSTALLED_APPS = [
     'seguimiento_planes.apps.SeguimientoPlanesConfig',
     'tramites.apps.TramitesConfig',
 ]
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS':{
+        'Bearer':{
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
