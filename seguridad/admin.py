@@ -56,7 +56,7 @@ class PaisesAdmin(admin.ModelAdmin):
 
 @admin.register(EstadoCivil)
 class EstadoCivilAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'cod_estado_civil',)
+    list_display = ('nombre', 'cod_estado_civil', 'precargado')
     list_display_links = list_display
     search_fields = (
         'nombre',
@@ -133,7 +133,7 @@ class ApoderadoPersonaAdmin(admin.ModelAdmin):
 
 @admin.register(TipoDocumento)
 class TipoDocumentoAdmin(admin.ModelAdmin):
-    list_display = ('cod_tipo_documento','nombre',)
+    list_display = ('cod_tipo_documento','nombre', 'precargado')
     list_display_links = list_display
     search_fields = (
         'nombre',
@@ -142,7 +142,7 @@ class TipoDocumentoAdmin(admin.ModelAdmin):
     
 @admin.register(ClasesTercero)
 class ClasesTerceroAdmin(admin.ModelAdmin):
-    list_display = ('id_clase_tercero','nombre',)
+    list_display = ('id_clase_tercero','nombre', )
     list_display_links = list_display
     search_fields = (
         'nombre',

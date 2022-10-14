@@ -18,11 +18,37 @@ class EstadoCivilSerializer(serializers.ModelSerializer):
         model = EstadoCivil
         fields = '__all__'
         
+        
+class EstadoCivilPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EstadoCivil
+        fields = [
+            'cod_estado_civil', 
+            'nombre'        
+        ]
+        extra_kwargs = {
+            'cod_estado_civil': {'required': True},  
+            'nombre': {'required': True}, 
+        }
+
 
 class TipoDocumentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoDocumento
         fields = '__all__'
+
+
+class TipoDocumentoPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoDocumento
+        fields = [
+            'cod_tipo_documento',
+            'nombre'
+        ]
+        extra_kwargs = {
+            'cod_tipo_documento': {'required': True},
+            'nombre': {'required': True}
+        }
 
 
 class RepresentanteLegalSerializer(serializers.ModelSerializer):

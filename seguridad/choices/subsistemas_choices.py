@@ -5,5 +5,7 @@ subsistemas_CHOICES = (
     ('RECU', 'Recurso Hídrico'),
     ('TRAM', 'Trámites y Servicios'),
     ('PLAN', 'Seguimiento a Planes'),
-    ('RECA', 'Recaudo')
+    ('RECA', 'Recaudo'),
+    ('SEGU', 'Seguridad'),
+    ('TRNV', 'Transversal')
 )

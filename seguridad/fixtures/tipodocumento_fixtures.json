@@ -1,0 +1,65 @@
+[
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 1,
+      "fields": {
+        "cod_tipo_documento": "CC",
+        "nombre": "Cédula de Ciudadania",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 2,
+      "fields": {
+        "cod_tipo_documento": "TI",
+        "nombre": "Tarjeta de Identidad",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 3,
+      "fields": {
+        "cod_tipo_documento": "RC",
+        "nombre": "Registro Civil",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 4,
+      "fields": {
+        "cod_tipo_documento": "NU",
+        "nombre": "NUIP",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 5,
+      "fields": {
+        "cod_tipo_documento": "CE",
+        "nombre": "Cédula Extranjeria",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 6,
+      "fields": {
+        "cod_tipo_documento": "PA",
+        "nombre": "Pasaporte",
+        "precargado": true
+      }
+    },
+    {
+      "model": "seguridad.TipoDocumento",
+      "pk": 7,
+      "fields": {
+        "cod_tipo_documento": "PE",
+        "nombre": "Permiso Especial de Permanencia",
+        "precargado": true
+      }
+    }
+  ]

@@ -74,8 +74,9 @@ class Municipio(models.Model):
 
 
 class TipoDocumento(models.Model):
-    cod_tipo_documento = models.CharField(max_length=2, primary_key=True, db_column='T006CodTipoDocumento')
+    cod_tipo_documento = models.CharField(max_length=2, primary_key=True, unique=True, db_column='T006CodTipoDocumento')
     nombre = models.CharField(max_length=40, db_column='T006nombre')
+    precargado = models.BooleanField(default=False, db_column='T006RegistroPrecargado')
     
     def __str__(self):
         return str(self.nombre)
@@ -87,8 +88,10 @@ class TipoDocumento(models.Model):
 
 
 class EstadoCivil(models.Model):
-    cod_estado_civil = models.CharField(max_length=1, primary_key=True, db_column='T005Cod_Estado_Civil')
+    cod_estado_civil = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T005Cod_Estado_Civil')
     nombre = models.CharField(max_length=20, db_column='T005nombre')
+    precargado = models.BooleanField(default=False, db_column='T006RegistroPrecargado')
+
     
     def __str__(self):
         return str(self.nombre)
@@ -281,6 +284,7 @@ class Roles(models.Model):
     id_rol = models.AutoField(primary_key=True, editable=False, db_column='TzIdRol')
     nombre_rol = models.CharField(max_length=100, db_column='Tznombre')
     descripcion_rol = models.CharField(max_length=255, db_column='Tzdescripcion')
+    Rol_sistema = models.BooleanField(default=False, db_column='TXrolDelSistema')
     
     def __str__(self):
         return str(self.nombre_rol)
@@ -341,6 +345,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
     is_blocked = models.BooleanField(max_length=1, default=False, db_column='Tzbloqueado')
+    creado_por_portal = models.BooleanField(default=False, db_column='TzcreadoPorPortal')
     id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_Usuario_Creador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
