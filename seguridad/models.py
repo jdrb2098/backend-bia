@@ -8,8 +8,6 @@ from seguridad.choices.municipios_choices import municipios_CHOICES
 from seguridad.choices.cod_permiso_choices import cod_permiso_CHOICES
 from seguridad.choices.tipo_persona_choices import tipo_persona_CHOICES
 from seguridad.choices.sexo_choices import sexo_CHOICES
-from seguridad.choices.tipo_documento_choices import tipo_documento_CHOICES
-from seguridad.choices.estado_civil_choices import estado_civil_CHOICES
 from seguridad.choices.tipo_direccion_choices import tipo_direccion_CHOICES
 from seguridad.choices.subsistemas_choices import subsistemas_CHOICES
 from seguridad.choices.tipo_usuario_choices import tipo_usuario_CHOICES
