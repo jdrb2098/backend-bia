@@ -1,5 +1,10 @@
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+from django.template.loader import render_to_string
 from rest_framework import serializers
 from django.contrib import auth
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils import encoding, http
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
@@ -8,6 +13,8 @@ from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.serializers.permisos_serializers import PermisosModuloRolSerializer
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+
+from seguridad.utils import Util
 
 class HistoricoActivacionSerializers(serializers.ModelSerializer):
     class Meta:
@@ -106,6 +113,7 @@ class LoginSerializers(serializers.ModelSerializer):
         fields= '__all__'
 
 class LoginSerializer(serializers.ModelSerializer):
+
     email = serializers.EmailField(max_length=255, min_length=3)
     password= serializers.CharField(max_length=68, min_length=6, write_only=True)
     nombre_de_usuario = serializers.CharField(max_length=68, min_length=6, read_only=True)
@@ -166,3 +174,29 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         models = User
         fields = ['token']
+
+class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=2)
+
+    class Meta:
+        fields=['email']
+    
+    def validate(self, attrs):
+        email = attrs['data'].get('email','')
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            uidb64 = http.urlsafe_base64_encode(user.id)
+            token = PasswordResetTokenGenerator().make_token(user)
+            current_site=get_current_site(request=attrs['data'].get('request')).domain
+            relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
+            absurl='http://'+ current_site + relativeLink 
+            context = {
+                'primer_nombre': user.persona.primer_nombre,
+                'primer_apellido':user.persona.primer_apellido,
+                'absurl': absurl,
+                }
+            template = render_to_string(('email-resetpassword.html'), context)
+            data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
+            Util.send_email(data)
+        return super().validate(attrs)
+        

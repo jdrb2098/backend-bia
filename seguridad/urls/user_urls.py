@@ -1,6 +1,6 @@
 from django.urls import path
 from seguridad.views import user_views as views
-
+from rest_framework_simplejwt.views import (TokenRefreshView)
 
 urlpatterns = [
     
@@ -16,7 +16,9 @@ urlpatterns = [
     path('verify/', views.Verify.as_view(), name='verify'),
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
     path('get-by-numero-documento/<str:pk>', views.getUserByPersonDocument, name='get-users-by-doc'),
-    
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    #path('password-reset/<uidb64>/token/', views.PasswordTokenCheckApi.as_view(), name='password-reset-confirm'),
+    path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'), 
     #Login
     path('listarlogin/', views.LoginListApiViews.as_view(),name='mostrar-lista-login'),
     path('enviardatoslogin/', views.LoginRegisterApiViews.as_view(),name='enviar-datos-login'),
