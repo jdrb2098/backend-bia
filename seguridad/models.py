@@ -376,8 +376,8 @@ class Login(models.Model):
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario')
     dirip = models.CharField(max_length=40, db_column='TzdirIP')
     dispositivo_conexion = models.CharField(max_length=30, db_column='TzdispositivoConexion')
-    fecha_login = models.DateField(auto_now=True, db_column='TzfechaLogin')
-    fecha_hora_cierre_sesion = models.DateField(auto_now=True, blank=True, null=True, db_column='TzfechaHoraCierreSesion')
+    fecha_login = models.DateTimeField(auto_now=True, db_column='TzfechaLogin')
+    fecha_hora_cierre_sesion = models.DateTimeField(blank=True, null=True, db_column='TzfechaHoraCierreSesion')
     
     def __str__(self):
         return str(self.id_usuario)
@@ -393,7 +393,7 @@ class LoginErroneo(models.Model):
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario')
     dirip = models.CharField(max_length=40, db_column='TzdirIP')
     dispositivo_conexion = models.CharField(max_length=30, db_column='TzdispositivoConexion')
-    fecha_login_error = models.DateField(auto_now=True, db_column='TzfechaLoginError')
+    fecha_login_error = models.DateTimeField(auto_now=True, db_column='TzfechaLoginError')
     contador = models.IntegerField(db_column='Tzcontador')
     
     def __str__(self):
