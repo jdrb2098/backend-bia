@@ -32,7 +32,7 @@ class DeletePermiso(DestroyAPIView):
     queryset = Permisos.objects.all()
 
 #----------------------------------------------------->Vistas tabla PermisosModulo
-class InsertarPermisosModulo(CreateAPIView):
+"""class InsertarPermisosModulo(CreateAPIView):
     serializer_class = PermisosModuloPostSerializer
 
 class UpdatePermisoModulo(RetrieveUpdateAPIView):
@@ -72,7 +72,7 @@ class DetailPermisosModuloRol(RetrieveAPIView):
 
 class DeletePermisosModuloRol(DestroyAPIView):
     serializer_class = PermisosModuloRolPostSerializer
-    queryset = PermisosModuloRol.objects.all()
+    queryset = PermisosModuloRol.objects.all()"""
     
 #----------------------------------------------------->Tabla Modulos
 

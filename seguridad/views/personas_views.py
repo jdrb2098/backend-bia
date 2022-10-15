@@ -24,6 +24,8 @@ from seguridad.serializers.personas_serializers import (
     TipoDocumentoSerializer,
     TipoDocumentoPostSerializer,
     PersonasSerializer,
+    PersonaNaturalSerializer,
+    PersonaJuridicaSerializer,
     PersonaNaturalPostSerializer,
     PersonaJuridicaPostSerializer,
     ApoderadoPersonaSerializer,
@@ -135,21 +137,24 @@ class registerTipoDocumento(generics.CreateAPIView):
 
 
 # Views for Personas
-class SearchViewSet(generics.ListAPIView):
-    serializer_class=PersonasSerializer
-    queryset=Personas.objects.all()
-    filter_backends=[filters.SearchFilter]
-    search_fields=['primer_nombre','primer_apellido']
 
 class getPersonas(generics.ListAPIView):
     serializer_class = PersonasSerializer
     queryset = Personas.objects.all()
 
 
-class getPersonaById(generics.RetrieveAPIView):
-    serializer_class = PersonasSerializer
-    queryset = Personas.objects.all()
- 
+class GetPersonaNatural(generics.ListAPIView):
+    serializer_class=PersonaNaturalSerializer
+    queryset=Personas.objects.filter(tipo_persona='N')       
+    filter_backends=[filters.SearchFilter]
+    search_fields=['primer_nombre','primer_apellido']
+    
+    
+class GetPersonaJuridica(generics.ListAPIView):
+    serializer_class=PersonaJuridicaSerializer
+    queryset=Personas.objects.filter(tipo_persona='J')
+    filter_backends=[filters.SearchFilter]
+    search_fields=['razon_social','nombre_comercial']
     
 
 @api_view(['GET'])
@@ -159,8 +164,7 @@ def getPersonaByDocument(request,pk):
         serializer = PersonasSerializer(persona, many=False)
         return Response(serializer.data)
     except:
-        return Response({"aaaahhhh": "no existo papi"})
-    
+        return Response({"message": "No existe una persona con este documento"})    
 
 
 @api_view(['GET'])
@@ -170,7 +174,7 @@ def getPersonaByEmail(request,pk):
         serializer = PersonasSerializer(persona, many=False)
         return Response(serializer.data)
     except:
-        return Response({"aaaahhhh": "no existo papi"})
+        return Response({"message": "No existe una persona con este email"})
     
 
 class deletePersona(generics.DestroyAPIView):
@@ -253,7 +257,7 @@ class registerSucursalEmpresa(generics.CreateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer 
     queryset = SucursalesEmpresas.objects.all()
     
-
+"""
 # Views for Historico Emails
 
 
@@ -364,3 +368,4 @@ class updateClaseTerceroPersona(generics.RetrieveUpdateAPIView):
 class registerClaseTerceroPersona(generics.CreateAPIView):
     queryset = ClasesTerceroPersona.objects.all()
     serializer_class = ClasesTerceroPersonapostSerializer
+"""
