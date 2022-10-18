@@ -26,6 +26,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 from django.template.loader import render_to_string
+from datetime import datetime
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -133,10 +134,10 @@ def getUserByPersonDocument(request, pk):
                 serializer = UserSerializer(user, many=False)
                 return Response(serializer.data)
             except:
-                
-                return Response({'message': 'No existe ningún usuario asociado a esta persona'})
+                personas_serializer = PersonasSerializer(personas, many=False)
+                return Response([personas_serializer.data, {'message': 'No existe ningún usuario asociado a esta persona', 'persona': True}])
     except:
-        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema'})
+        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema','persona': False})
 
 
 @api_view(['PUT'])
@@ -205,7 +206,10 @@ class RegisterView(generics.CreateAPIView):
 
         relativeLink= reverse('verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
-        sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + absurl
+        
+        short_url = Util.get_short_url(absurl)
+        
+        sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
         context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}
         template = render_to_string(('email-verification.html'), context)
         data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
@@ -285,56 +289,69 @@ class LoginErroneoRegisterApiViews(generics.CreateAPIView):
 class LoginApiView(generics.CreateAPIView):
     serializer_class=LoginSerializer
     def post(self, request):
-        user = request.data
-        exist = User.objects.filter(email=user['email']).first()
-        try:
-            if exist:
-                login_exist = LoginErroneo.objects.filter(id_usuario=exist.id_usuario).first()
-                serializer = self.serializer_class(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                
-                login = Login.objects.create(
-                    id_usuario = exist,
-                    dirip = 'test',
-                    dispositivo_conexion = 'test'
-                )
-                
-                LoginPostSerializers(login, many=False)
-                
-                if login_exist:
-                    login_exist.contador = 0
-                    login_exist.save()
-                
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            
-            else:
-                return Response({'detail':'No existe el correo ingresado'})
-        except:
-            login_exist = LoginErroneo.objects.filter(id_usuario=exist.id_usuario).first()
-            if login_exist:
-                if login_exist.contador < 3:
-                    login_exist.contador += 1
-                    login_exist.save()
-                    if login_exist.contador == 3:
-                        exist.is_blocked = True
-                        exist.save()
-                        return Response({'detail':'Su usuario ha sido bloqueado'})
-                    serializer = LoginErroneoPostSerializers(login_exist, many=False)
-                    return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
-                else:
-                    return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
-            else:
-                if exist.is_blocked:
-                    return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
-                else:
-                    login_error = LoginErroneo.objects.create(
-                        id_usuario = exist,
-                        dirip = 'test',
-                        dispositivo_conexion = 'test',
-                        contador = 1
+        data = request.data
+        user = User.objects.filter(email=data['email']).first()
+        ip = Util.get_client_ip(request)
+        device = Util.get_client_device(request)
+        if user:
+            if user.is_active:
+                try:
+                    login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).order_by('-fecha_login_error').first()
+                    serializer = self.serializer_class(data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                    
+                    login = Login.objects.create(
+                        id_usuario = user,
+                        dirip = str(ip),
+                        dispositivo_conexion = device
                     )
-                serializer = LoginErroneoPostSerializers(login_error, many=False)
-                return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                    
+                    LoginPostSerializers(login, many=False)
+                    
+                    if login_error:
+                        login_error.contador = 0
+                        login_error.save()
+                    
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                    
+                except:
+                    login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).first()
+                    if login_error:
+                        if login_error.contador < 3:
+                            hour_difference = datetime.utcnow().replace(tzinfo=None) - login_error.fecha_login_error.replace(tzinfo=None)
+                            hour_difference = (hour_difference.days * 24) + (hour_difference.seconds//3600)
+                            if hour_difference <= 24:
+                                login_error.contador += 1
+                                login_error.fecha_login_error = datetime.now()
+                                login_error.save()
+                            else:
+                                login_error.contador = 1
+                                login_error.fecha_login_error = datetime.now()
+                                login_error.save()
+                            if login_error.contador == 3:
+                                user.is_blocked = True
+                                user.save()
+                                return Response({'detail':'Su usuario ha sido bloqueado'})
+                            serializer = LoginErroneoPostSerializers(login_error, many=False)
+                            return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                        else:
+                            return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                    else:
+                        if user.is_blocked:
+                            return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                        else:
+                            login_error = LoginErroneo.objects.create(
+                                id_usuario = user,
+                                dirip = str(ip),
+                                dispositivo_conexion = device,
+                                contador = 1
+                            )
+                        serializer = LoginErroneoPostSerializers(login_error, many=False)
+                        return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+            else:
+                return Response({'detail': 'Usuario no verificado'})
+        else:
+            return Response({'detail':'No existe el correo ingresado'})
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer

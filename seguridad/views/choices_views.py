@@ -11,6 +11,7 @@ from seguridad.choices.tipo_direccion_choices import tipo_direccion_CHOICES
 from seguridad.choices.tipo_documento_choices import tipo_documento_CHOICES
 from seguridad.choices.tipo_persona_choices import tipo_persona_CHOICES
 from seguridad.choices.tipo_usuario_choices import tipo_usuario_CHOICES
+from seguridad.choices.direcciones_choices import direcciones_CHOICES
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -77,4 +78,9 @@ class TipoPersonaChoices(APIView):
 class TipoUsuarioChoices(APIView):
     def get(self,request):
         choices = tipo_usuario_CHOICES
+        return Response(choices)
+    
+class DireccionesChoices(APIView):
+    def get(self,request):
+        choices = direcciones_CHOICES
         return Response(choices)
