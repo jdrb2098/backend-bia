@@ -133,10 +133,10 @@ def getUserByPersonDocument(request, pk):
                 serializer = UserSerializer(user, many=False)
                 return Response(serializer.data)
             except:
-                
-                return Response({'message': 'No existe ningún usuario asociado a esta persona'})
+                personas_serializer = PersonasSerializer(personas, many=False)
+                return Response([personas_serializer.data, {'message': 'No existe ningún usuario asociado a esta persona', 'persona': True}])
     except:
-        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema'})
+        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema','persona': False})
 
 
 @api_view(['PUT'])
