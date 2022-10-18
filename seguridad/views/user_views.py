@@ -133,10 +133,10 @@ def getUserByPersonDocument(request, pk):
                 serializer = UserSerializer(user, many=False)
                 return Response(serializer.data)
             except:
-                
-                return Response({'message': 'No existe ningún usuario asociado a esta persona'})
+                personas_serializer = PersonasSerializer(personas, many=False)
+                return Response([personas_serializer.data, {'message': 'No existe ningún usuario asociado a esta persona', 'persona': True}])
     except:
-        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema'})
+        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema','persona': False})
 
 
 @api_view(['PUT'])
@@ -156,6 +156,25 @@ def updateUser(request, pk):
     serializer = UserSerializer(user, many=False)
 
     return Response(serializer.data)
+
+"""@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserAdmin(request, pk):
+    user = User.objects.get(id_usuario=pk)
+
+    data = request.data
+
+    user.nombre_de_usuario= data['email']
+    user.email = data['email']
+    user.is_blocked = data['is_blocked']
+    
+
+    user.save()
+
+    serializer = UserSerializer(user, many=False)
+
+    return Response(serializer.data)"""
+
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
@@ -263,15 +282,59 @@ class LoginErroneoRegisterApiViews(generics.CreateAPIView):
     queryset = LoginErroneo.objects.all()
     serializer_class = LoginErroneoPostSerializers
 
-
-class LoginApiView(generics.GenericAPIView):
+class LoginApiView(generics.CreateAPIView):
     serializer_class=LoginSerializer
     def post(self, request):
         user = request.data
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        exist = User.objects.filter(email=user['email']).first()
+        try:
+            if exist:
+                login_exist = LoginErroneo.objects.filter(id_usuario=exist.id_usuario).first()
+                serializer = self.serializer_class(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                
+                login = Login.objects.create(
+                    id_usuario = exist,
+                    dirip = 'test',
+                    dispositivo_conexion = 'test'
+                )
+                
+                LoginPostSerializers(login, many=False)
+                
+                if login_exist:
+                    login_exist.contador = 0
+                    login_exist.save()
+                
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            else:
+                return Response({'detail':'No existe el correo ingresado'})
+        except:
+            login_exist = LoginErroneo.objects.filter(id_usuario=exist.id_usuario).first()
+            if login_exist:
+                if login_exist.contador < 3:
+                    login_exist.contador += 1
+                    login_exist.save()
+                    if login_exist.contador == 3:
+                        exist.is_blocked = True
+                        exist.save()
+                        return Response({'detail':'Su usuario ha sido bloqueado'})
+                    serializer = LoginErroneoPostSerializers(login_exist, many=False)
+                    return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                else:
+                    return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+            else:
+                if exist.is_blocked:
+                    return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                else:
+                    login_error = LoginErroneo.objects.create(
+                        id_usuario = exist,
+                        dirip = 'test',
+                        dispositivo_conexion = 'test',
+                        contador = 1
+                    )
+                serializer = LoginErroneoPostSerializers(login_error, many=False)
+                return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer

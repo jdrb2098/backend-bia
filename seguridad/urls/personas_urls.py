@@ -5,71 +5,72 @@ from seguridad.views import personas_views as views
 urlpatterns = [
     
     # Estado Civil 
-    path('getestadoscivil/', views.getEstadoCivil.as_view(), name="estado-civil-get"),
-    path('getestadocivil/<str:pk>/', views.getEstadoCivilById.as_view(), name='estado-civil-id-get'),
-    path('deleteestadocivil/<str:pk>/', views.deleteEstadoCivil.as_view(), name='estado-civil-delete'),
-    path('updateestadocivil/<str:pk>/', views.updateEstadoCivil.as_view(), name='estado-civil-update'),
-    path('registerestadocivil/', views.registerEstadoCivil.as_view(), name='estado-civil-register'),
+    path('estado-civil/get-list/', views.getEstadoCivil.as_view(), name="estado-civil-get"),
+    path('estado-civil/get-by-id/<str:pk>/', views.getEstadoCivilById.as_view(), name='estado-civil-id-get'),
+    path('estado-civil/delete/<str:pk>/', views.deleteEstadoCivil.as_view(), name='estado-civil-delete'),
+    path('estado-civil/update/<str:pk>/', views.updateEstadoCivil.as_view(), name='estado-civil-update'),
+    path('estado-civil/create/', views.registerEstadoCivil.as_view(), name='estado-civil-register'),
     
     # Tipo Documento 
-    path('gettiposdocumento/', views.getTipoDocumento.as_view(), name="tipo-documento-get"),
-    path('gettipodocumento/<str:pk>/', views.getTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
-    path('deletetipodocumento/<str:pk>/', views.deleteTipoDocumento.as_view(), name='tipo-documento-delete'),
-    path('updatetipodocumento/<str:pk>/', views.updateTipoDocumento.as_view(), name='tipo-documento-update'),
-    path('registertipodocumento/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
+    path('tipos-documento/get-list/', views.getTipoDocumento.as_view(), name="tipo-documento-get"),
+    path('tipos-documento/get-by-id/<str:pk>/', views.getTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
+    path('tipos-documento/delete/<str:pk>/', views.deleteTipoDocumento.as_view(), name='tipo-documento-delete'),
+    path('tipos-documento/update/<str:pk>/', views.updateTipoDocumento.as_view(), name='tipo-documento-update'),
+    path('tipos-documento/create/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
     
     # Personas 
-    path('getpersonas/', views.getPersonas.as_view(), name="personas-get"),
-    path('getpersona/<str:pk>/', views.getPersonaById.as_view(), name='persona-id-get'),
-    path('deletepersona/<str:pk>/', views.deletePersona.as_view(), name='persona-delete'),
-    path('updatepersonanatural/<str:pk>/', views.UpdatePersonaNatural.as_view(), name='persona-natural-update'),
-    path('registerpersonanatural/', views.RegisterPersonaNatural.as_view(), name='persona-natural-register'),
-    path('registerpersonajuridica/', views.RegisterPersonaJuridica.as_view(), name='persona-juridica-register'),
-    path('updatepersonajuridica/<str:pk>/', views.UpdatePersonaJuridica.as_view(), name='persona-juridica-update'),
-    path('getpersonabydocument/<str:pk>', views.getPersonaByDocument, name='persona-document-get'),
-    path('getpersonabyemail/<str:pk>', views.getPersonaByEmail, name='persona-email-get'),
-    path('getpersonabynombreandapellido/', views.SearchViewSet.as_view(), name='buscar-por-nombre-y-apellido'),
+    path('get-list/', views.getPersonas.as_view(), name="personas-get"),
+    path('get-by-document/<str:pk>/', views.getPersonaByDocument, name='persona-document-get'),
+    path('get-by-email/<str:pk>/', views.getPersonaByEmail, name='persona-email-get'),
+    #
+    path('get-personas-naturales/', views.GetPersonaNatural.as_view(), name='persona-natural-get'),
+    path('get-personas-juridicas/', views.GetPersonaJuridica.as_view(), name='persona-juridica-get'),
+    path('persona-natural/update/<str:pk>/', views.UpdatePersonaNatural.as_view(), name='persona-natural-update'),
+    path('persona-natural/create/', views.RegisterPersonaNatural.as_view(), name='persona-natural-register'),
+    path('persona-juridica/create/', views.RegisterPersonaJuridica.as_view(), name='persona-juridica-register'),
+    path('persona-juridica/update/<str:pk>/', views.UpdatePersonaJuridica.as_view(), name='persona-juridica-update'),
+    path('delete/<str:pk>/', views.deletePersona.as_view(), name='persona-delete'),
     
     # Apoderados Personas
-    path('getapoderadospersonas/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
-    path('getapoderadopersona/<str:pk>/', views.getApoderadoPersonaById.as_view(), name='apoderado-persona-id-get'),
-    path('deleteapoderadopersona/<str:pk>/', views.deleteApoderadoPersona.as_view(), name='apoderado-persona-delete'),
-    path('updateapoderadopersona/<str:pk>/', views.updateApoderadoPersona.as_view(), name='apoderado-persona-update'),
-    path('registerapoderadopersona/', views.registerApoderadoPersona.as_view(), name='apoderado-persona-register'),
+    path('apoderados-personas/get-list/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
+    path('apoderados-personas/get-by-id/<str:pk>/', views.getApoderadoPersonaById.as_view(), name='apoderado-persona-id-get'),
+    path('apoderados-personas/delete/<str:pk>/', views.deleteApoderadoPersona.as_view(), name='apoderado-persona-delete'),
+    path('apoderados-personas/update/<str:pk>/', views.updateApoderadoPersona.as_view(), name='apoderado-persona-update'),
+    path('apoderados-personas/create/', views.registerApoderadoPersona.as_view(), name='apoderado-persona-register'),
     
     # Sucursales Empresas
-    path('getsucursalesempresas/', views.getSucursalesEmpresas.as_view(), name="sucursales-empresas-get"),
-    path('getsucursalempresa/<str:pk>/', views.getSucursalEmpresaById.as_view(), name='sucursal-empresa-id-get'),
-    path('deletesucursalempresa/<str:pk>/', views.deleteSucursalEmpresa.as_view(), name='sucursal-empresa-delete'),
-    path('updatesucursalempresa/<str:pk>/', views.updateSucursalEmpresa.as_view(), name='sucursal-empresa-update'),
-    path('registersucursalempresa/', views.registerSucursalEmpresa.as_view(), name='sucursal-empresa-register'),
+    path('sucursales-empresas/get-list/', views.getSucursalesEmpresas.as_view(), name="sucursales-empresas-get"),
+    path('sucursales-empresas/get-by-id/<str:pk>/', views.getSucursalEmpresaById.as_view(), name='sucursal-empresa-id-get'),
+    path('sucursales-empresas/delete/<str:pk>/', views.deleteSucursalEmpresa.as_view(), name='sucursal-empresa-delete'),
+    path('sucursales-empresas/update/<str:pk>/', views.updateSucursalEmpresa.as_view(), name='sucursal-empresa-update'),
+    path('sucursales-empresas/create/', views.registerSucursalEmpresa.as_view(), name='sucursal-empresa-register'),
     
     # Historico Emails
-    path('gethistoricoemails/', views.getHistoricoEmails.as_view(), name="historico-emails-get"),
-    path('gethistoricoemail/<str:pk>/', views.getHistoricoEmailById.as_view(), name='historico-email-id-get'),
-    path('deletehistoricoemail/<str:pk>/', views.deleteHistoricoEmail.as_view(), name='historico-email-delete'),
-    path('updatehistoricoemail/<str:pk>/', views.updateHistoricoEmail.as_view(), name='historico-email-update'),
-    path('registerhistoricoemail/', views.registerHistoricoEmail.as_view(), name='historico-email-register'),
+    # path('historico-emails/get-list/', views.getHistoricoEmails.as_view(), name="historico-emails-get"),
+    # path('historico-emails/get-by-id/<str:pk>/', views.getHistoricoEmailById.as_view(), name='historico-email-id-get'),
+    # path('historico-emails/delete/<str:pk>/', views.deleteHistoricoEmail.as_view(), name='historico-email-delete'),
+    # path('historico-emails/update/<str:pk>/', views.updateHistoricoEmail.as_view(), name='historico-email-update'),
+    # path('historico-emails/create/', views.registerHistoricoEmail.as_view(), name='historico-email-register'),
     
     # Historico Direcciones
-    path('gethistoricodirecciones/', views.GetHistoricoDirecciones.as_view(), name="historico-direcciones-get"),
-    path('gethistoricodireccion/<str:pk>/', views.GetHistoricoDireccionById.as_view(), name='historico-direccion-id-get'),
-    path('deletehistoricodireccion/<str:pk>/', views.DeleteHistoricoDireccion.as_view(), name='historico-direccion-delete'),
-    path('updatehistoricodireccion/<str:pk>/', views.UpdateHistoricoDireccion.as_view(), name='historico-direccion-update'),
-    path('registerhistoricodireccion/', views.RegisterHistoricoDireccion.as_view(), name='historico-direccion-register'),
+    # path('historico-direcciones/get-list/', views.GetHistoricoDirecciones.as_view(), name="historico-direcciones-get"),
+    # path('historico-direcciones/get-by-id/<str:pk>/', views.GetHistoricoDireccionById.as_view(), name='historico-direccion-id-get'),
+    # path('historico-direcciones/delete/<str:pk>/', views.DeleteHistoricoDireccion.as_view(), name='historico-direccion-delete'),
+    # path('historico-direcciones/update/<str:pk>/', views.UpdateHistoricoDireccion.as_view(), name='historico-direccion-update'),
+    # path('historico-direcciones/create/', views.RegisterHistoricoDireccion.as_view(), name='historico-direccion-register'),
     
     # Clases Tercero
-    path('getclasestercero/', views.getClasesTercero.as_view(), name="clases-tercero-get"),
-    path('getclasetercero/<str:pk>/', views.getClaseTerceroById.as_view(), name='clase-tercero-id-get'),
-    path('deleteclasetercero/<str:pk>/', views.deleteClaseTercero.as_view(), name='clase-tercero-delete'),
-    path('updateclasetercero/<str:pk>/', views.updateClaseTercero.as_view(), name='clase-tercero-update'),
-    path('registerclasetercero/', views.registerClaseTercero.as_view(), name='clase-tercero-register'),
+    # path('clases-tercero/get-list/', views.getClasesTercero.as_view(), name="clases-tercero-get"),
+    # path('clases-tercero/get-by-id/<str:pk>/', views.getClaseTerceroById.as_view(), name='clase-tercero-id-get'),
+    # path('clases-tercero/delete/<str:pk>/', views.deleteClaseTercero.as_view(), name='clase-tercero-delete'),
+    # path('clases-tercero/update/<str:pk>/', views.updateClaseTercero.as_view(), name='clase-tercero-update'),
+    # path('clases-tercero/create/', views.registerClaseTercero.as_view(), name='clase-tercero-register'),
     
-    # Clases Tercero
-    path('getclasesterceropersonas/', views.getClasesTerceroPersonas.as_view(), name="clases-tercero-personas-get"),
-    path('getclaseterceropersona/<str:pk>/', views.getClaseTerceroPersonaById.as_view(), name='clase-tercero-persona-id-get'),
-    path('deleteclaseterceropersona/<str:pk>/', views.deleteClaseTerceroPersona.as_view(), name='clase-tercero-persona-delete'),
-    path('updateclaseterceropersona/<str:pk>/', views.updateClaseTerceroPersona.as_view(), name='clase-tercero-persona-update'),
-    path('registerclaseterceropersona/', views.registerClaseTerceroPersona.as_view(), name='clase-tercero-persona-register'),
+    # Clases Tercero Personas
+    # path('clases-tercero-personas/get-list/', views.getClasesTerceroPersonas.as_view(), name="clases-tercero-personas-get"),
+    # path('clases-tercero-personas/get-by-id/<str:pk>/', views.getClaseTerceroPersonaById.as_view(), name='clase-tercero-persona-id-get'),
+    # path('clases-tercero-personas/delete/<str:pk>/', views.deleteClaseTerceroPersona.as_view(), name='clase-tercero-persona-delete'),
+    # path('clases-tercero-personas/update/<str:pk>/', views.updateClaseTerceroPersona.as_view(), name='clase-tercero-persona-update'),
+    # path('clases-tercero-personas/create/', views.registerClaseTerceroPersona.as_view(), name='clase-tercero-persona-register'),
 
 ]

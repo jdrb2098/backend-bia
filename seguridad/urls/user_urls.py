@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', views.LoginApiView.as_view(), name='token_obtain_pair'),
 
     path('register/', views.RegisterView.as_view(), name='register'),
+    #path('update/<str:pk>', views.updateUser, name='register'),
     
     path('profile/', views.getUserProfile, name="users-profile"),
     path('profile/update/', views.updateUserProfile, name="user-profile-update"), 
