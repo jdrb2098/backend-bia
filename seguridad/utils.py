@@ -45,7 +45,7 @@ class Util:
             create_short_url = Shortener.objects.create(
                 long_url = url
             )
-            new_url = request.build_absolute_uri('/shortener/') + create_short_url.short_url
+            new_url = request.build_absolute_uri('/short/') + create_short_url.short_url
             return new_url
         except:
             return url
