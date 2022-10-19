@@ -65,22 +65,11 @@ def registerUser(request):
         message = {'detail': 'error'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateUserProfile(request):
-    user = request.user
-    serializer = UserSerializerWithToken(user, many=False)
 
-    data = request.data
-    user.nombre_de_usuario = data['email']
-    user.email = data['email']
+class UpdateUserProfile(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializerWithToken
+    queryset = User.objects.all()
 
-    if data['password'] != '':
-        user.password = make_password(data['password'])
-
-    user.save()
-
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -216,8 +205,14 @@ class RegisterView(generics.CreateAPIView):
         context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}
         template = render_to_string(('email-verification.html'), context)
         data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
-        Util.send_email(data)
-        Util.send_sms(persona.telefono_celular, sms)
+        try:
+            Util.send_email(data)
+        except:
+            return({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+        try:
+            Util.send_sms(persona.telefono_celular, sms)
+        except:
+            return({'success':False, 'message':'no se pudo envias sms de confirmacion'})
 
         
         return Response(user_data, status=status.HTTP_201_CREATED)
@@ -386,12 +381,12 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
         return Response( {'success': 'te enviamos el link  para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
 
 class PasswordTokenCheckApi(generics.GenericAPIView):
-
+    serializer_class=UserSerializer
     def get(self,request,uidb64,token):
         try:
             id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
-            serializer = UserSerializer(user, many=False)
+            
             
             
             if not PasswordResetTokenGenerator().check_token(user,token):
