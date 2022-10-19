@@ -216,7 +216,7 @@ class RegisterPersonaNatural(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
                 return Response(persona_data, status=status.HTTP_201_CREATED)
             except:
-                return Response({'detail': 'No se pudo enviar el sms, verificar numero o credenciales de twilio'})
+                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
 
 class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
@@ -242,8 +242,10 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         template = render_to_string(('email-register-personajuridica.html'), context)
         data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
         Util.send_email(data)
-        Util.send_sms(persona.telefono_celular, sms)
-
+        try:
+            Util.send_sms(persona.telefono_celular, sms)
+        except:
+            return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
         
         return Response(persona_data, status=status.HTTP_201_CREATED)
 
