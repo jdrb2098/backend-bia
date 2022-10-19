@@ -10,7 +10,7 @@ urlpatterns = [
     #path('update/<str:pk>', views.updateUser, name='register'),
     
     path('profile/', views.getUserProfile, name="users-profile"),
-    path('profile/update/', views.updateUserProfile, name="user-profile-update"), 
+    path('profile/update/<int:pk>', views.UpdateUserProfile.as_view(), name="user-profile-update"), 
    
     path('roles/', views.roles, name='roles'),
     path("get/", views.getUsers, name="get-users"),
