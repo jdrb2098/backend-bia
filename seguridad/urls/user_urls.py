@@ -18,8 +18,9 @@ urlpatterns = [
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
     path('get-by-numero-documento/<str:pk>', views.getUserByPersonDocument, name='get-users-by-doc'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    #path('password-reset/<uidb64>/token/', views.PasswordTokenCheckApi.as_view(), name='password-reset-confirm'),
-    path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'), 
+    path('password-reset/<str:uidb64>/<token>/', views.PasswordTokenCheckApi.as_view(), name='password-reset-confirm'),
+    path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'),
+    path('pasword-reset-complete', views.SetNewPasswordApiView.as_view(),name='pasword-reset-complete'), 
     #Login
     path('listarlogin/', views.LoginListApiViews.as_view(),name='mostrar-lista-login'),
     path('enviardatoslogin/', views.LoginRegisterApiViews.as_view(),name='enviar-datos-login'),

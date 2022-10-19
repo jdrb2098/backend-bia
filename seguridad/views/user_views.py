@@ -1,3 +1,6 @@
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from email import message
+from django.core import signing
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -18,16 +21,20 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import jwt
 from django.conf import settings
-from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
-
+from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
-
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 from django.template.loader import render_to_string
+<<<<<<< Updated upstream
 from datetime import datetime
 
+=======
+from django.contrib import auth
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils import encoding, http
+>>>>>>> Stashed changes
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -362,12 +369,46 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
 
     def post(self,request):
-        data = {'request': request,'data':request.data}
         serializer=self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        email = request.data['email']
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            uidb64 =signing.dumps({'user':str(user.id_usuario)})
+            print(uidb64)
+            token = PasswordResetTokenGenerator().make_token(user)
+            current_site=get_current_site(request=request).domain
+            relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
+            absurl='http://'+ current_site + relativeLink 
+            context = {
+                'primer_nombre': user.persona.primer_nombre,
+                'primer_apellido':user.persona.primer_apellido,
+                'absurl': absurl,
+                }
+            template = render_to_string(('email-resetpassword.html'), context)
+            data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
+            Util.send_email(data)
         return Response( {'success': 'te enviamos el link  para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
 
 class PasswordTokenCheckApi(generics.GenericAPIView):
 
-    def get(self,request,uid64,token):
-        pass
+    def get(self,request,uidb64,token):
+        try:
+            id = int(signing.loads(uidb64)['user'])
+            user = User.objects.get(id_usuario=id)
+            serializer = UserSerializer(user, many=False)
+            
+            
+            if not PasswordResetTokenGenerator().check_token(user,token):
+                return Response({'error': 'token invalido, solicita uno nuevo'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            return Response({'success':True, 'message':'Credenciales validas', 'uidb64':uidb64,'token':token}, status=status.HTTP_200_OK)
+        except encoding.DjangoUnicodeDecodeError as identifier:
+            
+            if not PasswordResetTokenGenerator().check_token(user):
+                return Response({'error':'aslkdjaslkdjaslk'})
+class SetNewPasswordApiView(generics.GenericAPIView):
+    serializer_class=SetNewPasswordSerializer
+    def patch(self,request):
+        serializer=self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'success':True,'message':'Contraseña actualizada'},status=status.HTTP_200_OK)
