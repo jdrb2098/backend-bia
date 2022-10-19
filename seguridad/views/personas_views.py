@@ -194,33 +194,30 @@ class UpdatePersonaNatural(generics.RetrieveUpdateAPIView):
 
 class RegisterPersonaNatural(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostSerializer
-    renderer_classes = (UserRender,)
 
     def post(self, request):
-        try:
             persona = request.data
+            
             serializer = self.serializer_class(data=persona)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            
             persona_data = serializer.data
             
-            persona = Personas.objects.get(email=persona_data['email'])
-            
+            persona = Personas.objects.get(numero_documento=persona_data['numero_documento'])
             persona.save()
-
+            
             sms = 'Hola '+ persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que has sido registrado como PERSONA NATURAL en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
             context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
             template = render_to_string(('email-register-personanatural.html'), context)
             data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
             Util.send_email(data)
-            Util.send_sms(persona.telefono_celular, sms)
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+                return Response(persona_data, status=status.HTTP_201_CREATED)
+            except:
+                return Response({'detail': 'No se pudo enviar el sms, verificar numero o credenciales de twilio'})
 
-            
-            return Response(persona_data, status=status.HTTP_201_CREATED)
-        except:
-            return Response({'success':False,'message':'persona no pudo ser creada'},status=status.HTTP_400_BAD_REQUEST)
-    
-    
 class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
     queryset = Personas.objects.all()
