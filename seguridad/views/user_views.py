@@ -27,14 +27,10 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 from django.template.loader import render_to_string
-<<<<<<< Updated upstream
 from datetime import datetime
-
-=======
 from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import encoding, http
->>>>>>> Stashed changes
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
