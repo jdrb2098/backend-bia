@@ -386,12 +386,12 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
         return Response( {'success': 'te enviamos el link  para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
 
 class PasswordTokenCheckApi(generics.GenericAPIView):
-
+    serializer_class=UserSerializer
     def get(self,request,uidb64,token):
         try:
             id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
-            serializer = UserSerializer(user, many=False)
+            
             
             
             if not PasswordResetTokenGenerator().check_token(user,token):
