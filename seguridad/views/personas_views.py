@@ -5,6 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.generics  import RetrieveUpdateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from seguridad.renderers.user_renderers import UserRender
+from django.template.loader import render_to_string
+from seguridad.utils import Util
+from rest_framework import status
 from seguridad.models import (
     Personas,
     TipoDocumento,
@@ -189,7 +193,27 @@ class UpdatePersonaNatural(generics.RetrieveUpdateAPIView):
 
 class RegisterPersonaNatural(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostSerializer
-    queryset = Personas.objects.all()
+    renderer_classes = (UserRender,)
+
+    def post(self, request):
+        persona = request.data
+        serializer = self.serializer_class(data=persona)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        persona_data = serializer.data
+        
+        persona = Personas.objects.get(email=persona_data['email'])
+        persona.save()
+
+        sms = 'Hola '+ persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que has sido registrado como PERSONA NATURAL en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+        context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
+        template = render_to_string(('email-register-personanatural.html'), context)
+        data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
+        Util.send_email(data)
+        Util.send_sms(persona.telefono_celular, sms)
+
+        
+        return Response(persona_data, status=status.HTTP_201_CREATED)
     
     
 class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
@@ -199,7 +223,27 @@ class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
 
 class RegisterPersonaJuridica(generics.CreateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
-    queryset = Personas.objects.all()
+    renderer_classes = (UserRender,)
+
+    def post(self, request):
+        persona = request.data
+        serializer = self.serializer_class(data=persona)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        persona_data = serializer.data
+        
+        persona = Personas.objects.get(email=persona_data['email'])
+        persona.save()
+
+        sms = 'Hola '+ persona.razon_social + ' ' + '(' + persona.nombre_comercial + ')' + ' te informamos que has sido registrado como PERSONA JURIDICA en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+        context = {'razon_social': persona.razon_social, 'nombre_comercial':  persona.nombre_comercial}
+        template = render_to_string(('email-register-personajuridica.html'), context)
+        data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
+        Util.send_email(data)
+        Util.send_sms(persona.telefono_celular, sms)
+
+        
+        return Response(persona_data, status=status.HTTP_201_CREATED)
 
 
 # Views for apoderados persona

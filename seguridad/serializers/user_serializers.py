@@ -1,6 +1,4 @@
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from django.template.loader import render_to_string
+from django.core import signing
 from rest_framework import serializers
 from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -118,9 +116,10 @@ class LoginSerializer(serializers.ModelSerializer):
     password= serializers.CharField(max_length=68, min_length=6, write_only=True)
     nombre_de_usuario = serializers.CharField(max_length=68, min_length=6, read_only=True)
     tokens = serializers.CharField(max_length=255, min_length=3, read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True, default=False)
     class Meta:
         model=Login
-        fields= ['email', 'password', 'nombre_de_usuario', 'tokens']
+        fields= ['email', 'password', 'nombre_de_usuario', 'tokens', 'is_superuser']
     
     def validate(self, attrs):
         email = attrs.get('email', '')
@@ -128,14 +127,14 @@ class LoginSerializer(serializers.ModelSerializer):
         user= auth.authenticate(email=email, password=password)
 
         if not user:
-            raise AuthenticationFailed('Credenciales invalidas intenta denuevo')
+            raise AuthenticationFailed('Credenciales invalidas intenta de nuevo')
         
         if not user.is_active:
             raise AuthenticationFailed('Cuenta no verificada')
         if user.is_blocked:
             raise AuthenticationFailed('Tu cuenta ha sido bloqueada, contacta un Admin')
 
-        return {'email': user.email, 'nombre_de_usuario': user.nombre_de_usuario, 'tokens': user.tokens()}
+        return {'email': user.email, 'nombre_de_usuario': user.nombre_de_usuario, 'tokens': user.tokens(), 'is_superuser': user.is_superuser,}
  
 class LoginPostSerializers(serializers.ModelSerializer):
     class Meta:
@@ -181,22 +180,29 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
     class Meta:
         fields=['email']
     
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=6,max_length=68,write_only=True)
+    token = serializers.CharField(min_length=1,write_only=True)   
+    uidb64 = serializers.CharField(min_length=1,write_only=True)   
+    class Meta:
+        fields = ['password','token','uidb64']
     def validate(self, attrs):
-        email = attrs['data'].get('email','')
-        if User.objects.filter(email=email).exists():
-            user = User.objects.get(email=email)
-            uidb64 = http.urlsafe_base64_encode(user.id)
-            token = PasswordResetTokenGenerator().make_token(user)
-            current_site=get_current_site(request=attrs['data'].get('request')).domain
-            relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
-            absurl='http://'+ current_site + relativeLink 
-            context = {
-                'primer_nombre': user.persona.primer_nombre,
-                'primer_apellido':user.persona.primer_apellido,
-                'absurl': absurl,
-                }
-            template = render_to_string(('email-resetpassword.html'), context)
-            data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
-            Util.send_email(data)
+        try:
+            password = attrs.get('password')
+            token = attrs.get('token')
+            uidb64 = attrs.get('uidb64')
+
+            id = int(signing.loads(uidb64)['user'])
+            user = User.objects.get(id_usuario=id)
+            
+            if not PasswordResetTokenGenerator().check_token(user,token):
+                raise AuthenticationFailed('Link de actualizaciuon de contrtaseña invalido',401)
+            
+            user.set_password(password)
+            user.save()
+
+            return user
+        except Exception as e:
+            raise AuthenticationFailed('Link de actualizaciuon de contrtaseña invalido',401)
         return super().validate(attrs)
-        
+

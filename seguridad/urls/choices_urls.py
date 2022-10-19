@@ -16,5 +16,6 @@ urlpatterns = [
     path('tipo-direccion/', views.TipoDireccionChoices.as_view(), name='tipo-direccion'),
     path('tipo-documento/', views.TipoDocumentoChoices.as_view(), name='tipo-documento'),
     path('tipo-persona/', views.TipoPersonaChoices.as_view(), name='tipo-persona'),
-    path('tipo-usuario/', views.TipoUsuarioChoices.as_view(), name='tipo-usuario')
+    path('tipo-usuario/', views.TipoUsuarioChoices.as_view(), name='tipo-usuario'),
+    path('direcciones/', views.DireccionesChoices.as_view(), name='direcciones')
 ]
