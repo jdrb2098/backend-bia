@@ -1,5 +1,5 @@
 from django.db import models
-from seguridad.models import Municipio
+from seguridad.choices.municipios_choices import municipios_CHOICES
 
 class EstadosArticulos(models.Model):
     cod_estado = models.AutoField(primary_key=True, editable=False, db_column='T051CodEstado')
@@ -67,7 +67,7 @@ class UnidadesMedida(models.Model):
 class Bodegas(models.Model):
     id_bodega = models.AutoField(primary_key=True, editable=False, db_column='T056IdBodega')
     nombre = models.CharField(max_length=30, db_column='T056nombre')
-    cod_municipio = models.ForeignKey(Municipio, on_delete=models.CASCADE, db_column='T056Cod_Municipio')
+    cod_municipio = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T056Cod_Municipio')
     direccion = models.CharField(max_length=255, null=True, blank=True, db_column='T056direccion')
     id_responsable = models.IntegerField(db_column='T056Id_Responsable')
     es_principal = models.CharField(max_length=30, db_column='T056esPrincipal')
