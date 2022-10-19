@@ -24,6 +24,7 @@ from .models import (
     Auditorias,
     Login,
     LoginErroneo,
+    Shortener
 )
 
 
@@ -274,4 +275,10 @@ class LoginAdmin(admin.ModelAdmin):
 @admin.register(LoginErroneo)
 class LoginErroneoAdmin(admin.ModelAdmin):
     list_display = ('id_usuario','dirip', 'dispositivo_conexion', 'contador',)
+    list_display_links = list_display
+    
+    
+@admin.register(Shortener)
+class ShortenerAdmin(admin.ModelAdmin):
+    list_display = ('long_url','short_url',)
     list_display_links = list_display

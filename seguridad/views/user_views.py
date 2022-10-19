@@ -210,7 +210,7 @@ class RegisterView(generics.CreateAPIView):
         relativeLink= reverse('verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
         
-        short_url = Util.get_short_url(absurl)
+        short_url = Util.get_short_url(request, absurl)
         
         sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
         context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}

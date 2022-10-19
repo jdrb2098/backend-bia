@@ -3,9 +3,12 @@ from backend.settings import EMAIL_HOST_USER, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TO
 from twilio.rest import Client
 import re, requests
 
+from seguridad.models import Shortener
+
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 class Util:
+    
     @staticmethod
     def send_email(data):
         email = EmailMessage(subject= data['email_subject'], body=data['template'], to=[data['to_email']], from_email=EMAIL_HOST_USER)
@@ -37,10 +40,12 @@ class Util:
             return 'desktop'
         
     @staticmethod
-    def get_short_url(url):
+    def get_short_url(request, url):
         try:
-            short_url = requests.get('http://localhost:6000/api.php?url=' + url)
-            short_url = short_url.text
-            return short_url
+            create_short_url = Shortener.objects.create(
+                long_url = url
+            )
+            new_url = request.build_absolute_uri('/shortener/') + create_short_url.short_url
+            return new_url
         except:
             return url

@@ -13,6 +13,9 @@ from seguridad.choices.subsistemas_choices import subsistemas_CHOICES
 from seguridad.choices.tipo_usuario_choices import tipo_usuario_CHOICES
 from seguridad.choices.opciones_usuario_choices import opciones_usuario_CHOICES
 
+from django.conf import settings
+from random import choice
+from string import ascii_letters, digits
 
 # Modelos proveedores para Persona
 
@@ -453,4 +456,46 @@ class HistoricoActivacion(models.Model):
         db_table = 'T014HistoricoActivacion'  
         verbose_name = 'Histórico de activación'
         verbose_name_plural = 'Histórico de activaciones'
+
+class Shortener(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    times_followed = models.PositiveIntegerField(default=0)    
+    long_url = models.URLField(max_length=500)
+    short_url = models.CharField(max_length=15, unique=True, blank=True)
+
+    class Meta:
+        db_table = 'Shortener'  
+        verbose_name = 'Acortador'
+        verbose_name_plural = 'Acortadores'
+        ordering = ["-created"]
+
+    def __str__(self):
+        return f'{self.long_url} to {self.short_url}'
+    
+    def save(self, *args, **kwargs):
+        # Try to get the value from the settings module
+        SIZE = getattr(settings, "MAXIMUM_URL_CHARS", 7)
+
+        AVAIABLE_CHARS = ascii_letters + digits
         
+        random_code = "".join(
+            [choice(AVAIABLE_CHARS) for _ in range(SIZE)]
+        )
+
+        model_class = self.__class__
+        
+        exist = model_class.objects.filter(short_url=random_code).exists()
+        
+        while exist:
+            random_code = "".join(
+                [choice(AVAIABLE_CHARS) for _ in range(SIZE)]
+            )
+            
+            exist = model_class.objects.filter(short_url=random_code).exists()
+            
+        # If the short url wasn't specified
+        if not self.short_url:
+            # We pass the model instance that is being saved
+            self.short_url = random_code
+
+        super().save(*args, **kwargs)        
