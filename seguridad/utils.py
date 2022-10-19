@@ -39,7 +39,7 @@ class Util:
     @staticmethod
     def get_short_url(url):
         try:
-            short_url = requests.get('http://chilp.it/api.php?url=' + url)
+            short_url = requests.get('http://localhost:6000/api.php?url=' + url)
             short_url = short_url.text
             return short_url
         except:

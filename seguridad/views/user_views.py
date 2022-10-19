@@ -322,11 +322,9 @@ class LoginApiView(generics.CreateAPIView):
                             hour_difference = (hour_difference.days * 24) + (hour_difference.seconds//3600)
                             if hour_difference <= 24:
                                 login_error.contador += 1
-                                login_error.fecha_login_error = datetime.now()
                                 login_error.save()
-                            else:
+                            elif hour_difference > 24:
                                 login_error.contador = 1
-                                login_error.fecha_login_error = datetime.now()
                                 login_error.save()
                             if login_error.contador == 3:
                                 user.is_blocked = True
@@ -335,7 +333,14 @@ class LoginApiView(generics.CreateAPIView):
                             serializer = LoginErroneoPostSerializers(login_error, many=False)
                             return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
                         else:
-                            return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                            if user.is_blocked:
+                                return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                            else:
+                                login_error.contador = 1
+                                login_error.save()
+                                
+                                serializer = LoginErroneoPostSerializers(login_error, many=False)
+                                return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
                     else:
                         if user.is_blocked:
                             return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
