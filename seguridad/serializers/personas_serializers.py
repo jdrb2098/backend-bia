@@ -145,7 +145,7 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
     numero_documento = serializers.CharField(max_length=20, min_length=5, validators=[UniqueValidator(queryset=Personas.objects.all())])
     primer_nombre = serializers.CharField(max_length=30)
     primer_apellido = serializers.CharField(max_length=30)
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])g
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     
     class Meta:
         model = Personas
