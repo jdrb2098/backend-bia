@@ -225,7 +225,6 @@ class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
 
 class RegisterPersonaJuridica(generics.CreateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
-    renderer_classes = (UserRender,)
 
     def post(self, request):
         persona = request.data
