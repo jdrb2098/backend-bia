@@ -216,7 +216,7 @@ class RegisterPersonaNatural(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
                 return Response(persona_data, status=status.HTTP_201_CREATED)
             except:
-                return Response({'detail': 'No se pudo enviar el sms, verificar numero o credenciales de twilio'})
+                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
 
 class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
@@ -225,7 +225,6 @@ class UpdatePersonaJuridica(generics.RetrieveUpdateAPIView):
 
 class RegisterPersonaJuridica(generics.CreateAPIView):
     serializer_class = PersonaJuridicaPostSerializer
-    renderer_classes = (UserRender,)
 
     def post(self, request):
         persona = request.data
@@ -237,13 +236,15 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         persona = Personas.objects.get(email=persona_data['email'])
         persona.save()
 
-        sms = 'Hola '+ persona.razon_social + ' ' + '(' + persona.nombre_comercial + ')' + ' te informamos que has sido registrado como PERSONA JURIDICA en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+        sms = 'Hola '+ persona.razon_social  + ' te informamos que has sido registrado como PERSONA JURIDICA en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
         context = {'razon_social': persona.razon_social, 'nombre_comercial':  persona.nombre_comercial}
         template = render_to_string(('email-register-personajuridica.html'), context)
         data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
         Util.send_email(data)
-        Util.send_sms(persona.telefono_celular, sms)
-
+        try:
+            Util.send_sms(persona.telefono_celular, sms)
+        except:
+            return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
         
         return Response(persona_data, status=status.HTTP_201_CREATED)
 

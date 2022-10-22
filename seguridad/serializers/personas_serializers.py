@@ -146,6 +146,7 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
     primer_nombre = serializers.CharField(max_length=30)
     primer_apellido = serializers.CharField(max_length=30)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
+    telefono_celular = serializers.CharField(max_length=15, min_length=10)
     
     class Meta:
         model = Personas
@@ -195,6 +196,12 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
         
         
 class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
+    numero_documento = serializers.CharField(max_length=20, min_length=5, validators=[UniqueValidator(queryset=Personas.objects.all())])
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
+    razon_social = serializers.CharField(max_length=200)
+    telefono_celular = serializers.CharField(max_length=15, min_length=10)
+    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
+
     class Meta:
         model = Personas
         fields = [
@@ -207,7 +214,6 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
             'razon_social', 
             'email', 
             'email_empresarial',
-            'telefono_celular', 
             'direccion_notificaciones', 
             'direccion_residencia',
             'pais_residencia',
@@ -215,6 +221,7 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
             'municipio_residencia',
             'cod_municipio_notificacion_nal',
             'ubicacion_georeferenciada',
+            'telefono_celular',
             'telefono_celular_empresa',
             'telefono_empresa_2',
             'telefono_empresa',

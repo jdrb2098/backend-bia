@@ -202,7 +202,10 @@ class RegisterView(generics.CreateAPIView):
         
         short_url = Util.get_short_url(request, absurl)
         
-        sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+        if user.persona.primer_nombre:
+            sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+        else:
+            sms = 'Hola '+ user.persona.razon_social + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
         context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}
         template = render_to_string(('email-verification.html'), context)
         data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
@@ -401,3 +404,4 @@ class SetNewPasswordApiView(generics.GenericAPIView):
         serializer=self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success':True,'message':'Contraseña actualizada'},status=status.HTTP_200_OK)
+    
