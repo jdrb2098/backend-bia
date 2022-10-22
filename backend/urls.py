@@ -40,6 +40,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='index.html')),
     path('summernote/', include('django_summernote.urls')),
+
+    
     path('api/users/', include('seguridad.urls.user_urls')),
     path('api/auditorias/', include('seguridad.urls.auditoria_urls')),
     path('api/roles/', include('seguridad.urls.roles_urls')),
