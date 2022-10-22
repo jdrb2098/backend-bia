@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics, views
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from django.db.models import Q
 from django.contrib.sites.shortcuts import get_current_site
 from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.utils import Util
@@ -124,6 +124,19 @@ def getUserByPersonDocument(request, pk):
         return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema','persona': False})
 
 
+class GetUserByPersonDocument(generics.ListAPIView):
+    persona_serializer = PersonasSerializer
+    user_serializer = UserSerializer
+    def get(self, request, keyword1, keyword2):
+        try:
+            persona = Personas.objects.get(Q(tipo_documento = keyword1) & Q(numero_documento = keyword2))
+            user = User.objects.get(persona=persona.id_persona)
+            serializador = self.user_serializer(user)
+            return Response({'Respuesta' : serializador.data})
+        except:
+            return Response({'data': 'Datos no validos'})
+        
+    
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUser(request, pk):
@@ -203,11 +216,11 @@ class RegisterView(generics.CreateAPIView):
         try:
             Util.send_email(data)
         except:
-            return({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+            return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
         try:
             Util.send_sms(persona.telefono_celular, sms)
         except:
-            return({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
 
         
         return Response(user_data, status=status.HTTP_201_CREATED)
@@ -364,6 +377,7 @@ class PasswordTokenCheckApi(generics.GenericAPIView):
             
             if not PasswordResetTokenGenerator().check_token(user):
                 return Response({'error':'aslkdjaslkdjaslk'})
+            
 class SetNewPasswordApiView(generics.GenericAPIView):
     serializer_class=SetNewPasswordSerializer
     def patch(self,request):

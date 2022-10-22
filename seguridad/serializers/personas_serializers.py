@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import ReadOnlyField
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from seguridad.models import (
     Personas, 
     TipoDocumento, 
@@ -70,13 +70,14 @@ class PersonasSerializer(serializers.ModelSerializer):
 
 class PersonaNaturalSerializer(serializers.ModelSerializer):
     tipo_documento = TipoDocumentoSerializer(read_only=True)
+    
     estado_civil = EstadoCivilSerializer(read_only=True)
           
     class Meta:
         model = Personas
         fields = [
             'id_persona', 
-            'tipo_persona', 
+            # 'tipo_persona', 
             'tipo_documento', 
             'numero_documento', 
             'digito_verificacion', 
@@ -142,7 +143,7 @@ class PersonaJuridicaSerializer(serializers.ModelSerializer):
             
     
 class PersonaNaturalPostSerializer(serializers.ModelSerializer):
-    numero_documento = serializers.CharField(max_length=20, min_length=5, validators=[UniqueValidator(queryset=Personas.objects.all())])
+    numero_documento = serializers.CharField(max_length=20, min_length=5)
     primer_nombre = serializers.CharField(max_length=30)
     primer_apellido = serializers.CharField(max_length=30)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
@@ -183,6 +184,13 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
             'acepta_notificacion_email',
             'acepta_tratamiento_datos'
         ]
+        
+        validators = [
+            UniqueTogetherValidator(
+                queryset = Personas.objects.all(),
+                fields = ['tipo_documento', 'numero_documento']
+            )
+        ]
         extra_kwargs = {
                 'id_persona': {'required': True},
                 'tipo_persona': {'required': True},
@@ -197,7 +205,7 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
         
         
 class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
-    numero_documento = serializers.CharField(max_length=20, min_length=5, validators=[UniqueValidator(queryset=Personas.objects.all())])
+    numero_documento = serializers.CharField(max_length=20, min_length=5)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     razon_social = serializers.CharField(max_length=200)
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
@@ -230,6 +238,13 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
             'acepta_notificacion_email',
             'acepta_tratamiento_datos'
         ]
+        validators = [
+           UniqueTogetherValidator(
+               queryset=Personas.objects.all(),
+               fields = ['tipo_documento', 'numero_documento']
+           )
+        ]
+        
         extra_kwargs = {
                 'id_persona': {'required': True},
                 'tipo_persona': {'required': True},
