@@ -9,6 +9,7 @@ from django.db.models import Q
 from rest_framework.response import Response    
 from rest_framework.generics import ListAPIView, CreateAPIView , RetrieveAPIView, DestroyAPIView, UpdateAPIView, RetrieveUpdateAPIView
 
+
 class GetRolesByUser(ListAPIView):
     serializer_class = UsuarioRolesLookSerializers
     def get_queryset(self):
@@ -17,7 +18,7 @@ class GetRolesByUser(ListAPIView):
         if query == None:
             query = ''
         queryset = queryset.filter(
-            Q(id_usuario__in = query)
+            Q(id_usuario = query)
         )
         return queryset
     

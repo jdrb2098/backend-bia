@@ -8,21 +8,20 @@ urlpatterns = [
     path('estado-civil/get-list/', views.getEstadoCivil.as_view(), name="estado-civil-get"),
     path('estado-civil/get-by-id/<str:pk>/', views.getEstadoCivilById.as_view(), name='estado-civil-id-get'),
     path('estado-civil/delete/<str:pk>/', views.deleteEstadoCivil.as_view(), name='estado-civil-delete'),
-    path('estado-civil/update/<str:pk>/', views.updateEstadoCivil.as_view(), name='estado-civil-update'),
     path('estado-civil/create/', views.registerEstadoCivil.as_view(), name='estado-civil-register'),
     
     # Tipo Documento 
     path('tipos-documento/get-list/', views.getTipoDocumento.as_view(), name="tipo-documento-get"),
     path('tipos-documento/get-by-id/<str:pk>/', views.getTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
     path('tipos-documento/delete/<str:pk>/', views.deleteTipoDocumento.as_view(), name='tipo-documento-delete'),
-    path('tipos-documento/update/<str:pk>/', views.updateTipoDocumento.as_view(), name='tipo-documento-update'),
     path('tipos-documento/create/', views.registerTipoDocumento.as_view(), name='tipo-documento-register'),
     
     # Personas 
     path('get-list/', views.getPersonas.as_view(), name="personas-get"),
-    path('get-by-document/<str:pk>/', views.getPersonaByDocument, name='persona-document-get'),
     path('get-by-email/<str:pk>/', views.getPersonaByEmail, name='persona-email-get'),
     #
+    path('get-personas-naturales-by-document/<str:keyword1>/<str:keyword2>', views.GetPersonaNaturalByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-natural-by-document-and-tipo-documento-get'),
+    path('get-personas-juridicas-by-document/<str:tipodocumento>/<str:numerodocumento>/', views.GetPersonaJuridicaByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-juridica-by-document-and-tipo-documento-get'),
     path('get-personas-naturales/', views.GetPersonaNatural.as_view(), name='persona-natural-get'),
     path('get-personas-juridicas/', views.GetPersonaJuridica.as_view(), name='persona-juridica-get'),
     path('persona-natural/update/<str:pk>/', views.UpdatePersonaNatural.as_view(), name='persona-natural-update'),

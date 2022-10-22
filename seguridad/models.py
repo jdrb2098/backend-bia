@@ -107,7 +107,7 @@ class Personas(models.Model):
     id_persona = models.AutoField(primary_key=True, editable=False, db_column='T010IdPersona')
     tipo_persona = models.CharField(max_length=1, choices=tipo_persona_CHOICES, db_column='T010tipoPersona')
     tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True, db_column='T010Cod_TipoDocumento')
-    numero_documento = models.CharField(max_length=20, unique=True, db_column='T010nroDocumento')
+    numero_documento = models.CharField(max_length=20, db_column='T010nroDocumento')
     digito_verificacion = models.CharField(max_length=1, null=True, blank=True, db_column='T010digitoVerificacion')
     primer_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010primerNombre')
     segundo_nombre = models.CharField(max_length=30, null=True, blank=True, db_column='T010segundoNombre')
@@ -149,7 +149,7 @@ class Personas(models.Model):
         db_table = 'T010Personas'
         verbose_name = 'Persona'
         verbose_name_plural = 'Personas'
-
+        unique_together = ['tipo_documento', 'numero_documento']
 
 # Tablas producidas a partir de Persona
 
