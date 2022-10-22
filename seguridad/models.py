@@ -409,7 +409,7 @@ class LoginErroneo(models.Model):
         
 
 class UsuariosRol(models.Model):
-    id_rol = models.ForeignKey(Roles, on_delete=models.SET_NULL,null=True, db_column='TzIdRol')
+    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='TzIdRol')
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzIdUsuario')
 
     def __str__(self):
@@ -447,7 +447,7 @@ class HistoricoActivacion(models.Model):
     cod_operacion = models.CharField(max_length=1, choices=opciones_usuario_CHOICES, db_column='T014Cod_Operacion')
     fecha_operacion = models.DateTimeField(auto_now=True, db_column='T014fechaOperacion')
     justificacion = models.TextField(db_column='T014justificacion')
-    usuario_operador = models.ForeignKey(User, related_name='usuarioOperador', on_delete=models.CASCADE, db_column='T014usuarioOperador')  #Añadido por Juan
+    usuario_operador = models.ForeignKey(User, related_name='usuarioOperador', on_delete=models.SET_NULL, null=True, blank=True, db_column='T014usuarioOperador')  #Añadido por Juan
 
     def __str__(self):
         return str(self.cod_operacion)

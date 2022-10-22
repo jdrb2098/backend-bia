@@ -20,6 +20,18 @@ class GetRolesByUser(ListAPIView):
             Q(id_usuario__in = query)
         )
         return queryset
+    
+class GetUsersByRol(ListAPIView):
+    serializer_class = UsuarioRolesLookSerializers
+    def get_queryset(self):
+        queryset = UsuariosRol.objects.all()
+        query = self.request.query_params.get('keyword')
+        if query == None:
+            query = ''
+        queryset = queryset.filter(
+            Q(id_rol = query)
+        )
+        return queryset
 
 class UserRolViewSet(viewsets.ModelViewSet):
 
@@ -80,11 +92,22 @@ def updateRol(request, pk):
     except:
         message = {'detail': 'An error ocurred'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteRol(DestroyAPIView):
+    serializer_class = RolesSerializer
+    queryset = Roles.objects.all()
     
-@api_view(['DELETE'])
-@permission_classes([AllowAny])
-def deleteRol(request, pk):
-    rolForDeletion = Roles.objects.get(id_rol=pk)
-    rolForDeletion.delete()
-    message = {'detail': "Rol was deleted"}
-    return Response(message, status=status.HTTP_200_OK)
+    def delete(self, request, pk):
+       
+        usuario_rol = UsuariosRol.objects.filter(id_rol=pk)
+        
+        if usuario_rol:
+            return Response({'detail':'No puede eliminar el rol porque ya está asignado a un usuario'})
+        else:
+            rol = Roles.objects.filter(id_rol=pk)
+            
+            if rol:
+                rol.delete()
+                return Response({'detail':'El rol fue eliminado'})
+            else:
+                return Response({'detail':'No existe el rol ingresado'})
