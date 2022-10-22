@@ -117,9 +117,11 @@ class LoginSerializer(serializers.ModelSerializer):
     nombre_de_usuario = serializers.CharField(max_length=68, min_length=6, read_only=True)
     tokens = serializers.DictField(read_only=True)
     is_superuser = serializers.BooleanField(read_only=True, default=False)
+    id_usuario = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model=Login
-        fields= ['email', 'password', 'nombre_de_usuario', 'tokens', 'is_superuser']
+        fields= ['email', 'password', 'nombre_de_usuario', 'tokens', 'is_superuser', 'id_usuario']
     
     def validate(self, attrs):
         email = attrs.get('email', '')
@@ -134,7 +136,7 @@ class LoginSerializer(serializers.ModelSerializer):
         if user.is_blocked:
             raise AuthenticationFailed('Tu cuenta ha sido bloqueada, contacta un Admin')
 
-        return {'email': user.email, 'nombre_de_usuario': user.nombre_de_usuario, 'tokens': user.tokens(), 'is_superuser': user.is_superuser,}
+        return {'email': user.email, 'nombre_de_usuario': user.nombre_de_usuario, 'tokens': user.tokens(), 'is_superuser': user.is_superuser, 'id_usuario': user.id_usuario}
  
 class LoginPostSerializers(serializers.ModelSerializer):
     class Meta:

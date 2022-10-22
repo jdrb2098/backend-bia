@@ -175,6 +175,7 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
             'departamento_residencia',
             'municipio_residencia',
             'direccion_residencia',
+            'direccion_laboral',
             'direccion_residencia_ref',
             'direccion_notificaciones',
             'cod_municipio_laboral_nal',

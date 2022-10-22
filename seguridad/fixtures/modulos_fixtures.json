@@ -1,0 +1,82 @@
+[
+    {
+      "model": "seguridad.Modulos",
+      "pk": 1,
+      "fields": {
+        "id_modulo ": 1,
+        "nombre_modulo": "Personas",
+        "subsistema":"TRSV",
+        "descripcion":"Permite alimentar la información básica de las personas"
+      }
+    },
+    {
+      "model": "seguridad.Modulos",
+      "pk": 2,
+      "fields": {
+        "id_modulo ": 2,
+        "nombre_modulo": "Usuarios",
+        "subsistema":"SEGU",
+        "descripcion":"Permite administrar los usuarios del sistema"
+      }
+    },
+    {
+      "model": "seguridad.Modulos",
+      "pk": 3,
+      "fields": {
+        "id_modulo ": 3,
+        "nombre_modulo": "Actualizacion de Datos Usuario",
+        "subsistema":"SEGU",
+        "descripcion":"Permite administrar a una persona que tiene un usuario interno, los datos de su usuario desde el sistema-Sóo para usuarios internos"
+      }
+    },
+    {
+      "model": "seguridad.Modulos",
+      "pk": 4,
+      "fields": {
+        "id_modulo ": 4,
+        "nombre_modulo": "Actualizacion Datos Usuario Externo",
+        "subsistema":"SEGU",
+        "descripcion":"Permite administrar a una persona que tiene un usuario externo, los datos de su usuario desde el portal web-Sólo para usuarios externos"
+      }
+    },
+    {
+      "model": "seguridad.Modulos",
+      "pk": 5,
+      "fields": {
+        "id_modulo ": 5,
+        "nombre_modulo": "Roles",
+        "subsistema":"SEGU",
+        "descripcion":"Permite administrar los roles del sistema"
+      }
+    },
+    {
+      "model": "seguridad.Modulos",
+      "pk": 6,
+      "fields": {
+        "id_modulo ": 6,
+        "nombre_modulo": "Estado Civil",
+        "subsistema":"TRSV",
+        "descripcion":"Permite administrar la información básica de los Estados Civiles del sistema"
+      }
+    },
+    {
+        "model": "seguridad.Modulos",
+        "pk": 7,
+        "fields": {
+          "id_modulo ": 7,
+          "nombre_modulo": "Tipo de Documento de ID",
+          "subsistema":"TRSV",
+          "descripcion":"Permite administrar los tipos de documentos de identificación"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 8,
+        "fields": {
+          "id_modulo ": 8,
+          "nombre_modulo": "Delegación del Rol de SuperUsuario",
+          "subsistema":"SEGU",
+          "descripcion":"Proceso que permite a un SuperUsuario delegar dicha función a otra persona"
+        }
+      }
+  ]

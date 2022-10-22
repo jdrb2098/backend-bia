@@ -22,19 +22,11 @@ urlpatterns = [
     path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'),
     path('pasword-reset-complete', views.SetNewPasswordApiView.as_view(),name='pasword-reset-complete'), 
     #Login
-    path('listarlogin/', views.LoginListApiViews.as_view(),name='mostrar-lista-login'),
-    path('enviardatoslogin/', views.LoginRegisterApiViews.as_view(),name='enviar-datos-login'),
-    path('consultarlogin/<int:pk>', views.LoginConsultarApiViews.as_view(),name='consultar-login'),
-    path('eliminarlogin/<int:pk>', views.LoginDestroyApiViews.as_view(),name='actualizar-login'),
-    path('actualizarlogin/<int:pk>', views.LoginUpdateApiViews.as_view(),name='eliminar-login'),
+    path('login/get-list/', views.LoginListApiViews.as_view(),name='login-get'),
+    path('login/get-by-id/<str:pk>/', views.LoginConsultarApiViews.as_view(),name='login-id-get'),
     #LoginErroneo
-    path('listarloginerroneo/', views.LoginErroneoListApiViews.as_view(),name='mostrar-lista-login-erroneo'),
-    path('enviardatosloginerroneo/', views.LoginErroneoRegisterApiViews.as_view(),name='enviar-datos-login-erroneo'),
-    path('consultarloginerroneo/<int:pk>', views.LoginErroneoConsultarApiViews.as_view(),name='consultar-login-erroneo'),
-    path('eliminarloginerroneo/<int:pk>', views.LoginErroneoDestroyApiViews.as_view(),name='actualizar-login-erroneo'),
-    path('actualizarloginerroneo/<int:pk>', views.LoginErroneoUpdateApiViews.as_view(),name='eliminar-login-erroneo'),
+    path('login-erroneo/get-list/', views.LoginErroneoListApiViews.as_view(),name='login-erroneo-get'),
+    path('login-erroneo/get-by-id/<str:pk>/', views.LoginErroneoConsultarApiViews.as_view(),name='login-erroneo-id-get'),
     #UserRoles
-    path('roles/register/', views.RegisterUserRoles.as_view(), name='user-rol-register'),
-    path('roles/update/<int:pk>/', views.UpdateUserRoles.as_view(), name='user-rol-update'),
     path('roles/delete/<int:pk>/', views.DeleteUserRoles.as_view(), name='user-rol-delete')
 ]
