@@ -4,6 +4,7 @@ from django.core import signing
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from seguridad.permissions import TipoUsuarioBase
 from rest_framework.response import Response
 from seguridad.renderers.user_renderers import UserRender
 from seguridad.models import *
@@ -102,7 +103,7 @@ def getUserProfile(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser,TipoUsuarioBase])
 def getUsers(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
@@ -170,7 +171,7 @@ def updateUserAdmin(request, pk):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser,])
 def deleteUser(request, pk):
     userForDeletion = User.objects.get(id_usuario=pk)
     userForDeletion.delete()
@@ -294,7 +295,7 @@ class LoginApiView(generics.CreateAPIView):
         if user:
             if user.is_active:
                 try:
-                    login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).order_by('-fecha_login_error').first()
+                    login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).last()
                     serializer = self.serializer_class(data=request.data)
                     serializer.is_valid(raise_exception=True)
                     
@@ -318,10 +319,10 @@ class LoginApiView(generics.CreateAPIView):
                         if login_error.contador < 3:
                             hour_difference = datetime.utcnow().replace(tzinfo=None) - login_error.fecha_login_error.replace(tzinfo=None)
                             hour_difference = (hour_difference.days * 24) + (hour_difference.seconds//3600)
-                            if hour_difference <= 24:
+                            if hour_difference < 24:
                                 login_error.contador += 1
                                 login_error.save()
-                            elif hour_difference > 24:
+                            else :
                                 login_error.contador = 1
                                 login_error.save()
                             if login_error.contador == 3:
@@ -332,16 +333,16 @@ class LoginApiView(generics.CreateAPIView):
                             return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
                         else:
                             if user.is_blocked:
-                                return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                                return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
                             else:
                                 login_error.contador = 1
                                 login_error.save()
                                 
                                 serializer = LoginErroneoPostSerializers(login_error, many=False)
-                                return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                                return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_200_OK)
                     else:
                         if user.is_blocked:
-                            return Response({'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                            return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
                         else:
                             login_error = LoginErroneo.objects.create(
                                 id_usuario = user,
@@ -386,9 +387,6 @@ class PasswordTokenCheckApi(generics.GenericAPIView):
         try:
             id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
-            
-            
-            
             if not PasswordResetTokenGenerator().check_token(user,token):
                 return Response({'error': 'token invalido, solicita uno nuevo'}, status=status.HTTP_401_UNAUTHORIZED)
             
