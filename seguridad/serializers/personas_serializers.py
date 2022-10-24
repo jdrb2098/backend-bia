@@ -77,7 +77,7 @@ class PersonaNaturalSerializer(serializers.ModelSerializer):
         model = Personas
         fields = [
             'id_persona', 
-            # 'tipo_persona', 
+            'tipo_persona', 
             'tipo_documento', 
             'numero_documento', 
             'digito_verificacion', 
