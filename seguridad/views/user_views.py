@@ -107,31 +107,15 @@ def getUserById(request, pk):
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 
-@api_view(['GET'])
-@permission_classes([IsAdminUser])
-def getUserByPersonDocument(request, pk):
-    try:
-        personas = Personas.objects.get(numero_documento=pk)
-        if personas:
-            try:
-                user = User.objects.get(persona=personas.id_persona)
-                serializer = UserSerializer(user, many=False)
-                return Response(serializer.data)
-            except:
-                personas_serializer = PersonasSerializer(personas, many=False)
-                return Response([personas_serializer.data, {'message': 'No existe ningún usuario asociado a esta persona', 'persona': True}])
-    except:
-        return Response({'message':'La persona asociada a este numero de documento no existe dentro del sistema','persona': False})
-
 
 class GetUserByPersonDocument(generics.ListAPIView):
     persona_serializer = PersonasSerializer
-    user_serializer = UserSerializer
+    serializer_class = UserSerializer
     def get(self, request, keyword1, keyword2):
         try:
             persona = Personas.objects.get(Q(tipo_documento = keyword1) & Q(numero_documento = keyword2))
             user = User.objects.get(persona=persona.id_persona)
-            serializador = self.user_serializer(user)
+            serializador = self.serializer_class(user)
             return Response({'Respuesta' : serializador.data})
         except:
             return Response({'data': 'Datos no validos'})
