@@ -120,23 +120,36 @@ class GetPersonaNatural(generics.ListAPIView):
     filter_backends=[filters.SearchFilter]
     search_fields=['primer_nombre','primer_apellido']
 
+
+class GetPersonasByTipoDocumentoAndNumeroDocumento(generics.GenericAPIView):
+    serializer_class = PersonasSerializer
+    
+    def get(self, request, tipodocumento, numerodocumento):
+        try:
+            queryset = Personas.objects.get(Q(tipo_documento = tipodocumento) & Q(numero_documento=numerodocumento))  
+            persona_serializer = self.serializer_class(queryset)
+            return Response({'data': persona_serializer.data})
+        except:
+            return Response({'detail': 'No encontró ninguna persona con los parametros ingresados'})
+
+
 class GetPersonaNaturalByTipoDocumentoAndNumeroDocumento(generics.ListAPIView):
     serializer_class = PersonaNaturalSerializer
 
-    def get(self, keyword1, keyword2):
+    def get(self, request, tipodocumento, numerodocumento):
         try:
-            queryset = Personas.objects.get(Q(tipo_documento=keyword1)&Q(numero_documento=(keyword2)))
+            queryset = Personas.objects.get(Q(tipo_persona='N') & Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento))
             serializador = self.serializer_class(queryset)
             return Response({'data': serializador.data})
         except:
-            return Response({'data': 'Datos no validos'})
+            return Response({'data': 'No encontró ninguna persona con los parametros ingresados'})
 
 class GetPersonaJuridicaByTipoDocumentoAndNumeroDocumento(generics.GenericAPIView):
     serializer_class = PersonaJuridicaSerializer
     
     def get(self, request, tipodocumento, numerodocumento):
         try:
-            queryset = Personas.objects.get(Q(tipo_documento = tipodocumento) & Q(numero_documento=numerodocumento))  
+            queryset = Personas.objects.get(Q(tipo_persona='J') & Q(tipo_documento = tipodocumento) & Q(numero_documento=numerodocumento))  
             persona_serializer = self.serializer_class(queryset)
             return Response({'data': persona_serializer.data})
         except:
