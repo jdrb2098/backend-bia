@@ -201,7 +201,8 @@ class RegisterPersonaNatural(generics.CreateAPIView):
             sms = 'Hola '+ persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que has sido registrado como PERSONA NATURAL en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
             context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
             template = render_to_string(('email-register-personanatural.html'), context)
-            data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
+            subject = 'Registro exitoso ' + persona.primer_nombre
+            data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
             try:
                 Util.send_email(data)
             except:
@@ -236,7 +237,8 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
             sms = 'Hola '+ persona.razon_social  + ' te informamos que has sido registrado como PERSONA JURIDICA en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
             context = {'razon_social': persona.razon_social, 'nombre_comercial':  persona.nombre_comercial}
             template = render_to_string(('email-register-personajuridica.html'), context)
-            data = {'template': template, 'email_subject': 'Registro exitoso', 'to_email': persona.email}
+            subject = 'Registro exitoso ' + persona.razon_social
+            data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
             try: 
                 Util.send_email(data)
             except:
@@ -318,21 +320,6 @@ class getHistoricoEmailById(generics.RetrieveAPIView):
     queryset = HistoricoEmails.objects.all()
 
 
-class deleteHistoricoEmail(generics.DestroyAPIView):
-    serializer_class = HistoricoEmailsSerializer
-    queryset = HistoricoEmails.objects.all()
-
-
-class updateHistoricoEmail(generics.RetrieveUpdateAPIView):
-    serializer_class = HistoricoEmailsPostSerializer
-    queryset = HistoricoEmails.objects.all()
-
-
-class registerHistoricoEmail(generics.CreateAPIView):
-    serializer_class = HistoricoEmailsPostSerializer 
-    queryset = HistoricoEmails.objects.all() 
-
-
 # Views for Historico Direcciones
 
 
@@ -346,21 +333,6 @@ class GetHistoricoDireccionById(generics.RetrieveAPIView):
     serializer_class = HistoricoDireccionSerializer
     
     
-class DeleteHistoricoDireccion(generics.DestroyAPIView):
-    queryset = HistoricoDireccion.objects.all()
-    serializer_class = HistoricoDireccionSerializer
-
-
-class UpdateHistoricoDireccion(generics.RetrieveUpdateAPIView):
-    queryset = HistoricoDireccion.objects.all()
-    serializer_class = HistoricoDireccionPostSerializer
-
-
-class RegisterHistoricoDireccion(generics.CreateAPIView):
-    queryset = HistoricoDireccion.objects.all()
-    serializer_class = HistoricoDireccionPostSerializer
-
-
 # Views for Clases Tercero
 
 

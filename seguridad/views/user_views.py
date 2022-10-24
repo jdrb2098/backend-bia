@@ -190,24 +190,37 @@ class RegisterView(generics.CreateAPIView):
         
         short_url = Util.get_short_url(request, absurl)
         
-        if user.persona.primer_nombre:
+        if user.persona.tipo_persona == 'N':
             sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
+            template = render_to_string(('email-verification.html'), context)
+            subject = 'Verifica tu usuario ' + user.persona.primer_nombre
+            data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+            try:
+                Util.send_email(data)
+            except:
+                return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            return Response(user_data, status=status.HTTP_201_CREATED)
+
         else:
             sms = 'Hola '+ user.persona.razon_social + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
-        context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido, 'absurl': absurl}
-        template = render_to_string(('email-verification.html'), context)
-        data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
-        try:
-            Util.send_email(data)
-        except:
-            return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
-        try:
-            Util.send_sms(persona.telefono_celular, sms)
-        except:
-            return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-
-        
-        return Response(user_data, status=status.HTTP_201_CREATED)
+            context = {'razon_social': user.persona.razon_social, 'absurl': absurl}
+            template = render_to_string(('email-verification.html'), context)
+            subject = 'Verifica tu usuario ' + user.persona.razon_social
+            data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+            try:
+                Util.send_email(data)
+            except:
+                return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            return Response(user_data, status=status.HTTP_201_CREATED)
 
 class Verify(views.APIView):
 
@@ -222,10 +235,24 @@ class Verify(views.APIView):
             if not user.is_active:
                 user.is_active = True
                 user.save()
-                context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido':  user.persona.primer_apellido}
-                template = render_to_string(('email-verified.html'), context)
-                data = {'template': template, 'email_subject': 'Verificación Exitosa', 'to_email': user.email}
-                Util.send_email(data)
+                if user.persona.tipo_persona == 'N':
+                    context = {'primer_nombre': user.persona.primer_nombre}
+                    template = render_to_string(('email-verified.html'), context)
+                    subject = 'Verificación exitosa ' + user.nombre_de_usuario
+                    data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                    try:
+                        Util.send_email(data)
+                    except:
+                        return Response({'detail': 'No se pudo enviar el email, verificar servicio'})
+                else:
+                    context = {'razon_social': user.persona.razon_social}
+                    template = render_to_string(('email-verified.html'), context)
+                    subject = 'Verificación exitosa ' + user.nombre_de_usuario
+                    data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                    try:
+                        Util.send_email(data)
+                    except:
+                        return Response({'detail': 'No se pudo enviar el email, verificar servicio'})
             return Response({'email': 'succesfully activated'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
             return Response({'error': 'activation link expired'}, status=status.HTTP_400_BAD_REQUEST)
@@ -293,10 +320,42 @@ class LoginApiView(generics.CreateAPIView):
                                 login_error.save()
                             if login_error.contador == 3:
                                 user.is_blocked = True
-                                user.save()
-                                return Response({'detail':'Su usuario ha sido bloqueado'})
+                                user.save()   
+
+                                if user.persona.tipo_persona == 'N':
+                                    sms = 'Hola ' + user.persona.primer_nombre + ' Tu usuario ha sido bloqueado ya que alcanzó el limite de intentos \
+                                        para ingresar a Bia Cormacarena, desbloquealo enviando un correo a admin@admin.com'
+                                    context = {'primer_nombre': user.persona.primer_nombre}
+                                    template = render_to_string(('email-blocked-user.html'), context)
+                                    subject = 'Bloqueo de cuenta ' + user.persona.primer_nombre
+                                    email_data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                                    try:
+                                        Util.send_email(email_data)
+                                    except:
+                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el email, verificar servicio'})
+                                    try:
+                                        Util.send_sms(user.persona.telefono_celular, sms)
+                                    except:
+                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'})
+                                    return Response({'detail':'Su usuario ha sido bloqueado'})
+                                else:
+                                    sms = 'Hola ' + user.persona.razon_social + ' Tu usuario ha sido bloqueado ya que alcanzó el limite de intentos \
+                                        para ingresar a Bia Cormacarena, desbloquealo enviando un correo a admin@admin.com'
+                                    context = {'razon_social': user.persona.razon_social}
+                                    template = render_to_string(('email-blocked-user.html'), context)
+                                    subject = 'Bloqueo de cuenta ' + user.persona.razon_social
+                                    email_data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                                    try:
+                                        Util.send_email(email_data)
+                                    except:
+                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el email, verificar servicio'})
+                                    try:
+                                        Util.send_sms(user.persona.telefono_celular, sms)
+                                    except:
+                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'})
+                                    return Response({'detail':'Su usuario ha sido bloqueado'})
                             serializer = LoginErroneoPostSerializers(login_error, many=False)
-                            return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                            return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
                         else:
                             if user.is_blocked:
                                 return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
@@ -337,14 +396,31 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             current_site=get_current_site(request=request).domain
             relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
             absurl='http://'+ current_site + relativeLink 
-            context = {
+            if user.persona.tipo_persona == 'N':
+                context = {
                 'primer_nombre': user.persona.primer_nombre,
                 'primer_apellido':user.persona.primer_apellido,
                 'absurl': absurl,
                 }
-            template = render_to_string(('email-resetpassword.html'), context)
-            data = {'template': template, 'email_subject': 'Verifica tu usuario', 'to_email': user.email}
-            Util.send_email(data)
+                template = render_to_string(('email-resetpassword.html'), context)
+                subject = 'Actualiza tu contraseña ' + user.persona.primer_nombre
+                data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                try:
+                    Util.send_email(data)
+                except:
+                    return Response({'detail': 'error '})
+            else:
+                context = {
+                'razon_social': user.persona.razon_social,
+                'absurl': absurl,
+                }
+                template = render_to_string(('email-resetpassword.html'), context)
+                subject = 'Actualiza tu contraseña ' + user.persona.razon_social
+                data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+                try:
+                    Util.send_email(data)
+                except:
+                    return Response({'detail': 'error '})
         return Response( {'success': 'te enviamos el link  para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
 
 class PasswordTokenCheckApi(generics.GenericAPIView):
