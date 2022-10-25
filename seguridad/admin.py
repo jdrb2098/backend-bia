@@ -89,8 +89,7 @@ class PersonasAdmin(admin.ModelAdmin):
         'numero_documento', 
         'email', 
         'sexo', 
-        'tipo_persona', 
-        'departamento_residencia',
+        'tipo_persona',
     )
     list_filter = (
         'tipo_persona', 

@@ -35,7 +35,6 @@ def test_register_persona(client):
         "direccion_notificaciones": "sdfsdfsdfsdfs",
         "direccion_residencia": '',
         "pais_residencia": '',
-        "departamento_residencia": '',
         "municipio_residencia": '',
         "cod_municipio_notificacion_nal": '',
         "ubicacion_georeferenciada": "gfdfs",

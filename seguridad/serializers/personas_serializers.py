@@ -128,7 +128,6 @@ class PersonaJuridicaSerializer(serializers.ModelSerializer):
             'direccion_notificaciones', 
             'direccion_residencia',
             'pais_residencia',
-            'departamento_residencia', 
             'municipio_residencia',
             'cod_municipio_notificacion_nal',
             'ubicacion_georeferenciada',
@@ -172,7 +171,6 @@ class PersonaNaturalPostSerializer(serializers.ModelSerializer):
             'telefono_fijo_residencial',            
             'telefono_empresa',
             'pais_residencia',
-            'departamento_residencia',
             'municipio_residencia',
             'direccion_residencia',
             'direccion_laboral',
@@ -225,7 +223,6 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
             'direccion_notificaciones', 
             'direccion_residencia',
             'pais_residencia',
-            'departamento_residencia', 
             'municipio_residencia',
             'cod_municipio_notificacion_nal',
             'ubicacion_georeferenciada',
@@ -253,7 +250,6 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
                 'email': {'required': True},
                 'telefono_celular': {'required': True},
                 'direccion_notificaciones': {'required': True},
-                'departamento_residencia': {'required': True},
                 'municipio_residencia': {'required': True},
             }
 
