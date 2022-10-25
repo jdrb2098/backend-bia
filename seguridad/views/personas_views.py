@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from seguridad.permissions.permissions_persona import PermisoActualizarPersona, PermisoConsultarPersona
+from seguridad.permissions.permissions_user_over_person import PermisoActualizarPersona, PermisoBorrarEstadoCivil, PermisoConsultarPersona, PermisoCrearPersona
 from rest_framework.generics  import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -62,6 +62,7 @@ class getEstadoCivilById(generics.RetrieveAPIView):
 
 class deleteEstadoCivil(generics.DestroyAPIView):
     serializer_class = EstadoCivilSerializer
+    permission_classes = PermisoBorrarEstadoCivil
     queryset = EstadoCivil.objects.all()
     
     def delete(self, request, pk):
@@ -118,7 +119,7 @@ class getPersonas(generics.ListAPIView):
 
 class GetPersonaNatural(generics.ListAPIView):
     serializer_class=PersonaNaturalSerializer
-    permission_classes=[IsAuthenticated,PermisoConsultarPersona]
+    permission_classes=[IsAuthenticated, PermisoConsultarPersona]
     queryset=Personas.objects.filter(tipo_persona='N')       
     filter_backends=[filters.SearchFilter]
     search_fields=['primer_nombre','primer_apellido']
@@ -310,7 +311,7 @@ class registerSucursalEmpresa(generics.CreateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer 
     queryset = SucursalesEmpresas.objects.all()
     
-"""
+
 # Views for Historico Emails
 
 
@@ -319,9 +320,6 @@ class getHistoricoEmails(generics.ListAPIView):
     queryset = HistoricoEmails.objects.all()
 
 
-class getHistoricoEmailById(generics.RetrieveAPIView):
-    serializer_class = HistoricoEmailsSerializer
-    queryset = HistoricoEmails.objects.all()
 
 
 # Views for Historico Direcciones
@@ -331,12 +329,8 @@ class GetHistoricoDirecciones(generics.ListAPIView):
     queryset = HistoricoDireccion.objects.all()
     serializer_class = HistoricoDireccionSerializer
 
-
-class GetHistoricoDireccionById(generics.RetrieveAPIView):
-    queryset = HistoricoDireccion.objects.all()
-    serializer_class = HistoricoDireccionSerializer
     
-    
+"""    
 # Views for Clases Tercero
 
 
