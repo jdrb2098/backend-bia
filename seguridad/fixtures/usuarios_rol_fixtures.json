@@ -1,11 +1,11 @@
 [
     {
-      "model": "seguridad.Permisos",
+      "model": "seguridad.UsuariosRol",
       "pk": 1,
       "fields": {
         "id_usuarios_rol":1,
-        "cod_permiso": 1,
-        "nombre_permiso": 1
+        "id_rol": 1,
+        "id_usuario": 1
       }
     }
   ]

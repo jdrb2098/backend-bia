@@ -5,8 +5,7 @@
       "fields": {
         "id_permiso_modulo_rol":1,
         "id_rol": 1,
-        "id_modulo": 1,
-        "cod_permiso":"AC"
+        "id_permiso_modulo": 1
       }
     },
     {
@@ -15,8 +14,7 @@
       "fields": {
         "id_permiso_modulo_rol":2,
         "id_rol": 1,
-        "id_modulo": 1,
-        "cod_permiso":"CO"
+        "id_permiso_modulo": 2
       }
     },
     {
@@ -25,8 +23,7 @@
       "fields": {
         "id_permiso_modulo_rol":3,
         "id_rol": 1,
-        "id_modulo": 1,
-        "cod_permiso":"CR"
+        "id_permiso_modulo": 3
       }
     },
     {
@@ -35,8 +32,7 @@
       "fields": {
         "id_permiso_modulo_rol":4,
         "id_rol": 1,
-        "id_modulo": 2,
-        "cod_permiso":"AC"
+        "id_permiso_modulo": 4
       }
     },
     {
@@ -45,8 +41,7 @@
       "fields": {
         "id_permiso_modulo_rol":5,
         "id_rol": 1,
-        "id_modulo": 2,
-        "cod_permiso":"CO"
+        "id_permiso_modulo": 5
       }
     },
     {
@@ -55,8 +50,7 @@
       "fields": {
         "id_permiso_modulo_rol":6,
         "id_rol": 1,
-        "id_modulo": 2,
-        "cod_permiso":"CR"
+        "id_permiso_modulo": 6
       }
     },
     {
@@ -65,8 +59,7 @@
         "fields": {
           "id_permiso_modulo_rol":7,
           "id_rol": 1,
-          "id_modulo": 3,
-          "cod_permiso":"AC"
+          "id_permiso_modulo": 7
         }
       },
       {
@@ -75,8 +68,7 @@
         "fields": {
           "id_permiso_modulo_rol":8,
           "id_rol": 1,
-          "id_modulo": 3,
-          "cod_permiso":"CO"
+          "id_permiso_modulo": 8
         }
       },
       {
@@ -85,8 +77,7 @@
         "fields": {
           "id_permiso_modulo_rol":9,
           "id_rol": 1,
-          "id_modulo": 4,
-          "cod_permiso":"AC"
+          "id_permiso_modulo": 9
         }
       },
       {
@@ -95,8 +86,7 @@
         "fields": {
           "id_permiso_modulo_rol":10,
           "id_rol": 1,
-          "id_modulo": 4,
-          "cod_permiso":"CO"
+          "id_permiso_modulo": 10
         }
       },
       {
@@ -105,8 +95,7 @@
         "fields": {
           "id_permiso_modulo_rol":11,
           "id_rol": 1,
-          "id_modulo": 5,
-          "cod_permiso":"AC"
+          "id_permiso_modulo": 11
         }
       },
       {
@@ -115,8 +104,7 @@
         "fields": {
           "id_permiso_modulo_rol":12,
           "id_rol": 1,
-          "id_modulo": 5,
-          "cod_permiso":"BO"
+          "id_permiso_modulo": 12
         }
       },
       {
@@ -125,8 +113,7 @@
         "fields": {
           "id_permiso_modulo_rol":13,
           "id_rol": 1,
-          "id_modulo": 5,
-          "cod_permiso":"CO"
+          "id_permiso_modulo": 13
         }
       },
       {
@@ -135,8 +122,7 @@
         "fields": {
           "id_permiso_modulo_rol":14,
           "id_rol": 1,
-          "id_modulo": 5,
-          "cod_permiso":"CR"
+          "id_permiso_modulo": 14
         }
       },
       {
@@ -145,8 +131,7 @@
         "fields": {
           "id_permiso_modulo_rol":15,
           "id_rol": 1,
-          "id_modulo": 8,
-          "cod_permiso":"CO"
+          "id_permiso_modulo": 23
         }
       },
       {
@@ -155,8 +140,7 @@
         "fields": {
           "id_permiso_modulo_rol":16,
           "id_rol": 1,
-          "id_modulo": 8,
-          "cod_permiso":"EJ"
+          "id_permiso_modulo": 24
         }
       },
       {
@@ -165,8 +149,7 @@
         "fields": {
           "id_permiso_modulo_rol":17,
           "id_rol": 2,
-          "id_modulo": 4,
-          "cod_permiso":"AC"
+          "id_permiso_modulo": 9
         }
       },
       {
@@ -175,8 +158,7 @@
         "fields": {
           "id_permiso_modulo_rol":18,
           "id_rol": 2,
-          "id_modulo": 4,
-          "cod_permiso":"CO"
+          "id_permiso_modulo": 10
         }
       }
   ]
