@@ -18,7 +18,8 @@
             "tipo_usuario": "I",
             "email": "admin@admin.com",
             "groups": [],
-            "user_permissions": []
+            "user_permissions": [],
+            "is_creado_por_portal":false
         }
     }
 ]

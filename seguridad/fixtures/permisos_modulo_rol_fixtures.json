@@ -3,6 +3,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 1,
       "fields": {
+        "id_permiso_modulo_rol":1,
         "id_rol": 1,
         "id_modulo": 1,
         "cod_permiso":"AC"
@@ -12,6 +13,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 2,
       "fields": {
+        "id_permiso_modulo_rol":2,
         "id_rol": 1,
         "id_modulo": 1,
         "cod_permiso":"CO"
@@ -21,6 +23,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 3,
       "fields": {
+        "id_permiso_modulo_rol":3,
         "id_rol": 1,
         "id_modulo": 1,
         "cod_permiso":"CR"
@@ -30,6 +33,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 4,
       "fields": {
+        "id_permiso_modulo_rol":4,
         "id_rol": 1,
         "id_modulo": 2,
         "cod_permiso":"AC"
@@ -39,6 +43,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 5,
       "fields": {
+        "id_permiso_modulo_rol":5,
         "id_rol": 1,
         "id_modulo": 2,
         "cod_permiso":"CO"
@@ -48,6 +53,7 @@
       "model": "seguridad.PermisosModuloRol",
       "pk": 6,
       "fields": {
+        "id_permiso_modulo_rol":6,
         "id_rol": 1,
         "id_modulo": 2,
         "cod_permiso":"CR"
@@ -57,6 +63,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 7,
         "fields": {
+          "id_permiso_modulo_rol":7,
           "id_rol": 1,
           "id_modulo": 3,
           "cod_permiso":"AC"
@@ -66,6 +73,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 8,
         "fields": {
+          "id_permiso_modulo_rol":8,
           "id_rol": 1,
           "id_modulo": 3,
           "cod_permiso":"CO"
@@ -75,6 +83,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 9,
         "fields": {
+          "id_permiso_modulo_rol":9,
           "id_rol": 1,
           "id_modulo": 4,
           "cod_permiso":"AC"
@@ -84,6 +93,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 10,
         "fields": {
+          "id_permiso_modulo_rol":10,
           "id_rol": 1,
           "id_modulo": 4,
           "cod_permiso":"CO"
@@ -93,6 +103,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 11,
         "fields": {
+          "id_permiso_modulo_rol":11,
           "id_rol": 1,
           "id_modulo": 5,
           "cod_permiso":"AC"
@@ -102,6 +113,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 12,
         "fields": {
+          "id_permiso_modulo_rol":12,
           "id_rol": 1,
           "id_modulo": 5,
           "cod_permiso":"BO"
@@ -111,6 +123,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 13,
         "fields": {
+          "id_permiso_modulo_rol":13,
           "id_rol": 1,
           "id_modulo": 5,
           "cod_permiso":"CO"
@@ -120,6 +133,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 14,
         "fields": {
+          "id_permiso_modulo_rol":14,
           "id_rol": 1,
           "id_modulo": 5,
           "cod_permiso":"CR"
@@ -129,6 +143,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 15,
         "fields": {
+          "id_permiso_modulo_rol":15,
           "id_rol": 1,
           "id_modulo": 8,
           "cod_permiso":"CO"
@@ -138,6 +153,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 16,
         "fields": {
+          "id_permiso_modulo_rol":16,
           "id_rol": 1,
           "id_modulo": 8,
           "cod_permiso":"EJ"
@@ -147,6 +163,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 17,
         "fields": {
+          "id_permiso_modulo_rol":17,
           "id_rol": 2,
           "id_modulo": 4,
           "cod_permiso":"AC"
@@ -156,6 +173,7 @@
         "model": "seguridad.PermisosModuloRol",
         "pk": 18,
         "fields": {
+          "id_permiso_modulo_rol":18,
           "id_rol": 2,
           "id_modulo": 4,
           "cod_permiso":"CO"

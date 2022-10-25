@@ -249,7 +249,7 @@ class ClasesTerceroPersona(models.Model):
     
     class Meta:
         db_table = 'T011ClasesTercero_Persona'
-        constraints = [models.UniqueConstraint(fields=['id_persona', 'id_clase_tercero'], name='permiso_modulo')]
+        constraints = [models.UniqueConstraint(fields=['id_persona', 'id_clase_tercero'], name='clases-tercero-persona')]
         verbose_name = 'Clase tercero persona'
         verbose_name_plural = 'Clase tercero personas'
 
@@ -322,7 +322,7 @@ class PermisosModulo(models.Model):
     
     class Meta:
         db_table= 'TzPermisos_Modulo'
-        constraints = [models.UniqueConstraint(fields=['id_modulo', 'cod_permiso'], name='permiso_modulo')]
+        constraints = [models.UniqueConstraint(fields=['id_modulo', 'cod_permiso'], name='permisos-modulo')]
         verbose_name = 'Permiso de módulo'
         verbose_name_plural = 'Permisos de módulo'
 
@@ -337,7 +337,7 @@ class PermisosModuloRol(models.Model):
     
     class Meta:
         db_table= 'TzPermisos_Modulo_Rol'
-        constraints = [models.UniqueConstraint(fields=['id_rol', 'id_permisos_modulo'], name='permiso_modulo_rol')]
+        constraints = [models.UniqueConstraint(fields=['id_rol', 'id_permiso_modulo'], name='permiso_modulo_rol')]
         verbose_name = 'Permiso de modulo de rol'
         verbose_name_plural = 'Permisos de modulo de roles'
         
@@ -356,7 +356,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
     is_creado_por_portal= models.BooleanField(default=True, db_column='TZcreadoPorPortal')
     tipo_usuario = models.CharField(max_length=1,null=True, choices=tipo_usuario_CHOICES, db_column='TztipoUsuario')
-    profile_img = models.ImageField(db_column='tzrutaFoto') #Juan Camilo Text Choices
+    profile_img = models.ImageField(null=True, blank=True, default='/placeholder.png', db_column='tzrutaFoto') #Juan Camilo Text Choices
     email = models.EmailField(unique=True, db_column='TzemailUsuario') #Añadido por Juan
     
     USERNAME_FIELD = 'email'

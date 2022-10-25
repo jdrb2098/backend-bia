@@ -83,7 +83,7 @@ class HistoricoDireccionAdmin(admin.ModelAdmin):
 
 @admin.register(Personas)
 class PersonasAdmin(admin.ModelAdmin):
-    list_display = ('numero_documento', 'email', 'sexo', 'tipo_persona', 'departamento_residencia')
+    list_display = ('numero_documento', 'email', 'sexo', 'tipo_persona', 'municipio_residencia')
     list_display_links = list_display
     search_fields = (
         'numero_documento', 
@@ -111,7 +111,7 @@ class HistoricoEmailsAdmin(admin.ModelAdmin):
 
 @admin.register(SucursalesEmpresas)
 class SucursalesEmpresasAdmin(admin.ModelAdmin):
-    list_display = ('id_empresa','sucursal','email_sucursal', 'telefono_sucursal', 'es_principal',)
+    list_display = ('id_persona_empresa','sucursal','email_sucursal', 'telefono_sucursal', 'es_principal',)
     list_display_links = list_display
     search_fields = (
         'sucursal',
@@ -227,7 +227,7 @@ class PermisosModuloAdmin(admin.ModelAdmin):
 
 @admin.register(PermisosModuloRol)
 class PermisosModuloRolAdmin(admin.ModelAdmin):
-    list_display = ('id_rol','id_modulo', 'cod_permiso',)
+    list_display = ('id_rol','id_permiso_modulo_rol','id_permiso_modulo')
     list_display_links = list_display
 
 
