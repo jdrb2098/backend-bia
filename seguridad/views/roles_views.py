@@ -6,6 +6,8 @@ from rest_framework import status,viewsets,mixins
 from seguridad.serializers.roles_serializers import RolesSerializer, UsuarioRolesSerializers
 from seguridad.serializers.user_serializers import UsuarioRolesLookSerializers
 from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
+from seguridad.permissions.permissions_roles import PermisoActualizarRoles
 from rest_framework.response import Response    
 from rest_framework.generics import ListAPIView, CreateAPIView , RetrieveAPIView, DestroyAPIView, UpdateAPIView, RetrieveUpdateAPIView
 
@@ -74,32 +76,18 @@ def registerRol(request):
         message = {'detail': 'An error ocurred'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT'])
-def updateRol(request, pk):
-    rol = Roles.objects.get(id_rol=pk)
+
     
-    data = request.data
-    try:
-        if (data['nombre_rol']) and (data['nombre_rol'] != ''):
-            rol.nombre_rol = data['nombre_rol']
-            
-        if (data['descripcion_rol']) and (data['descripcion_rol'] != ''):
-            rol.descripcion_rol = data['descripcion_rol']
-            
-        rol.save()
-        
-        serializer = RolesSerializer(rol, many=False)
-        return Response(serializer.data)
-    except:
-        message = {'detail': 'An error ocurred'}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+class UpdateRol(RetrieveUpdateAPIView):
+    queryset=Roles.objects.all()
+    permission_classes = [IsAuthenticated, PermisoActualizarRoles]
+    serializer_class=RolesSerializer
 
 class DeleteRol(DestroyAPIView):
     serializer_class = RolesSerializer
     queryset = Roles.objects.all()
     
     def delete(self, request, pk):
-       
         usuario_rol = UsuariosRol.objects.filter(id_rol=pk)
         
         if usuario_rol:
