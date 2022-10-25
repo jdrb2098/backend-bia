@@ -97,7 +97,6 @@ class PersonaNaturalSerializer(serializers.ModelSerializer):
             'telefono_fijo_residencial',            
             'telefono_empresa',
             'pais_residencia',
-            'departamento_residencia',
             'municipio_residencia',
             'direccion_residencia',
             'direccion_residencia_ref',

@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from seguridad.permissions.permissions import PermisoConsultarPersona
 from rest_framework.generics  import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -116,6 +118,7 @@ class getPersonas(generics.ListAPIView):
 
 class GetPersonaNatural(generics.ListAPIView):
     serializer_class=PersonaNaturalSerializer
+    permission_classes=[IsAuthenticated,PermisoConsultarPersona]
     queryset=Personas.objects.filter(tipo_persona='N')       
     filter_backends=[filters.SearchFilter]
     search_fields=['primer_nombre','primer_apellido']
