@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from seguridad.permissions.permissions import PermisoConsultarPersona
+from seguridad.permissions.permissions_persona import PermisoActualizarPersona, PermisoConsultarPersona
 from rest_framework.generics  import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -182,6 +182,7 @@ class deletePersona(generics.DestroyAPIView):
 
 class UpdatePersonaNatural(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaNaturalPostSerializer
+    permission_classes = [IsAuthenticated, PermisoActualizarPersona]
     queryset = Personas.objects.all()
 
 
