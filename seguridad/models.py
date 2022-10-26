@@ -207,7 +207,7 @@ class HistoricoEmails(models.Model):
 class SucursalesEmpresas(models.Model):
     id_sucursal_empresa=models.AutoField(primary_key=True, editable=False, db_column='T012IdSucursalesEmpresa')
     id_persona_empresa = models.ForeignKey(Personas,on_delete=models.CASCADE,  db_column='T012IdPersonaEmpresa')
-    numero_sucursal = models.AutoField(db_column='T012nroSucursal')
+    numero_sucursal = models.SmallIntegerField(db_column='T012nroSucursal')
     sucursal = models.CharField(max_length=255, db_column='T012sucursal')
     direccion = models.CharField(max_length=255, db_column='T012dirSucursal')
     direccion_sucursal_georeferenciada = models.CharField(max_length=50, db_column='T012dirSucursalGeoref')
