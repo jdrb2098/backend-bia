@@ -172,10 +172,11 @@ class HistoricoDireccion(models.Model):
 
 
 class ApoderadoPersona(models.Model):
-    consecutivo_del_proceso = models.AutoField(primary_key=True, editable=False, db_column = 'T013ConsecDelProceso') #Pendiente por foreingKey de tabla procesos
-    id_proceso = models.CharField(max_length=50, db_column = 'T013IdProceso') #Pendiente por foreingKey de tabla procesos
-    persona_poderdante = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T013IdPersonaPoderdante')
-    persona_apoderada = models.ForeignKey(Personas, on_delete=models.CASCADE, related_name='persona_apoderada', db_column = 'T013IdPersonaApoderada')
+    id_apoderados_persona = models.AutoField(primary_key= True, editable= False, db_column="T013IdApoderados_persona")
+    consecutivo_del_proceso = models.PositiveSmallIntegerField(db_column = 'T013consecDelProceso') #Pendiente por foreingKey de tabla procesos
+    id_proceso = models.CharField(max_length=50, db_column = 'T013Id_Proceso') #Pendiente por foreingKey de tabla procesos
+    persona_poderdante = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T013Id_PersonaPoderdante')
+    persona_apoderada = models.ForeignKey(Personas, on_delete=models.CASCADE, related_name='Id_Persona_apoderada', db_column = 'T013IdPersonaApoderada')
     fecha_inicio = models.DateTimeField(db_column='T013fechaInicio')
     fecha_cierre = models.DateTimeField(db_column='T013fechaCierre', null=True, blank=True)
     
@@ -204,12 +205,13 @@ class HistoricoEmails(models.Model):
 
 
 class SucursalesEmpresas(models.Model):
+    id_sucursal_empresa=models.AutoField(primary_key=True, editable=False, db_column='T012IdSucursalesEmpresa')
     id_persona_empresa = models.ForeignKey(Personas,on_delete=models.CASCADE,  db_column='T012IdPersonaEmpresa')
-    numero_sucursal = models.AutoField(primary_key=True, editable=False, db_column='T012NroSucursal')
+    numero_sucursal = models.AutoField(db_column='T012nroSucursal')
     sucursal = models.CharField(max_length=255, db_column='T012sucursal')
-    municipio = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T012Cod_MunicipioSucursalNal')
     direccion = models.CharField(max_length=255, db_column='T012dirSucursal')
     direccion_sucursal_georeferenciada = models.CharField(max_length=50, db_column='T012dirSucursalGeoref')
+    municipio = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T012Cod_MunicipioSucursalNal')
     pais_sucursal_exterior = models.CharField(max_length=2, choices=paises_CHOICES, db_column='T012cod_PaisSucursalExterior')
     direccion_notificacion = models.CharField(max_length=50, db_column='T012dirNotificacionNal')
     municipio_notificacion = models.CharField(max_length=5, choices=municipios_CHOICES, db_column='T012Cod_MunicipioNotificacionNal') 
@@ -314,8 +316,8 @@ class Modulos(models.Model):
 
 class PermisosModulo(models.Model):
     id_permisos_modulo= models.AutoField(primary_key=True,db_column='TzIdPermisos_Modulo' )
-    id_modulo = models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzIdModulo')
-    cod_permiso = models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCodPermiso')
+    id_modulo = models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
+    cod_permiso = models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_Permiso')
   
     def __str__(self):
         return str(self.id_modulo) + ' ' + str(self.cod_permiso)
@@ -328,9 +330,9 @@ class PermisosModulo(models.Model):
 
 
 class PermisosModuloRol(models.Model):
-    id_permiso_modulo_rol = models.AutoField(primary_key=True, db_column='IdPermisoModuloRol')
-    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='TzIdRol')
-    id_permiso_modulo = models.ForeignKey(PermisosModulo, on_delete=models.CASCADE, db_column='TzIdPermiso_Modulo')
+    id_permiso_modulo_rol = models.AutoField(primary_key=True, db_column='IdPermisos_Modulo_Rol')
+    id_rol = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='TzId_Rol')
+    id_permiso_modulo = models.ForeignKey(PermisosModulo, on_delete=models.CASCADE, db_column='TzId_Permiso_Modulo')
     
     def __str__(self):
         return str(self.id_rol) + ' ' + str(self.id_permiso_modulo) + ' ' + str(self.id_permiso_modulo_rol)
@@ -377,6 +379,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Usuarios'
 
 # Tablas generadas a partir de User
+class UsuarioErroneo(models.Model):
+    id_login_error = models.AutoField(primary_key=True, editable=False, db_column='TzIdLoginError')
+    campo_usuario = models.CharField(max_length=255,db_column='TzcampoUsuario')
+    dirip = models.CharField(max_length=40, db_column='TzdirIP')
+    dispositivo_conexion = models.CharField(max_length=30, db_column='TzdispositivoConexion')
+    fecha_login_error = models.DateTimeField(auto_now_add=True, db_column='TzfechaLoginError')
+
+    def __str__(self):
+        return str(self.campo_usuario)
+    
+    class Meta:
+        db_table = 'TzUsuarioError'
+        verbose_name = 'UsuarioError'
+        verbose_name_plural = 'UsuarioError' 
+
 
 class Login(models.Model):
     id_login = models.AutoField(primary_key=True, editable=False, db_column='TzIdLogin')
@@ -401,7 +418,7 @@ class LoginErroneo(models.Model):
     dirip = models.CharField(max_length=40, db_column='TzdirIP')
     dispositivo_conexion = models.CharField(max_length=30, db_column='TzdispositivoConexion')
     fecha_login_error = models.DateTimeField(auto_now=True, db_column='TzfechaLoginError')
-    contador = models.IntegerField(db_column='Tzcontador')
+    contador = models.PositiveSmallIntegerField(db_column='Tzcontador')
     
     def __str__(self):
         return str(self.id_usuario)
@@ -432,7 +449,7 @@ class Auditorias(models.Model):
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo = models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
     id_cod_permiso_accion = models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_PermisoAccion')
-    fecha_accion = models.DateField(db_column='TzfechaAccion')
+    fecha_accion = models.DateTimeField(auto_now=True, db_column='TzfechaAccion')
     subsistema = models.CharField(max_length=4, choices=subsistemas_CHOICES, db_column='Tzsubsistema') #Juan camilo text choices
     dirip = models.CharField(max_length=255, db_column='Tzdirip')
     descripcion = models.TextField(db_column='Tzdescripcion')
