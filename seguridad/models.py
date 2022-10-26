@@ -259,7 +259,7 @@ class ClasesTerceroPersona(models.Model):
 # Tablas para proveer Usuarios
 
 class OperacionesSobreUsuario(models.Model):
-    cod_operacion = models.AutoField(primary_key=True, editable=False, db_column='T008CodOperacion')
+    cod_operacion = models.CharField(max_length=1,primary_key=True, editable=False, db_column='T008CodOperacion')
     nombre = models.CharField(max_length=20, db_column='T008nombre')
 
     def __str__(self):
