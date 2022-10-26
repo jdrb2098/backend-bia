@@ -333,7 +333,7 @@ class PermisosModuloRol(models.Model):
     id_permiso_modulo = models.ForeignKey(PermisosModulo, on_delete=models.CASCADE, db_column='TzIdPermiso_Modulo')
     
     def __str__(self):
-        return str(self.id_rol) + ' ' + str(self.id_modulo) + ' ' + str(self.cod_permiso)
+        return str(self.id_rol) + ' ' + str(self.id_permiso_modulo) + ' ' + str(self.id_permiso_modulo_rol)
     
     class Meta:
         db_table= 'TzPermisos_Modulo_Rol'
