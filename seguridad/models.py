@@ -353,7 +353,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
     is_blocked = models.BooleanField(max_length=1, default=False, db_column='Tzbloqueado')
     creado_por_portal = models.BooleanField(default=False, db_column='TzcreadoPorPortal')
-    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, db_column="TzId_UsuarioCreador")
+    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, blank=True, db_column="TzId_UsuarioCreador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
     is_creado_por_portal= models.BooleanField(default=True, db_column='TZcreadoPorPortal')
@@ -449,7 +449,11 @@ class Auditorias(models.Model):
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo = models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
     id_cod_permiso_accion = models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_PermisoAccion')
+<<<<<<< Updated upstream
     fecha_accion = models.DateTimeField(auto_now=True, db_column='TzfechaAccion')
+=======
+    fecha_accion = models.DateTimeField(db_column='TzfechaAccion', auto_now = True)
+>>>>>>> Stashed changes
     subsistema = models.CharField(max_length=4, choices=subsistemas_CHOICES, db_column='Tzsubsistema') #Juan camilo text choices
     dirip = models.CharField(max_length=255, db_column='Tzdirip')
     descripcion = models.TextField(db_column='Tzdescripcion')
