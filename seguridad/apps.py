@@ -8,3 +8,4 @@ class SeguridadConfig(AppConfig):
     def ready(self):
         import seguridad.signals.personas_signals
         import seguridad.signals.users_signals
+        import seguridad.signals.roles_signals

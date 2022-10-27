@@ -4,6 +4,7 @@ from django.core import signing
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from seguridad.permissions.permissions_user import PermisoCrearUsuarios, PermisoActualizarUsuarios, PermisoActualizarInterno, PermisoActualizarExterno
 from rest_framework.response import Response
 from seguridad.renderers.user_renderers import UserRender
 from seguridad.models import *
@@ -21,16 +22,18 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import jwt
 from django.conf import settings
-from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
+from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserPutAdminSerializer, UserPutSerializerExterno, UserPutSerializerInterno, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer,LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
+from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer, RegisterExternoSerializer, LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
 from django.template.loader import render_to_string
 from datetime import datetime
 from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import encoding, http
+import datetime, copy
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -56,7 +59,7 @@ def registerUser(request):
             persona =data['persona'],
             id_usuario_creador = data['id_usuario_creador'],
             activated_at = data['activated_at'],
-            tipo_usuario = data['tipo_usuario'] 
+            tipo_usuario = data['tipo_usuario']
         )
 
         serializer = UserSerializerWithToken(user, many=False)
@@ -66,11 +69,147 @@ def registerUser(request):
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateUserProfile(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializerWithToken
+class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
+    http_method_names = ["patch"]
+    serializer_class = UserPutSerializerInterno
     queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, PermisoActualizarInterno]
+    
+    def patch(self, request):
+        user_loggedin = self.request.user.id_usuario
+        user = User.objects.filter(id_usuario = user_loggedin).first()
+        previous_user = copy.copy(user)
+        if user:
+            user_serializer = self.serializer_class(user, data=request.data)
+            user_serializer.is_valid(raise_exception=True)
+            user_serializer.save()
+            
+            # AUDITORIA AL ACTUALIZAR USUARIO PROPIO
+            
+            usuario = User.objects.get(id_usuario = request.user.id_usuario)
+            modulo = Modulos.objects.get(id_modulo = 3)
+            permiso = Permisos.objects.get(cod_permiso = 'AC')
+            dirip = Util.get_client_ip(request)
+            descripcion =   "idUsuario:" + str(user_loggedin) + ";" + "nombreUsuario:" + str(user.nombre_de_usuario) + "."
+            valores_actualizados = ""
+                
+            del previous_user.__dict__["_state"]
+            del previous_user.__dict__["_django_version"]
+            
+            for field, value in previous_user.__dict__.items():
+                new_value = getattr(user,field)
+                if value != new_value:
+                    valores_actualizados += field + "_anterior:" + str(value) + ";" + field + "_nuevo:" + str(new_value) + ";"
+            
+            auditoria_user = Auditorias.objects.create(
+                id_usuario = usuario,
+                id_modulo = modulo,
+                id_cod_permiso_accion = permiso,
+                subsistema = "SEGU",
+                dirip = dirip,
+                descripcion = descripcion,
+                valores_actualizados = valores_actualizados
+            )
+            auditoria_user.save()
+            
+            return Response({'success': True,'data': user_serializer.data})
+        
+        
+class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
+    http_method_names = ["patch"]
+    serializer_class = UserPutSerializerExterno
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, PermisoActualizarExterno]
+    
+    def patch(self, request):
+        user_loggedin = self.request.user.id_usuario
+        user = User.objects.filter(id_usuario = self.request.user.id_usuario).first()
+        previous_user = copy.copy(user)
+        if user:
+            user_serializer = self.serializer_class(user, data=request.data)
+            user_serializer.is_valid(raise_exception=True)
+            user_serializer.save()
+            
+            # AUDITORIA AL ACTUALIZAR USUARIO PROPIO
+            
+            usuario = User.objects.get(id_usuario = request.user.id_usuario)
+            modulo = Modulos.objects.get(id_modulo = 4)
+            permiso = Permisos.objects.get(cod_permiso = 'AC')
+            dirip = Util.get_client_ip(request)
+            descripcion =   "idUsuario:" + str(user_loggedin) + ";" + "nombreUsuario:" + str(user.nombre_de_usuario) + "."
+            valores_actualizados = ""
+                
+            del previous_user.__dict__["_state"]
+            del previous_user.__dict__["_django_version"]
+            
+            for field, value in previous_user.__dict__.items():
+                new_value = getattr(user,field)
+                if value != new_value:
+                    valores_actualizados += field + "_anterior:" + str(value) + ";" + field + "_nuevo:" + str(new_value) + ";"
+            
+            auditoria_user = Auditorias.objects.create(
+                id_usuario = usuario,
+                id_modulo = modulo,
+                id_cod_permiso_accion = permiso,
+                subsistema = "SEGU",
+                dirip = dirip,
+                descripcion = descripcion,
+                valores_actualizados = valores_actualizados
+            )
+            auditoria_user.save()
+            
+            return Response({'success': True,'data': user_serializer.data})
 
 
+class UpdateUser(generics.RetrieveUpdateAPIView):
+    http_method_names = ["patch"]
+    serializer_class = UserPutAdminSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, PermisoActualizarUsuarios]
+    
+    def patch(self, request, pk):
+        user_loggedin = request.user.id_usuario
+        if int(user_loggedin) != int(pk):
+            user = User.objects.filter(id_usuario = pk).first()
+            previous_user = copy.copy(user)
+            if user:
+                user_serializer = self.serializer_class(user, data=request.data)
+                user_serializer.is_valid(raise_exception=True)
+                user_serializer.save()
+                
+                # AUDITORIA AL ACTUALIZAR USUARIO
+                
+                usuario = User.objects.get(id_usuario = user_loggedin)
+                modulo = Modulos.objects.get(id_modulo = 2)
+                permiso = Permisos.objects.get(cod_permiso = 'AC')
+                dirip = Util.get_client_ip(request)
+                descripcion =   "idUsuario:" + str(user_loggedin) + ";" + "nombreUsuario:" + str(user.nombre_de_usuario) + "."
+                valores_actualizados = ""
+                
+                del previous_user.__dict__["_state"]
+                del previous_user.__dict__["_django_version"]
+                
+                for field, value in previous_user.__dict__.items():
+                    new_value = getattr(user,field)
+                    if value != new_value:
+                        valores_actualizados += field + "_anterior:" + str(value) + ";" + field + "_nuevo:" + str(new_value) + ";"
+                    
+                auditoria_user = Auditorias.objects.create(
+                    id_usuario = usuario,
+                    id_modulo = modulo,
+                    id_cod_permiso_accion = permiso,
+                    subsistema = "SEGU",
+                    dirip = dirip,
+                    descripcion = descripcion,
+                    valores_actualizados = valores_actualizados
+                )
+                auditoria_user.save()
+                
+                return Response({'success': True,'data': user_serializer.data})
+            else:
+                return Response({'success': False,'detail': 'No se encontró el usuario'})
+        else:
+            return Response({'success': False,'detail': 'No puede realizar esa acción'})
 
 @api_view(['GET'])
 def roles(request):
@@ -168,6 +307,86 @@ def deleteUser(request, pk):
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+    renderer_classes = (UserRender,)
+    permission_classes = [IsAuthenticated, PermisoCrearUsuarios]
+
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer_response = serializer.save()
+        
+        user_data = serializer.data
+        
+        # AUDITORIA AL REGISTRAR USUARIO
+        
+        usuario = User.objects.get(id_usuario = request.user.id_usuario)
+        modulo = Modulos.objects.get(id_modulo = 2)
+        permiso = Permisos.objects.get(cod_permiso = 'CR')
+        dirip = Util.get_client_ip(request)
+        
+        currentdate = datetime.date.today()
+        formatDate = currentdate.strftime("%d/%m/%y")
+        
+        descripcion = "idUsuario:" + str(serializer_response.pk) + ";" + "fecha:" + formatDate + ";" + "observaciones:Registro de otro usuario" + ";" + "nombreUsuario:"+ serializer_response.nombre_de_usuario + "."
+        
+        auditoria_user = Auditorias.objects.create(
+            id_usuario = usuario,
+            id_modulo = modulo,
+            id_cod_permiso_accion = permiso,
+            subsistema = "SEGU",
+            dirip = dirip,
+            descripcion = descripcion
+        )
+        auditoria_user.save()
+        
+        user = User.objects.get(email=user_data['email'])
+
+        token = RefreshToken.for_user(user).access_token
+        
+        current_site=get_current_site(request).domain
+
+        persona = Personas.objects.get(id_persona = request.data['persona'])
+
+        relativeLink= reverse('verify')
+        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
+        
+        short_url = Util.get_short_url(request, absurl)
+        
+        if user.persona.tipo_persona == 'N':
+            sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
+            template = render_to_string(('email-verification.html'), context)
+            subject = 'Verifica tu usuario ' + user.persona.primer_nombre
+            data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+            try:
+                Util.send_email(data)
+            except:
+                return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            return Response(user_data, status=status.HTTP_201_CREATED)
+
+        else:
+            sms = 'Hola '+ user.persona.razon_social + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            context = {'razon_social': user.persona.razon_social, 'absurl': absurl}
+            template = render_to_string(('email-verification.html'), context)
+            subject = 'Verifica tu usuario ' + user.persona.razon_social
+            data = {'template': template, 'email_subject': subject, 'to_email': user.email}
+            try:
+                Util.send_email(data)
+            except:
+                return Response({'success':False, 'message':'no se pudo enviar email de confirmacion'})
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            return Response(user_data, status=status.HTTP_201_CREATED)
+
+class RegisterExternoView(generics.CreateAPIView):
+    serializer_class = RegisterExternoSerializer
     renderer_classes = (UserRender,)
 
     def post(self, request):
