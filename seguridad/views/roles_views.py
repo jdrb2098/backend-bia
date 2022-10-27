@@ -7,7 +7,7 @@ from seguridad.serializers.roles_serializers import RolesSerializer, UsuarioRole
 from seguridad.serializers.user_serializers import UsuarioRolesLookSerializers
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
-from seguridad.permissions.permissions_roles import PermisoActualizarRoles
+from seguridad.permissions.permissions_roles import PermisoActualizarRoles,PermisoBorrarRoles,PermisoConsultarRoles,PermisoCrearRoles
 from rest_framework.response import Response    
 from rest_framework.generics import ListAPIView, CreateAPIView , RetrieveAPIView, DestroyAPIView, UpdateAPIView, RetrieveUpdateAPIView
 
@@ -37,7 +37,6 @@ class GetUsersByRol(ListAPIView):
         return queryset
 
 class UserRolViewSet(viewsets.ModelViewSet):
-
     #I took the liberty to change the model to queryset
     queryset = UsuariosRol.objects.all()
     serializer_class = UsuarioRolesSerializers
@@ -49,43 +48,27 @@ class UserRolViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-@api_view(['GET'])
-def getRoles(request):
-    roles = Roles.objects.all()
-    serializer = RolesSerializer(roles, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def getRolById(request, pk):
-    rol = Roles.objects.get(id_rol=pk)
-    serializer = RolesSerializer(rol, many=False)
-    return Response(serializer.data)
-    
-@api_view(['POST'])
-def registerRol(request):
-    data = request.data
-    try:
-        rol = Roles.objects.create(
-            nombre_rol = data['nombre_rol'],
-            descripcion_rol = data['descripcion_rol']
-        )
-        
-        serializer = RolesSerializer(rol, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except:
-        message = {'detail': 'An error ocurred'}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-
-    
+class GetRolById(RetrieveAPIView):
+    serializer_class=RolesSerializer
+    permission_classes = [IsAuthenticated, PermisoConsultarRoles]
+    queryset=Roles.objects.all()   
+class GetRol(ListAPIView):
+    serializer_class=RolesSerializer
+    permission_classes = [IsAuthenticated, PermisoConsultarRoles]
+    queryset=Roles.objects.all()
+class RegisterRol(CreateAPIView):
+    serializer_class=RolesSerializer
+    permission_classes = [IsAuthenticated, PermisoCrearRoles]
+    queryset=Roles.objects.all()
 class UpdateRol(RetrieveUpdateAPIView):
     queryset=Roles.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarRoles]
     serializer_class=RolesSerializer
-
 class DeleteRol(DestroyAPIView):
     serializer_class = RolesSerializer
+    permission_classes = [IsAuthenticated, PermisoBorrarRoles]
     queryset = Roles.objects.all()
+    
     
     def delete(self, request, pk):
         usuario_rol = UsuariosRol.objects.filter(id_rol=pk)

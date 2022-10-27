@@ -1,4 +1,7 @@
+
 from django.shortcuts import render
+import datetime
+import copy
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -20,7 +23,11 @@ from seguridad.models import (
     HistoricoEmails,
     HistoricoDireccion,
     ClasesTercero,
-    ClasesTerceroPersona
+    ClasesTerceroPersona,
+    User,
+    Modulos,
+    Permisos,
+    Auditorias
 )
 
 from rest_framework import filters
@@ -185,6 +192,7 @@ class UpdatePersonaNatural(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaNaturalPostSerializer
     permission_classes = [IsAuthenticated, PermisoActualizarPersona]
     queryset = Personas.objects.all()
+    
 
 
 class RegisterPersonaNatural(generics.CreateAPIView):
@@ -300,31 +308,92 @@ class getSucursalEmpresaById(generics.RetrieveAPIView):
 class deleteSucursalEmpresa(generics.DestroyAPIView):
     serializer_class = SucursalesEmpresasSerializer
     queryset = SucursalesEmpresas.objects.all()
-
-
+    
+    def delete(self,request,pk):
+        sucursal=SucursalesEmpresas.objects.filter(id_sucursal_empresa=pk).first()
+        if sucursal:
+            sucursal.delete()
+            usuario=request.user.id_usuario
+            user = User.objects.get(id_usuario = usuario)
+            modulo = Modulos.objects.get(id_modulo = 1)
+            permiso = Permisos.objects.get(cod_permiso = 'BO')
+            
+            descripcion = "Sucursal:" + str(pk)+ "Sucursal:" + str(sucursal.sucursal)+ "."
+            direccion=Util.get_client_ip(request)
+            Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "TRSV", dirip=direccion, descripcion=descripcion)  
+            #headers = self.get_success_headers(sucursal.data)
+            return Response({'detail':'la sucursal empresa fue eliminada'})
+        else:
+            return Response({'detail':'No existe sucursal'})
+            
 class updateSucursalEmpresa(generics.RetrieveUpdateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer
     queryset = SucursalesEmpresas.objects.all()
-
+    permission_classes = [IsAuthenticated]
+    
+    def put(self, request,pk=None):
+        print(request.user)
+        sucursal = SucursalesEmpresas.objects.filter(id_sucursal_empresa= pk).first()
+        previous_sucursal = copy.copy(sucursal)
+        if sucursal:
+            sucursal_serializer = self.serializer_class(sucursal, data=request.data)
+            sucursal_serializer.is_valid(raise_exception=True)
+            sucursal_serializer.save()
+            usuario=request.user.id_usuario
+            user = User.objects.get(id_usuario = usuario)
+            modulo = Modulos.objects.get(id_modulo = 1)
+            permiso = Permisos.objects.get(cod_permiso = 'AC')
+            
+            valores_actualizados = ""
+            del previous_sucursal.__dict__["_state"]
+            del previous_sucursal.__dict__["_django_version"]  
+            for field, value in previous_sucursal.__dict__.items():
+                    new_value = getattr(sucursal,field)
+                    if value != new_value:
+                        valores_actualizados += field + "_anterior:" + str(value) + ";" + field + "_nuevo:" + str(new_value) + ";"
+                        
+            descripcion = "Sucursal id:" + str(sucursal.id_sucursal_empresa)+ "Sucursal:" + str(sucursal.sucursal)+ "."
+            direccion=Util.get_client_ip(request)
+            Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "TRSV", dirip=direccion, descripcion=descripcion, valores_actualizados=valores_actualizados)  
+            return Response({'detail':'la sucursal empresa actualizada'})
+        else:
+            return Response({'detail':'No existe sucursal'})
 
 class registerSucursalEmpresa(generics.CreateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer 
     queryset = SucursalesEmpresas.objects.all()
+    permission_classes = [IsAuthenticated]
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializador=serializer.save()
+        usuario = request.user.id_usuario
+        user = User.objects.get(id_usuario = usuario)
+        modulo = Modulos.objects.get(id_modulo = 1)
+        permiso = Permisos.objects.get(cod_permiso = 'CR')
+        
+        currentdate = datetime.date.today()
+        formatDate = currentdate.strftime("%d/%m/%y")
+        
+        
+        descripcion = "Sucursal:" + str(serializador.pk)+  ";" + "fecha:" + formatDate + ";" + "observaciones:Registro de otra sucursal" + ";" + "NumeroSucursal:"+ str(serializador.numero_sucursal) + "Sucursal:" + str(serializador.sucursal)+"."
+        direccion=Util.get_client_ip(request)
+        Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "TRSV", dirip=direccion, descripcion=descripcion)  
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
 
+        # descripcion = "idUsuario:" + str(serializer_response.pk) + ";" + "fecha:" + formatDate + ";" + "observaciones:Registro de otro usuario" + ";" + "nombreUsuario:"+ serializer_response.nombre_de_usuario + "."
+        
 # Views for Historico Emails
-
-
 class getHistoricoEmails(generics.ListAPIView):
     serializer_class = HistoricoEmailsSerializer
     queryset = HistoricoEmails.objects.all()
 
 
-
-
 # Views for Historico Direcciones
-
-
 class GetHistoricoDirecciones(generics.ListAPIView):
     queryset = HistoricoDireccion.objects.all()
     serializer_class = HistoricoDireccionSerializer

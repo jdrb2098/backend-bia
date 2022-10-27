@@ -1,0 +1,26 @@
+[
+    {
+        "model": "seguridad.ClasesTercero",
+        "pk" : 1,
+        "fields": {
+            "id_clase_tercero" : 1,
+            "nombre": "Empresa"
+        }
+    },
+    {
+        "model": "seguridad.ClasesTercero",
+        "pk" : 2,
+        "fields": {
+            "id_clase_tercero" : 2,
+            "nombre": "Funcionario"
+        }
+    },
+    {
+        "model": "seguridad.ClasesTercero",
+        "pk" : 3,
+        "fields": {
+            "id_clase_tercero" : 3,
+            "nombre": "Contratista"
+        }
+    }
+]
