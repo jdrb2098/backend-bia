@@ -38,12 +38,8 @@ class GetUsersByRol(ListAPIView):
         )
         return queryset
 
-#------------------------------------------------> Crear un rol a un usuario
+
 class UserRolViewSet(viewsets.ModelViewSet):
-<<<<<<< Updated upstream
-    #I took the liberty to change the model to queryset
-=======
->>>>>>> Stashed changes
     queryset = UsuariosRol.objects.all()
     serializer_class = UsuarioRolesSerializers
     permission_classes = [IsAuthenticated]
@@ -72,7 +68,7 @@ class UserRolViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-<<<<<<< Updated upstream
+
 class GetRolById(RetrieveAPIView):
     serializer_class=RolesSerializer
     permission_classes = [IsAuthenticated, PermisoConsultarRoles]
@@ -85,7 +81,7 @@ class RegisterRol(CreateAPIView):
     serializer_class=RolesSerializer
     permission_classes = [IsAuthenticated, PermisoCrearRoles]
     queryset=Roles.objects.all()
-=======
+
 #------------------------------------------------> Borrar un rol a un usuario
 class DeleteUserRol(DestroyAPIView):
     serializer_class = UsuarioRolesSerializers
@@ -169,12 +165,12 @@ def registerRol(request):
 
 
     
->>>>>>> Stashed changes
+
 class UpdateRol(RetrieveUpdateAPIView):
     queryset=Roles.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarRoles]
     serializer_class=RolesSerializer
-<<<<<<< Updated upstream
+
 class DeleteRol(DestroyAPIView):
     serializer_class = RolesSerializer
     permission_classes = [IsAuthenticated, PermisoBorrarRoles]
@@ -194,5 +190,4 @@ class DeleteRol(DestroyAPIView):
                 return Response({'detail':'El rol fue eliminado'})
             else:
                 return Response({'detail':'No existe el rol ingresado'})
-=======
->>>>>>> Stashed changes
+
