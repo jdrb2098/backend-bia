@@ -353,7 +353,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False, db_column='TzsuperUser')  #Añadido por Juan
     is_blocked = models.BooleanField(max_length=1, default=False, db_column='Tzbloqueado')
     creado_por_portal = models.BooleanField(default=False, db_column='TzcreadoPorPortal')
-    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True,blank=True,db_column="TzId_UsuarioCreador")
+    id_usuario_creador = models.ForeignKey('self', on_delete=models.SET_NULL,null=True, blank=True ,db_column="TzId_UsuarioCreador")
     created_at = models.DateTimeField(auto_now_add=True, db_column='TzfechaCreacion')
     activated_at = models.DateTimeField(null=True, db_column='TzfechaActivacionInicial')
     is_creado_por_portal= models.BooleanField(default=True, db_column='TZcreadoPorPortal')
