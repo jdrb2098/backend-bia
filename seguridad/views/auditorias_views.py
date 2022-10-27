@@ -23,10 +23,12 @@ class DestroyApiViews(generics.DestroyAPIView):
 def getAuditorias(request):
     tipo_documento = request.query_params.get('tipo-documento')
     numero_documento = request.query_params.get('numero-documento')
-    rango_inicial_fecha = request.query_params.get('rango-inicial-fecha').split('-')
-    rango_final_fecha = request.query_params.get('rango-final-fecha').split('-')
+    rango_inicial_fecha = request.query_params.get('rango-inicial-fecha')
+    rango_final_fecha = request.query_params.get('rango-final-fecha')
     modulo = request.query_params.get('modulo')
     subsistema = request.query_params.get('subsistema')
+    if rango_inicial_fecha==None or rango_final_fecha==None:
+        return Response({'success':False, 'message':'No se ingresaron parametros de fecha'})
     if tipo_documento == None:
         tipo_documento = ''
     if numero_documento == None:
@@ -35,8 +37,8 @@ def getAuditorias(request):
         modulo = 0
     if subsistema == None:
         subsistema = '' 
-    start_date=datetime(int(rango_inicial_fecha[2]),int(rango_inicial_fecha[1]),int(rango_inicial_fecha[0]), tzinfo=pytz.timezone('America/Bogota'))
-    end_date=datetime(int(rango_final_fecha[2]),int(rango_final_fecha[1]),int(rango_final_fecha[0]),23,59,59,999, tzinfo=pytz.timezone('America/Bogota'))
+    start_date=datetime(int(rango_inicial_fecha.split('-')[2]),int(rango_inicial_fecha.split('-')[1]),int(rango_inicial_fecha.split('-')[0]), tzinfo=pytz.timezone('America/Bogota'))
+    end_date=datetime(int(rango_final_fecha.split('-')[2]),int(rango_final_fecha.split('-')[1]),int(rango_final_fecha.split('-')[0]),23,59,59,999, tzinfo=pytz.timezone('America/Bogota'))
     try:
         auditoria_persona_id = Personas.objects.get(Q(tipo_documento = tipo_documento) & Q(numero_documento=numero_documento)).id_persona
         auditoria_usuario_id = User.objects.get(persona=auditoria_persona_id)
