@@ -7,10 +7,12 @@ urlpatterns = [
     path('login/', views.LoginApiView.as_view(), name='token_obtain_pair'),
 
     path('register/', views.RegisterView.as_view(), name='register'),
-    #path('update/<str:pk>', views.updateUser, name='register'),
+    path('register-externo/', views.RegisterExternoView.as_view(), name='register-externo'),
+    path('update/<str:pk>/', views.UpdateUser.as_view(), name='register-users'),
     
     path('profile/', views.getUserProfile, name="users-profile"),
-    path('profile/update/<int:pk>', views.UpdateUserProfile.as_view(), name="user-profile-update"), 
+    path('profile/update-interno/', views.UpdateUserProfileInterno.as_view(), name="profile-update-interno"), 
+    path('profile/update-externo/', views.UpdateUserProfileExterno.as_view(), name="profile-update-externo"), 
    
     path('roles/', views.roles, name='roles'),
     path("get/", views.getUsers, name="get-users"),

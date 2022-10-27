@@ -69,7 +69,26 @@ class UserSerializer(serializers.ModelSerializer):
         for user in usuario_creador:
             User.objects.create(user=user_instance,**user)
         return user_instance
-    
+
+class UserPutSerializerInterno(serializers.ModelSerializer):
+    nombre_de_usuario = serializers.CharField(max_length=30, min_length=6, validators=[UniqueValidator(queryset=User.objects.all())])
+    class Meta:
+        model = User
+        fields = ['nombre_de_usuario', 'profile_img']
+
+class UserPutSerializerExterno(serializers.ModelSerializer):
+    nombre_de_usuario = serializers.CharField(max_length=30, min_length=6, validators=[UniqueValidator(queryset=User.objects.all())])
+    class Meta:
+        model = User
+        fields = ['nombre_de_usuario', 'profile_img']
+
+class UserPutAdminSerializer(serializers.ModelSerializer):
+    nombre_de_usuario = serializers.CharField(max_length=30, min_length=6, validators=[UniqueValidator(queryset=User.objects.all())])
+    tipo_usuario = serializers.CharField(max_length=1, write_only=True)
+    class Meta:
+        model = User
+        fields = ['nombre_de_usuario', 'profile_img', 'is_active', 'is_blocked', 'tipo_usuario']
+
 class UsuarioRolesLookSerializers(serializers.ModelSerializer):
     id_usuario = UserSerializer(read_only=True)
     class Meta:
@@ -81,6 +100,21 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", 'nombre_de_usuario', 'persona', 'password', 'id_usuario_creador', 'tipo_usuario', 'is_active', 'is_blocked']
+
+    def validate(self, attrs):
+        email= attrs.get('email', '')
+        nombre_de_usuario=attrs.get('nombre_de_usuario', '')
+        if not nombre_de_usuario.isalnum():
+            raise serializers.ValidationError("El Nombre de usuario solo debe tener caracteres alfanumericos")
+        return attrs
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+
+class RegisterExternoSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
+    class Meta:
+        model = User
+        fields = ["email", 'nombre_de_usuario', 'persona', 'password']
 
     def validate(self, attrs):
         email= attrs.get('email', '')
