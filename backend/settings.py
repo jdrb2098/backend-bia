@@ -209,8 +209,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.outlook.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER='isamcbiacormacarena@outlook.com'
-EMAIL_HOST_PASSWORD='Isamcbia123'
+EMAIL_HOST_USER='backend-bia@outlook.com'
+EMAIL_HOST_PASSWORD='macareniaBackend'
 
 # Send SMS with Twilio
 # https://www.twilio.com/blog/verify-phone-numbers-django-twilio-verify

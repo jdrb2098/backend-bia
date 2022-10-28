@@ -2,10 +2,9 @@ from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
 from seguridad.models import Personas
 
-class EstadosArticulos(models.Model):
+class EstadosArticulo(models.Model):
     cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
     nombre = models.CharField(max_length=50, db_column='T051nombre')
-    precargado = models.BooleanField(default=False, db_column='T051registroPrecargado')
 
     def __str__(self):
         return str(self.nombre)

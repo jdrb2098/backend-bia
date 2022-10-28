@@ -49,6 +49,7 @@ urlpatterns = [
     path('api/permisos/', include('seguridad.urls.permisos_urls')),
     path('api/choices/', include('seguridad.urls.choices_urls')),
 
+    path('api/almacen/',include('almacen.urls.generics_urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     

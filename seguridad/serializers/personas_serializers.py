@@ -254,6 +254,7 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
                 'direccion_notificaciones': {'required': True},
                 'municipio_residencia': {'required': True},
             }
+        
 
 
 class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
@@ -453,6 +454,7 @@ class SucursalesEmpresasSerializer(serializers.ModelSerializer):
         
 
 class SucursalesEmpresasPostSerializer(serializers.ModelSerializer):
+    sucursal = serializers.CharField(validators=[UniqueValidator(queryset=SucursalesEmpresas.objects.all())])
     class Meta:
         model = SucursalesEmpresas
         fields = '__all__'
