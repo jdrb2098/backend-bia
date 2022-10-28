@@ -3,7 +3,7 @@ from backend.settings import EMAIL_HOST_USER, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TO
 from twilio.rest import Client
 import re, requests
 
-from seguridad.models import Shortener
+from seguridad.models import Shortener, User, Modulos, Permisos, Auditorias
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
@@ -49,3 +49,51 @@ class Util:
             return new_url
         except:
             return url
+        
+    @staticmethod
+    def save_auditoria(data):
+        try:
+            usuario = User.objects.get(id_usuario = data.get('id_usuario'))
+            modulo = Modulos.objects.get(id_modulo = data.get('id_modulo'))
+            permiso = Permisos.objects.get(cod_permiso = data.get('cod_permiso'))
+            data_descripcion = data.get('descripcion')
+            data_actualizados = data.get('valores_actualizados')
+            descripcion = None
+            
+            if data_descripcion:
+                descripcion = ''
+                for field, value in data_descripcion.items():
+                    descripcion += field + ":" + str(value) + "|"
+                descripcion += '.'
+                
+            valores_actualizados = None
+            
+            if data_actualizados:
+                valores_actualizados = ""
+                
+                data_previous = data_actualizados.get('previous')
+                data_current = data_actualizados.get('current')
+                
+                del data_previous.__dict__["_state"]
+                del data_previous.__dict__["_django_version"]
+                
+                for field, value in data_previous.__dict__.items():
+                    new_value = getattr(data_current,field)
+                    if value != new_value:
+                        valores_actualizados += field + ":" + str(value) + " con " + str(new_value) + "|"
+                valores_actualizados += '.'
+            
+            auditoria_user = Auditorias.objects.create(
+                id_usuario = usuario,
+                id_modulo = modulo,
+                id_cod_permiso_accion = permiso,
+                subsistema = data.get('subsistema'),
+                dirip = data.get('dirip'),
+                descripcion = descripcion,
+                valores_actualizados = valores_actualizados
+            )
+            auditoria_user.save()
+            
+            return True
+        except:
+            return False
