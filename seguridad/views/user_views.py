@@ -319,7 +319,7 @@ class RegisterView(generics.CreateAPIView):
         short_url = Util.get_short_url(request, absurl)
         
         if user.persona.tipo_persona == 'N':
-            sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
             template = render_to_string(('email-verification.html'), context)
             subject = 'Verifica tu usuario ' + user.persona.primer_nombre
@@ -335,7 +335,7 @@ class RegisterView(generics.CreateAPIView):
             return Response(user_data, status=status.HTTP_201_CREATED)
 
         else:
-            sms = 'Hola '+ user.persona.razon_social + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'razon_social': user.persona.razon_social, 'absurl': absurl}
             template = render_to_string(('email-verification.html'), context)
             subject = 'Verifica tu usuario ' + user.persona.razon_social
@@ -375,7 +375,7 @@ class RegisterExternoView(generics.CreateAPIView):
         short_url = Util.get_short_url(request, absurl)
         
         if user.persona.tipo_persona == 'N':
-            sms = 'Hola '+ user.persona.primer_nombre + ' ' + user.persona.primer_apellido + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
             template = render_to_string(('email-verification.html'), context)
             subject = 'Verifica tu usuario ' + user.persona.primer_nombre
@@ -391,7 +391,7 @@ class RegisterExternoView(generics.CreateAPIView):
             return Response(user_data, status=status.HTTP_201_CREATED)
 
         else:
-            sms = 'Hola '+ user.persona.razon_social + ' utiliza el siguiente link para verificar tu usuario \n' + short_url
+            sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'razon_social': user.persona.razon_social, 'absurl': absurl}
             template = render_to_string(('email-verification.html'), context)
             subject = 'Verifica tu usuario ' + user.persona.razon_social
@@ -507,8 +507,7 @@ class LoginApiView(generics.CreateAPIView):
                                 user.save()   
 
                                 if user.persona.tipo_persona == 'N':
-                                    sms = 'Hola ' + user.persona.primer_nombre + ' Tu usuario ha sido bloqueado ya que alcanzó el limite de intentos \
-                                        para ingresar a Bia Cormacarena, desbloquealo enviando un correo a admin@admin.com'
+                                    sms = 'Usuario Cormacarena Bia bloqueado por limite de intentos, desbloquealo enviando un correo a admin@admin.com'
                                     context = {'primer_nombre': user.persona.primer_nombre}
                                     template = render_to_string(('email-blocked-user.html'), context)
                                     subject = 'Bloqueo de cuenta ' + user.persona.primer_nombre
@@ -523,8 +522,7 @@ class LoginApiView(generics.CreateAPIView):
                                         return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'})
                                     return Response({'detail':'Su usuario ha sido bloqueado'})
                                 else:
-                                    sms = 'Hola ' + user.persona.razon_social + ' Tu usuario ha sido bloqueado ya que alcanzó el limite de intentos \
-                                        para ingresar a Bia Cormacarena, desbloquealo enviando un correo a admin@admin.com'
+                                    sms = 'Usuario Cormacarena Bia bloqueado por limite de intentos, desbloquealo enviando un correo a admin@admin.com'
                                     context = {'razon_social': user.persona.razon_social}
                                     template = render_to_string(('email-blocked-user.html'), context)
                                     subject = 'Bloqueo de cuenta ' + user.persona.razon_social

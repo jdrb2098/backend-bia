@@ -49,22 +49,26 @@ class UserRolViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         usuario = request.user.nombre_de_usuario
-        user = User.objects.get(nombre_de_usuario = usuario)
-        modulo = Modulos.objects.get(id_modulo = 5)
-        permiso = Permisos.objects.get(cod_permiso = 'CR')
-        direccion_ip = Util.get_client_ip(request)
-        descripcion = []
+        descripcion ={'Usuario' : usuario}
         cont = 0
         for i in request.data:
-            if cont == 0:
-                descripcion.append( "Usuario" + ":" + usuario + ";" + "Rol:" + "=>")
-            consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
-            print(consulta_rol.nombre_rol)
-            descripcion.append( str(consulta_rol ) + ";")
             cont = cont + 1
-            
-        print(descripcion)
-        Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')  
+            consulta_rol = Roles.objects.get(id_rol = i["id_rol"]).nombre_rol
+            descripcion["Rol" + str(cont)] = str(consulta_rol)         
+        
+        dirip = Util.get_client_ip(request)
+        
+        auditoria_data = {
+            'id_usuario': request.user.id_usuario,
+            'id_modulo': 5,
+            'cod_permiso': 'CR',
+            'subsistema': 'SEGU',
+            'dirip': dirip,
+            'descripcion': descripcion,
+        }
+        
+        Util.save_auditoria(auditoria_data)
+        #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')  
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

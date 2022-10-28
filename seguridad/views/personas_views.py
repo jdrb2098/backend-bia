@@ -299,7 +299,7 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
                 persona_serializada.save()
                 persona = Personas.objects.get(email=email_principal)
 
-                sms = 'Hola ' + persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA NATURAL'
+                sms = 'Actualizacion exitosa de persona en Cormacarena.'
                 context = {'primer_nombre': persona.primer_nombre, 'primer_apellido': persona.primer_apellido}
                 template = render_to_string(('email-update-personanatural-interna.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
@@ -353,7 +353,7 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
                 persona_serializada.save()
                 persona = Personas.objects.get(email=email_principal)
 
-                sms = 'Hola ' + persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA NATURAL'
+                sms = 'Actualizacion exitosa de persona natural en Cormacarena.'
                 context = {'primer_nombre': persona.primer_nombre, 'primer_apellido': persona.primer_apellido}
                 template = render_to_string(('email-update-personanatural-externa.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
@@ -397,7 +397,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                 persona_serializada.save()
                 persona = Personas.objects.get(email=email_principal)
 
-                sms = 'Hola ' + persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA NATURAL'
+                sms = 'Actualizacion exitosa de persona Natural en Cormacarena por administrador.'
                 context = {'primer_nombre': persona.primer_nombre, 'primer_apellido': persona.primer_apellido}
                 template= render_to_string(('email-update-personanatural-byuser-withpermissions.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
@@ -444,7 +444,7 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
                 persona_serializada.save()
                 persona = Personas.objects.get(email=email_principal)
 
-                sms = 'Hola ' + persona.razon_social + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA JURIDICA'
+                sms = 'Actualizacion exitosa de persona Juridica en Cormacarena.'
                 context = {'razon_social': persona.razon_social}
                 template = render_to_string(('email-update-personajuridica-interno.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.razon_social
@@ -454,6 +454,7 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
                 except:
                     return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
                 try:
+                    
                     Util.send_sms(persona.telefono_celular_empresa, sms)
                 except:
                     return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
@@ -491,7 +492,7 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
                 persona_serializada.save()
                 persona = Personas.objects.get(email=email_principal)
                 
-                sms = 'Hola ' + persona.razon_social + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA JURIDICA'
+                sms = 'Actualizacion exitosa de persona Juridica en Cormacarena.'
                 context = {'razon_social': persona.razon_social}
                 template = render_to_string(('email-update-personajuridica-externo.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.razon_social
@@ -533,17 +534,19 @@ class RegisterPersonaNatural(generics.CreateAPIView):
             serializer.save()
             persona = Personas.objects.get(email = email)
     
-            sms = 'Hola '+ persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que has sido registrado como PERSONA NATURAL en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+            sms = 'Registro exitoso como persona en Cormacarena. Continue aqui: ' + 'http://127.0.0.1:8000/api/personas/persona-natural/create/'  
             context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
             template = render_to_string(('email-register-personanatural.html'), context)
             subject = 'Registro exitoso ' + persona.primer_nombre
             data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
             try:
                 Util.send_email(data)
+                print("Email enviado")
             except:
                 return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
             try:
                 Util.send_sms(persona.telefono_celular, sms)
+                print("SMS enviado")
             except:
                 return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
             return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
@@ -565,7 +568,7 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
             serializer.save() 
             persona = Personas.objects.get(email=email)
 
-            sms = 'Hola '+ persona.razon_social  + ' te informamos que has sido registrado como PERSONA JURIDICA en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+            sms = 'Registro exitoso como persona Juridica en Cormacarena. Continue aqui: ' + 'http://127.0.0.1:8000/api/personas/persona-natural/create/'
             context = {'razon_social': persona.razon_social, 'nombre_comercial':  persona.nombre_comercial}
             template = render_to_string(('email-register-personajuridica.html'), context)
             subject = 'Registro exitoso ' + persona.razon_social

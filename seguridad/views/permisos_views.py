@@ -100,32 +100,68 @@ class PermisosModuloRolViewSet(viewsets.ModelViewSet):
         usuario = request.user.nombre_de_usuario
         print(usuario)
         user = User.objects.get(nombre_de_usuario = usuario)
-        print(user)
-        modulo = Modulos.objects.get(id_modulo = 2)
-        permiso = Permisos.objects.get(cod_permiso = 'CR')
-        direccion_ip = Util.get_client_ip(request)
-        currentdate = datetime.date.today()
-        formatDate = currentdate.strftime("%d/%m/%y")
-        descripcion = []
+        descripcion = {}
         cont = 0 
         for i in request.data: 
-            # consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
-            # print(consulta_rol.nombre_rol)   
-            
-            # descripcion = "Sucursal:" + str(serializador.pk)+  ";" + "fecha:" + formatDate + ";" + "observaciones:Registro de otra sucursal" + ";" + "NumeroSucursal:"+ str(serializador.numero_sucursal) + "."
-            
+            print(i["id_permiso_modulo"])
             consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = i["id_permiso_modulo"])
             consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
             consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
-            permiso = Permisos.objects.get(cod_permiso = consulta_permiso_modulo.cod_permiso.cod_permiso)
+            permiso = Permisos.objects.get(cod_permiso = consulta_permiso_modulo.cod_permiso.cod_permiso)  
             if cont == 0:
-                descripcion.append( "Permisos Modulo rol añadidos=>")
-            descripcion.append( "Permiso" + ":" + str(permiso.nombre_permiso) + ";" + "Modulo" + ":" + str(consulta_modulo.nombre_modulo) + ";" + "Rol:" + str(consulta_rol.nombre_rol))
+                descripcion = {"Rol" : str(consulta_rol.nombre_rol)}
+            cont = cont + 1
+            descripcion["NombrePermiso" + str(cont)] = str(permiso.nombre_permiso)
+            descripcion["NombreModulo" + str(cont)] = str(consulta_modulo.nombre_modulo)
 
         print(descripcion)
-        Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
+        dirip = Util.get_client_ip(request)
+        
+        auditoria_data = {
+            'id_usuario': request.user.id_usuario,
+            'id_modulo': 2,
+            'cod_permiso': 'CR',
+            'subsistema': 'SEGU',
+            'dirip': dirip,
+            'descripcion': descripcion
+        }
+            
+        Util.save_auditoria(auditoria_data)
+        #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+# class PermisosModuloRolViewSet(viewsets.ModelViewSet):
+#     queryset = PermisosModuloRol.objects.all()
+#     serializer_class = PermisosModuloRolPostSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+#         usuario = request.user.nombre_de_usuario
+#         print(usuario)
+#         user = User.objects.get(nombre_de_usuario = usuario)
+#         print(user)
+#         modulo = Modulos.objects.get(id_modulo = 2)
+#         permiso = Permisos.objects.get(cod_permiso = 'CR')
+#         direccion_ip = Util.get_client_ip(request)
+#         descripcion = []
+#         for i in request.data: 
+#             # consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
+#             # print(consulta_rol.nombre_rol)           
+#             consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = i["id_permiso_modulo"])
+#             print(consulta_permiso_modulo.cod_permiso)
+#             consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
+#             consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
+#             permiso = Permisos.objects.get(cod_permiso = consulta_permiso_modulo.cod_permiso.cod_permiso)
+#             descripcion.append( "Permiso" + ":" + str(permiso.nombre_permiso) + ";" + "Modulo" + ":" + str(consulta_modulo.nombre_modulo) + ";" + "Rol:" + str(consulta_rol.nombre_rol))
+
+#         print(descripcion)
+#         Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 #------------------------------------------------> Borrar un permiso de un modulo rol
 class DeletePermisoModuloRol(DestroyAPIView):

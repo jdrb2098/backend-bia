@@ -1,11 +1,7 @@
 from django.core.mail import EmailMessage
-from backend.settings import EMAIL_HOST_USER, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_MESSAGING_SERVICE_SID, PHONE_NUMBER
-from twilio.rest import Client
-import re, requests
-
+from backend.settings import EMAIL_HOST_USER, AUTHENTICATION_360_NRS
 from seguridad.models import Shortener, User, Modulos, Permisos, Auditorias
-
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+import re, requests
 
 class Util:
     
@@ -17,7 +13,23 @@ class Util:
         
     @staticmethod
     def send_sms(phone, sms):
-        client.messages.create(messaging_service_sid=TWILIO_MESSAGING_SERVICE_SID, body=sms, from_=PHONE_NUMBER, to=phone)
+        url = "https://dashboard.360nrs.com/api/rest/sms"
+
+        telefono = phone
+        mensaje = sms
+        telefono = telefono.replace("+","")
+        print(telefono)
+        print(len(sms))
+        payload = "{ \"to\": [\"" + telefono + "\"], \"from\": \"TEST\", \"message\": \"" + mensaje + "\" }"
+        headers = {
+        'Content-Type': 'application/json', 
+        'Authorization': 'Basic ' + AUTHENTICATION_360_NRS
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        print(response.text)
+        #client.messages.create(messaging_service_sid=TWILIO_MESSAGING_SERVICE_SID, body=sms, from_=PHONE_NUMBER, to=phone)
         
     @staticmethod
     def get_client_ip(request):
