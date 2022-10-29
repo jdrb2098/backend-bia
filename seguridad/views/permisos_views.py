@@ -189,7 +189,7 @@ class DeletePermisoModuloRol(DestroyAPIView):
             return Response({'detail':'No existe el esa selección ingresada'})
 
 
-"""class InsertarPermisosModulo(CreateAPIView):
+class InsertarPermisosModulo(CreateAPIView):
     serializer_class = PermisosModuloPostSerializer
 
 class UpdatePermisoModulo(RetrieveUpdateAPIView):
@@ -229,7 +229,7 @@ class DetailPermisosModuloRol(RetrieveAPIView):
 
 class DeletePermisosModuloRol(DestroyAPIView):
     serializer_class = PermisosModuloRolPostSerializer
-    queryset = PermisosModuloRol.objects.all()"""
+    queryset = PermisosModuloRol.objects.all()
 
 #----------------------------------------------------->Tabla Modulos
 
