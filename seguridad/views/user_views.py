@@ -223,11 +223,16 @@ class GetUserByPersonDocument(generics.ListAPIView):
     def get(self, request, keyword1, keyword2):
         try:
             persona = Personas.objects.get(Q(tipo_documento = keyword1) & Q(numero_documento = keyword2))
-            user = User.objects.get(persona=persona.id_persona)
-            serializador = self.serializer_class(user)
-            return Response({'Respuesta' : serializador.data})
+            try:
+                user = User.objects.get(persona=persona.id_persona)
+                serializador = self.serializer_class(user)
+                return Response({'Usuario' : serializador.data})
+            except:
+                serializador = PersonasSerializer(persona, many=False)
+                return Response({'Persona': serializador.data})
         except:
-            return Response({'data': 'Datos no validos'})
+            return Response({'data': 'No se encuentra persona con este numero de documento'})
+   
         
     
 @api_view(['PUT'])

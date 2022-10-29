@@ -209,8 +209,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.outlook.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER='backend-bia@outlook.com'
-EMAIL_HOST_PASSWORD='macareniaBackend'
+EMAIL_HOST_USER='bia-bia-cormacarena@outlook.com'
+EMAIL_HOST_PASSWORD='Isamc1234'
 
 # Send SMS with Twilio
 # https://www.twilio.com/blog/verify-phone-numbers-django-twilio-verify
@@ -220,7 +220,7 @@ TWILIO_VERIFY_SERVICE_SID=os.environ.get('TWILIO_VERIFY_SERVICE_SID')
 TWILIO_ACCOUNT_SID=os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
 PHONE_NUMBER=os.environ.get('PHONE_NUMBER')
-AUTHENTICATION_360_NRS = os.environ.get('AUTHENTICATION_360NRS')
+AUTHENTICATION_360_NRS = os.environ.get('AUTHENTICATION_360_NRS')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
