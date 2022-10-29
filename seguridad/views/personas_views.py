@@ -51,6 +51,7 @@ from seguridad.serializers.personas_serializers import (
     PersonaJuridicaSerializer,
     PersonaNaturalPostSerializer,
     PersonaJuridicaPostSerializer,
+    PersonaNaturalPostByUserSerializer,
     PersonaNaturalInternoUpdateSerializer,
     PersonaNaturalExternoUpdateSerializer,
     PersonaNaturalUpdateUserPermissionsSerializer,
@@ -204,7 +205,6 @@ class GetPersonas(generics.ListAPIView):
     queryset = Personas.objects.all()
 
 
-
 @api_view(['GET'])
 def getPersonaByEmail(request, pk):
     try:
@@ -265,11 +265,6 @@ class GetPersonaJuridica(generics.ListAPIView):
     search_fields=['razon_social','nombre_comercial']
 
 
-class deletePersona(generics.DestroyAPIView):
-    serializer_class = PersonasSerializer
-    queryset = Personas.objects.all()
-
-
 class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
     http_method_names = ['patch']
     serializer_class = PersonaNaturalInternoUpdateSerializer
@@ -281,22 +276,40 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
         numero_documento = self.request.user.persona.numero_documento
         
         persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipo_documento) & Q(numero_documento=numero_documento))
-        
+        previous_persona = copy.copy(persona_por_actualizar)
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
             
+            #Validación email entrantes vs existentes
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
             
             try:
-                #personita = Personas.objects.get(email_empresarial=email_principal)
-                personita = Personas.objects.get(email=email_secundario)
-                if personita: 
-                    #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email como opcion secundaria'})
+                persona_email_validated = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                if persona_email_validated: 
+                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
-                persona_serializada.save()
+                serializador = persona_serializada.save()
+
+                # auditoria actualizar persona
+                usuario = request.user.id_usuario
+                direccion=Util.get_client_ip(request)
+                descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "PrimerNombre": str(serializador.primer_nombre), "PrimerApellido": str(serializador.primer_apellido)}
+                valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                auditoria_data = {
+                    "id_usuario" : usuario,
+                    "id_modulo" : 1,
+                    "cod_permiso": "AC",
+                    "subsistema": 'TRSV',
+                    "dirip": direccion,
+                    "descripcion": descripcion, 
+                    "valores_actualizados": valores_actualizados
+                }
+                Util.save_auditoria(auditoria_data)
+
+                #Enviar SMS y Email
                 persona = Personas.objects.get(email=email_principal)
 
                 sms = 'Actualizacion exitosa de persona en Cormacarena.'
@@ -305,12 +318,6 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
                 try:
-                    print(persona)
-                    print(persona.primer_nombre)
-                    print(persona.primer_apellido)
-                    print(persona.email)
-                    print(persona.telefono_celular)
-                    print(persona.email_empresarial)
                     Util.send_email(data)
                 except:
                     return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
@@ -334,23 +341,40 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
         numero_documento = self.request.user.persona.numero_documento
         
         persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipo_documento) & Q(numero_documento=numero_documento))
-        
+        previous_persona = copy.copy(persona_por_actualizar)
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
-            #persona_serializada = self.get_serializer(data=request.data, many=isinstance(request.data,list))
             persona_serializada.is_valid(raise_exception=True) 
+
+            # Validación emails entrantes vs existentes
 
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
-           
             try:
-                #personita = Personas.objects.get(email_empresarial=email_principal)
-                personita = Personas.objects.get(email=email_secundario)
-                if personita: 
-                    #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email como opcion secundaria'})
+                persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                if persona_validated_email: 
+                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
-                persona_serializada.save()
+                serializador = persona_serializada.save()
+
+                # auditoria actualizar persona
+                usuario = request.user.id_usuario
+                direccion=Util.get_client_ip(request)
+                descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "PrimerNombre": str(serializador.primer_nombre), "PrimerApellido": str(serializador.primer_apellido)}
+                valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                auditoria_data = {
+                    "id_usuario" : usuario,
+                    "id_modulo" : 1,
+                    "cod_permiso": "AC",
+                    "subsistema": 'TRSV',
+                    "dirip": direccion,
+                    "descripcion": descripcion, 
+                    "valores_actualizados": valores_actualizados
+                }
+                Util.save_auditoria(auditoria_data)
+
+                #Envio SMS y EMAIL
                 persona = Personas.objects.get(email=email_principal)
 
                 sms = 'Actualizacion exitosa de persona natural en Cormacarena.'
@@ -366,7 +390,7 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
                     Util.send_sms(persona.telefono_celular, sms)
                 except:
                     return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': data})
+                return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data})
         else:
             return Response({'detail': 'No se encontró ninguna persona'})
 
@@ -376,43 +400,66 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
     serializer_class = PersonaNaturalUpdateUserPermissionsSerializer
     permission_classes = [IsAuthenticated, PermisoActualizarPersona]
     queryset = Personas.objects.all()
-    
-    def patch(self, request, pk):
-        persona_por_actualizar = Personas.objects.get(id_persona=pk)
-        
-        if persona_por_actualizar:
-            persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
-            persona_serializada.is_valid(raise_exception=True)
+
+    def patch(self, request, tipodocumento, numerodocumento):
+        try: 
+            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento))
+            previous_persona = copy.copy(persona_por_actualizar)
             
-            email_principal = persona_serializada.validated_data.get('email')
-            email_secundario = persona_serializada.validated_data.get('email_empresarial')
+            persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
+            try:    
+                persona_serializada.is_valid(raise_exception=True)
+                try:
+                    #Validación emails entrantes vs existentes
+                    email_principal = persona_serializada.validated_data.get('email')
+                    email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
-            try:
-                #personita = Personas.objects.get(email_empresarial=email_principal)
-                personita = Personas.objects.get(email=email_secundario)
-                if personita: 
-                    #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email como opcion secundaria'})
+                    try:
+                        persona_validate_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                        return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                    except:
+                        serializador = persona_serializada.save()
+                        
+                        # auditoria actualizar persona
+                        usuario = request.user.id_usuario
+                        direccion=Util.get_client_ip(request)
+                        descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "PrimerNombre": str(serializador.primer_nombre), "PrimerApellido": str(serializador.primer_apellido)}
+                        valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                        auditoria_data = {
+                            "id_usuario" : usuario,
+                            "id_modulo" : 1,
+                            "cod_permiso": "AC",
+                            "subsistema": 'TRSV',
+                            "dirip": direccion,
+                            "descripcion": descripcion, 
+                            "valores_actualizados": valores_actualizados
+                        }
+                        Util.save_auditoria(auditoria_data)
+                        
+                        #SMS y EMAILS
+                        persona = Personas.objects.get(email=email_principal)
+                        
+                        sms = 'Actualizacion exitosa de persona Natural en Cormacarena por administrador.'
+                        context = {'primer_nombre': persona.primer_nombre, 'primer_apellido': persona.primer_apellido}
+                        template= render_to_string(('email-update-personanatural-byuser-withpermissions.html'), context)
+                        subject = 'Actualización de datos exitosa ' + persona.primer_nombre
+                        data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
+                        try:
+                            Util.send_email(data)
+                        except:
+                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                        try:
+                            Util.send_sms(persona.telefono_celular, sms)
+                        except:
+                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
+                        return Response({'message': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
+                except:
+                    return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
             except:
-                persona_serializada.save()
-                persona = Personas.objects.get(email=email_principal)
-
-                sms = 'Actualizacion exitosa de persona Natural en Cormacarena por administrador.'
-                context = {'primer_nombre': persona.primer_nombre, 'primer_apellido': persona.primer_apellido}
-                template= render_to_string(('email-update-personanatural-byuser-withpermissions.html'), context)
-                subject = 'Actualización de datos exitosa ' + persona.primer_nombre
-                data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-                try:
-                    Util.send_email(data)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
-                try:
-                    Util.send_sms(persona.telefono_celular, sms)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': data})
-        else:
-            return Response({'detail': 'No se encontró ninguna persona'})
+                return Response({'detail': 'Verificar que el email principal sea único, que tenga una direccion de notificaciones, que haya digitado un telefono celular y que haya seleccionado un municipio de notificación'})
+        except:
+            return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
 
 
 class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
@@ -426,22 +473,42 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
         numero_documento = self.request.user.persona.numero_documento
         
         persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipo_documento) & Q(numero_documento=numero_documento))
-        
+        previous_persona = copy.copy(persona_por_actualizar)
+
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
-            
+
+            #Verificación emails entrantes vs salientes        
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
             try:
-                #personita = Personas.objects.get(email_empresarial=email_principal)
-                personita = Personas.objects.get(email=email_secundario)
+                personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if personita: 
                     #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email como opcion secundaria'})
+                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
-                persona_serializada.save()
+                serializador = persona_serializada.save()
+
+                # auditoria actualizar persona
+                usuario = request.user.id_usuario
+                direccion=Util.get_client_ip(request)
+                descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "RazonSocial": str(serializador.razon_social), "NombreComercial": str(serializador.nombre_comercial)}
+                valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                auditoria_data = {
+                    "id_usuario" : usuario,
+                    "id_modulo" : 1,
+                    "cod_permiso": "AC",
+                    "subsistema": 'TRSV',
+                    "dirip": direccion,
+                    "descripcion": descripcion, 
+                    "valores_actualizados": valores_actualizados
+                }
+                Util.save_auditoria(auditoria_data)
+
+                #Envío sms y email
                 persona = Personas.objects.get(email=email_principal)
 
                 sms = 'Actualizacion exitosa de persona Juridica en Cormacarena.'
@@ -474,22 +541,41 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
         numero_documento = self.request.user.persona.numero_documento
         
         persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipo_documento) & Q(numero_documento=numero_documento))
-        
+        previous_persona = copy.copy(persona_por_actualizar)
+
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
-            
+
+            #Verificacion emails entrantes vs existentes        
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
             
             try:
-                #personita = Personas.objects.get(email_empresarial=email_principal)
-                personita = Personas.objects.get(email=email_secundario)
+                personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if personita: 
-                    #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email como opcion secundaria'})
+                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
-                persona_serializada.save()
+                serializador = persona_serializada.save()
+                
+                # auditoria actualizar persona
+                usuario = request.user.id_usuario
+                direccion=Util.get_client_ip(request)
+                descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "RazonSocial": str(serializador.razon_social), "NombreComercial": str(serializador.nombre_comercial)}
+                valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                auditoria_data = {
+                    "id_usuario" : usuario,
+                    "id_modulo" : 1,
+                    "cod_permiso": "AC",
+                    "subsistema": 'TRSV',
+                    "dirip": direccion,
+                    "descripcion": descripcion, 
+                    "valores_actualizados": valores_actualizados
+                }
+                Util.save_auditoria(auditoria_data)
+
+                #Envío sms y emails
                 persona = Personas.objects.get(email=email_principal)
                 
                 sms = 'Actualizacion exitosa de persona Juridica en Cormacarena.'
@@ -511,11 +597,71 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
 
 
 class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView):
-    http_method_names= ['patch']
+    http_method_names = ['patch']
     serializer_class = PersonaJuridicaUpdateUserPermissionsSerializer
     permission_classes = [IsAuthenticated, PermisoActualizarPersona]
     queryset = Personas.objects.all()
 
+    def patch(self, request, tipodocumento, numerodocumento):
+        try:
+            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento))           
+            previous_persona = copy.copy(persona_por_actualizar)
+
+            try:
+                
+                persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
+                persona_serializada.is_valid(raise_exception=True)
+                try:
+                    #Verificacion emails entrantes vs existentes
+                    email_principal = persona_serializada.validated_data.get('email')
+                    email_secundario = persona_serializada.validated_data.get('email_empresarial')
+
+                    try:
+                        persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                        return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                    except:
+                        serializador = persona_serializada.save()
+
+                        # auditoria actualizar persona
+                        usuario = request.user.id_usuario
+                        direccion=Util.get_client_ip(request)
+                        descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "RazonSocial": str(serializador.razon_social), "NombreComercial": str(serializador.nombre_comercial)}
+                        valores_actualizados = {'current': persona_por_actualizar, 'previous': previous_persona}
+
+                        auditoria_data = {
+                            "id_usuario" : usuario,
+                            "id_modulo" : 1,
+                            "cod_permiso": "AC",
+                            "subsistema": 'TRSV',
+                            "dirip": direccion,
+                            "descripcion": descripcion, 
+                            "valores_actualizados": valores_actualizados
+                        }
+                        Util.save_auditoria(auditoria_data)    
+                        
+                        #SMS y EMAILS
+                        persona = Personas.objects.get(email=email_principal)
+
+                        sms = 'Hola ' + persona.razon_social + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA JURIDICA'
+                        context = {'razon_social': persona.razon_social}
+                        template = render_to_string(('email-update-personajuridica-byuser-withpermissions.html'), context)
+                        subject = 'Actualización de datos exitosa ' + persona.razon_social
+                        data = {'template': template, 'email_subject': subject, 'to_email': persona.email} 
+                        try:
+                            Util.send_email(data)
+                        except:
+                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                        try:
+                            Util.send_sms(persona.telefono_celular_empresa, sms)
+                        except:
+                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
+                        return Response({'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
+                except:
+                    return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
+            except:
+                return Response({'detail': 'Verificar que el email principal sea único, que tenga una direccion de notificaciones, que haya digitado un telefono celular y que haya seleccionado un municipio de notificación'})
+        except:
+            return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
 
 
 class RegisterPersonaNatural(generics.CreateAPIView):
@@ -525,14 +671,31 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
-        
-        email = serializer.validated_data.get('email')
+
+        # validacion de email entrante vs existente
+        email_principal = serializer.validated_data.get('email')
+        email_secundario = serializer.validated_data.get('email_empresarial')
         try:
-            Personas.objects.get(email_empresarial = email)
-            return Response({'detail': 'Ya existe un pelao con este email como opción secundaria'})
+            Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
         except:
-            serializer.save()
-            persona = Personas.objects.get(email = email)
+            serializador = serializer.save()
+
+            # auditoria crear persona
+            descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "PrimerNombre": str(serializador.primer_nombre), "PrimerApellido": str(serializador.primer_apellido)}
+            direccion=Util.get_client_ip(request)
+
+            auditoria_data = {
+                "id_modulo" : 9,
+                "cod_permiso": "CR",
+                "subsistema": 'TRSV',
+                "dirip": direccion,
+                "descripcion": descripcion, 
+            }
+            Util.save_auditoria(auditoria_data)
+    
+            # envio de emails y sms
+            persona = Personas.objects.get(email = email_principal)
     
             sms = 'Registro exitoso como persona en Cormacarena. Continue aqui: ' + 'http://127.0.0.1:8000/api/personas/persona-natural/create/'  
             context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
@@ -541,12 +704,10 @@ class RegisterPersonaNatural(generics.CreateAPIView):
             data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
             try:
                 Util.send_email(data)
-                print("Email enviado")
             except:
                 return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
             try:
                 Util.send_sms(persona.telefono_celular, sms)
-                print("SMS enviado")
             except:
                 return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
             return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
@@ -560,13 +721,30 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data.get('email')
+        #Verificación emails entrantes vs salientes
+        email_principal = serializer.validated_data.get('email')
+        email_secundario = serializer.validated_data.get('email_empresarial')
         try: 
-            Personas.objects.get(email_empresarial=email)
-            return Response({'detail': 'Ya existe un pelao con este email como opción secundaria'})
+            Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
         except: 
-            serializer.save() 
-            persona = Personas.objects.get(email=email)
+            serializador = serializer.save()
+            
+            # auditoria crear persona
+            descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "RazonSocial": str(serializador.razon_social), "NombreComercial": str(serializador.nombre_comercial)}
+            direccion=Util.get_client_ip(request)
+
+            auditoria_data = {
+                "id_modulo" : 9,
+                "cod_permiso": "CR",
+                "subsistema": 'TRSV',
+                "dirip": direccion,
+                "descripcion": descripcion, 
+            }
+            Util.save_auditoria(auditoria_data)
+
+            #Envio SMS y EMAIL
+            persona = Personas.objects.get(email=email_principal)
 
             sms = 'Registro exitoso como persona Juridica en Cormacarena. Continue aqui: ' + 'http://127.0.0.1:8000/api/personas/persona-natural/create/'
             context = {'razon_social': persona.razon_social, 'nombre_comercial':  persona.nombre_comercial}
@@ -583,6 +761,58 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
                 return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
             
             return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
+
+
+class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
+    serializer_class = PersonaNaturalPostByUserSerializer
+    permission_classes = [IsAuthenticated] #Falta añadir el permiso modulo para esta vía
+    
+    def post(self, request):
+        persona = request.data
+        serializer = self.serializer_class(data=persona)
+        serializer.is_valid(raise_exception=True)
+
+        # validacion de email entrante vs existente
+        email_principal = serializer.validated_data.get('email')
+        email_secundario = serializer.validated_data.get('email_empresarial')
+        try:
+            Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+        except:
+            serializador = serializer.save()
+            
+            # auditoria crear persona
+            usuario = request.user.id_usuario
+            descripcion = {"TipodeDocumentoID": str(serializador.tipo_documento), "NumeroDocumentoID": str(serializador.numero_documento), "PrimerNombre": str(serializador.primer_nombre), "PrimerApellido": str(serializador.primer_apellido)}
+            direccion=Util.get_client_ip(request)
+
+            auditoria_data = {
+                "id_usuario" : usuario,
+                "id_modulo" : 1,
+                "cod_permiso": "CR",
+                "subsistema": 'TRSV',
+                "dirip": direccion,
+                "descripcion": descripcion, 
+            }
+            Util.save_auditoria(auditoria_data)
+
+            # envio de emails y sms
+            persona = Personas.objects.get(email = email_principal)
+    
+            sms = 'Hola '+ persona.primer_nombre + ' ' + persona.primer_apellido + ' te informamos que has sido registrado como PERSONA NATURAL en el portal Bia Cormacarena \n Ahora puedes crear tu usuario, hazlo en el siguiente link' + 'url'  
+            context = {'primer_nombre': persona.primer_nombre, 'primer_apellido':  persona.primer_apellido}
+            template = render_to_string(('email-register-personanatural.html'), context)
+            subject = 'Registro exitoso ' + persona.primer_nombre
+            data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
+            try:
+                Util.send_email(data)
+            except:
+                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
+            try:
+                Util.send_sms(persona.telefono_celular, sms)
+            except:
+                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
+            return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data, 'message': 'Se ejecutó todo exitosamente'})
 
 # Views for apoderados persona
 
@@ -660,7 +890,6 @@ class updateSucursalEmpresa(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     
     def put(self, request,pk=None):
-        print(request.user)
         sucursal = SucursalesEmpresas.objects.filter(id_sucursal_empresa= pk).first()
         previous_sucursal = copy.copy(sucursal)
         if sucursal:

@@ -78,5 +78,25 @@
           "subsistema":"SEGU",
           "descripcion":"Proceso que permite a un SuperUsuario delegar dicha función a otra persona"
         }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 9,
+        "fields": {
+          "id_modulo": 9,
+          "nombre_modulo": "Creación Persona Vía Portal",
+          "subsistema":"SEGU",
+          "descripcion":"Permite crear una persona vía Portal"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 10,
+        "fields": {
+          "id_modulo": 10,
+          "nombre_modulo": "Creación Usuario Vía Portal",
+          "subsistema":"SEGU",
+          "descripcion":"Permite crear un usuario vía Portal"
+        }
       }
   ]

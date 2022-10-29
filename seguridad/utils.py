@@ -65,7 +65,10 @@ class Util:
     @staticmethod
     def save_auditoria(data):
         try:
-            usuario = User.objects.get(id_usuario = data.get('id_usuario'))
+            usuario = None
+            if data.get('id_usuario'):
+                usuario = User.objects.get(id_usuario = data.get('id_usuario'))
+                
             modulo = Modulos.objects.get(id_modulo = data.get('id_modulo'))
             permiso = Permisos.objects.get(cod_permiso = data.get('cod_permiso'))
             data_descripcion = data.get('descripcion')
