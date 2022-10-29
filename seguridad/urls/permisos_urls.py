@@ -21,7 +21,7 @@ urlpatterns = [
     #PermisosModulo
     # path('permisos-modulos/create/', views.PermisosModulosViewSet.as_view({'post':'create'}), name='permiso-por-modulo-create'),
     # path('permisos-modulos/delete/<int:pk>/', views.DeletePermisoModulo.as_view(), name='rol-delete'),  
-    #path('permisos-modulos/get-list/', views.ListarPermisosModulo.as_view(), name='permisos-modulo-listar'),
+    path('permisos-modulos/get-list/', views.ListarPermisosModulo.as_view(), name='permisos-modulo-listar'),
     #path('permisos-modulos/get-by-id/<str:pk>', views.DetailPermisosModulo.as_view(), name='permisos-modulo-ver'),
     #path('permisos-modulos/create/', views.InsertarPermisosModulo.as_view(), name='permiso-modulo-insertar'),
     #path('permisos-modulos/delete/<str:pk>/', views.DeletePermisosModulo.as_view(), name='permiso-modulo-delete'),  

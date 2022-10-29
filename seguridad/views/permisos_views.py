@@ -35,10 +35,10 @@ class DeletePermiso(DestroyAPIView):
 
 #====================================================>Vistas tabla PermisosModulo
 # #----------------------------------------------------> Crear permisos por módulo
-# class PermisosModulosViewSet(viewsets.ModelViewSet):
-#     queryset = PermisosModulo.objects.all()
-#     serializer_class = PermisosModuloPostSerializer
-#     permission_classes = [IsAuthenticated]
+class PermisosModulosViewSet(viewsets.ModelViewSet):
+    queryset = PermisosModulo.objects.all()
+    serializer_class = PermisosModuloPostSerializer
+    permission_classes = [IsAuthenticated]
 
 #     def create(self, request, *args, **kwargs):
 #         serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
