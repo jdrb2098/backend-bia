@@ -102,9 +102,19 @@ class DeleteUserRol(DestroyAPIView):
             modulo = Modulos.objects.get(id_modulo = 5)
             permiso = Permisos.objects.get(cod_permiso = 'BO')
             direccion_ip = Util.get_client_ip(request)
-            descripcion =  "id_usuarios_rol:" + str(pk) + ";" + "id_Usuario:" + str(id_usuarios_rol.id_usuario.id_usuario) + ";" + "id_rol:" + str(id_usuarios_rol.id_rol.id_rol) + "."
-            print(descripcion)
-            Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')  
+            descripcion =  {"id_usuarios_rol" : str(pk), "Usuario" : str(id_usuarios_rol.id_usuario.nombre_de_usuario), "Rol" : str(id_usuarios_rol.id_rol.nombre_rol)}
+            dirip = Util.get_client_ip(request)
+        
+            auditoria_data = {
+                'id_usuario': request.user.id_usuario,
+                'id_modulo': 5,
+                'cod_permiso': 'BO',
+                'subsistema': 'SEGU',
+                'dirip': dirip,
+                'descripcion': descripcion
+            }
+            
+            Util.save_auditoria(auditoria_data)
             
             return Response({'detail':'El rol fue eliminado'})
         else:

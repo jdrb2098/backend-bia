@@ -176,15 +176,25 @@ class DeletePermisoModuloRol(DestroyAPIView):
             user = User.objects.get(id_usuario = usuario)
             modulo = Modulos.objects.get(id_modulo = 2)
             permiso = Permisos.objects.get(cod_permiso = 'BO')
-            direccion_ip = Util.get_client_ip(request)
-            consulta_rol = Roles.objects.get(id_rol = data.id_rol.id_rol)
             consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = data.id_permiso_modulo.id_permisos_modulo)
             consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
-            descripcion =   "Permiso" + ":" + str(permiso.nombre_permiso) + ";" + "Modulo" + ":" + str(consulta_modulo.nombre_modulo) + ";" + "Rol:" + str(consulta_rol.nombre_rol) + "."
+            descripcion =   {"Permiso" : str(permiso.nombre_permiso), "Modulo" :  str(consulta_modulo.nombre_modulo)}
             print(descripcion)
-            Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
+            dirip = Util.get_client_ip(request)
+        
+            auditoria_data = {
+                'id_usuario': request.user.id_usuario,
+                'id_modulo': 2,
+                'cod_permiso': 'BO',
+                'subsistema': 'SEGU',
+                'dirip': dirip,
+                'descripcion': descripcion
+            }
+            
+            Util.save_auditoria(auditoria_data)
+            #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
 
-            return Response({'detail':'El permiso fue eliminado del modulo'})
+            return Response({'detail':'El permiso fue eliminado del rol en el modulo'})
         else:
             return Response({'detail':'No existe el esa selección ingresada'})
 
