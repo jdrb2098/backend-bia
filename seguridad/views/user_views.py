@@ -363,8 +363,24 @@ class RegisterExternoView(generics.CreateAPIView):
         user = request.data
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer_response = serializer.save()
         user_data = serializer.data
+        
+        # AUDITORIA AL REGISTRAR USUARIO
+            
+        dirip = Util.get_client_ip(request)
+        descripcion = {'nombre_de_usuario': request.data["nombre_de_usuario"]}
+        
+        auditoria_data = {
+            'id_usuario': serializer_response.pk,
+            'id_modulo': 10,
+            'cod_permiso': 'CR',
+            'subsistema': 'SEGU',
+            'dirip': dirip,
+            'descripcion': descripcion
+        }
+        
+        Util.save_auditoria(auditoria_data)
         
         user = User.objects.get(email=user_data['email'])
 
