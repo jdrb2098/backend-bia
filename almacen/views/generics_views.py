@@ -82,19 +82,17 @@ class UpdatePorcentaje(generics.UpdateAPIView):
     queryset=PorcentajesIVA.objects.all()
     
     def put(self, request, pk):
-        try:
-            data = request.data
-            porcentaje = PorcentajesIVA.objects.get(id_porcentaje_iva=pk)
-            
+        data = request.data
+        porcentaje = PorcentajesIVA.objects.filter(id_porcentaje_iva=pk).first()
+        if porcentaje:
             if porcentaje.registro_precargado == False:
                 porcentaje_serializer = self.serializer_class(porcentaje, data)
                 porcentaje_serializer.is_valid(raise_exception=True)
                 porcentaje_serializer.save()
-                
                 return Response({'success':True, 'data': porcentaje_serializer.data})
             else:
                 return Response({'success':False, 'detail': 'No puedes actualizar un porcentaje precargado'})
-        except:
+        else:
             return Response({'success':False, 'detail': 'No existe el porcentaje'})
     
 class DeletePorcentaje(generics.DestroyAPIView):
@@ -102,16 +100,14 @@ class DeletePorcentaje(generics.DestroyAPIView):
     queryset=PorcentajesIVA.objects.all()
     
     def delete(self, request, pk):
-        try:
-            porcentaje = PorcentajesIVA.objects.get(id_porcentaje_iva=pk)
-            
+        porcentaje = PorcentajesIVA.objects.filter(id_porcentaje_iva=pk).first()
+        if porcentaje:
             if porcentaje.registro_precargado == False:
                 porcentaje.delete()
-                
                 return Response({'success':True, 'detail': 'Se ha eliminado exitosamente'})
             else:
                 return Response({'success':False, 'detail': 'No puedes eliminar un porcentaje precargado'})
-        except:
+        else:
             return Response({'success':False, 'detail': 'No existe el porcentaje'})
 
 class GetPorcentajeById(generics.RetrieveAPIView):
