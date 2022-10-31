@@ -8,7 +8,7 @@ class Util:
     
     @staticmethod
     def send_email(data):
-        email = EmailMessage(subject= data['email_subject'], body=data['template'], to=data['to_email'], from_email=EMAIL_HOST_USER)
+        email = EmailMessage(subject= data['email_subject'], body=data['template'], to=[data['to_email']], from_email=EMAIL_HOST_USER)
         
         email.content_subtype ='html'
         response = email.send(fail_silently=True)

@@ -327,7 +327,7 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
                 template = render_to_string(('email-update-personanatural-interna.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-                email = Util.send_email(data)
+                Util.send_email(data)
                 try:
                     Util.send_sms(persona.telefono_celular, sms)
                 except:
@@ -400,10 +400,7 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
                 template = render_to_string(('email-update-personanatural-externa.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-                try:
-                    Util.send_email(data)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                Util.send_email(data)
                 try:
                     Util.send_sms(persona.telefono_celular, sms)
                 except:
@@ -473,10 +470,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                         template= render_to_string(('email-update-personanatural-byuser-withpermissions.html'), context)
                         subject = 'Actualización de datos exitosa ' + persona.primer_nombre
                         data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-                        try:
-                            Util.send_email(data)
-                        except:
-                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                        Util.send_email(data)
                         try:
                             Util.send_sms(persona.telefono_celular, sms)
                         except:
@@ -555,12 +549,8 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
                 template = render_to_string(('email-update-personajuridica-interno.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.razon_social
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email} 
+                Util.send_email(data)
                 try:
-                    Util.send_email(data)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
-                try:
-                    
                     Util.send_sms(persona.telefono_celular_empresa, sms)
                 except:
                     return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
@@ -632,10 +622,7 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
                 template = render_to_string(('email-update-personajuridica-externo.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.razon_social
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email} 
-                try:
-                    Util.send_email(data)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                Util.send_email(data)
                 try:
                     Util.send_sms(persona.telefono_celular_empresa, sms)
                 except:
@@ -706,10 +693,7 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                         template = render_to_string(('email-update-personajuridica-byuser-withpermissions.html'), context)
                         subject = 'Actualización de datos exitosa ' + persona.razon_social
                         data = {'template': template, 'email_subject': subject, 'to_email': persona.email} 
-                        try:
-                            Util.send_email(data)
-                        except:
-                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                        Util.send_email(data)
                         try:
                             Util.send_sms(persona.telefono_celular_empresa, sms)
                         except:
@@ -733,6 +717,10 @@ class RegisterPersonaNatural(generics.CreateAPIView):
 
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
+
+        #Validación entre emails entrantes
+        if email_principal == email_secundario:
+            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
 
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
@@ -772,10 +760,7 @@ class RegisterPersonaNatural(generics.CreateAPIView):
             template = render_to_string(('email-register-personanatural.html'), context)
             subject = 'Registro exitoso ' + persona.primer_nombre
             data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-            try:
-                Util.send_email(data)
-            except:
-                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
+            Util.send_email(data)
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
@@ -793,6 +778,10 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
+
+        #Validación entre emails entrantes
+        if email_principal == email_secundario:
+            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
 
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
@@ -853,6 +842,10 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
 
+        #Validación entre emails entrantes
+        if email_principal == email_secundario:
+            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
+
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
         if validate_email == False:
@@ -893,10 +886,7 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
             template = render_to_string(('email-register-personanatural.html'), context)
             subject = 'Registro exitoso ' + persona.primer_nombre
             data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-            try:
-                Util.send_email(data)
-            except:
-                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
+            Util.send_email(data)
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
