@@ -20,18 +20,10 @@ class EstadoCivilSerializer(serializers.ModelSerializer):
     class Meta:
         model = EstadoCivil
         fields = '__all__'
-        
-        
-class EstadoCivilPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EstadoCivil
-        fields = [
-            'cod_estado_civil', 
-            'nombre'        
-        ]
-        extra_kwargs = {
+        extra_kwargs = extra_kwargs = {
             'cod_estado_civil': {'required': True},  
             'nombre': {'required': True}, 
+            'precargado': {'read_only': True}
         }
 
 
@@ -39,18 +31,10 @@ class TipoDocumentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoDocumento
         fields = '__all__'
-
-
-class TipoDocumentoPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoDocumento
-        fields = [
-            'cod_tipo_documento',
-            'nombre'
-        ]
         extra_kwargs = {
             'cod_tipo_documento': {'required': True},
-            'nombre': {'required': True}
+            'nombre': {'required': True},
+            'precargado': {'read_only': True}
         }
 
 
@@ -548,16 +532,6 @@ class HistoricoEmailsSerializer(serializers.ModelSerializer):
         model = HistoricoEmails
         fields = '__all__'
         
-
-class HistoricoEmailsPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HistoricoEmails
-        fields = '__all__'
-        extra_kwargs = {
-                'id_persona': {'required': True},
-                'email_notificacion': {'required': True},
-            }
-        
         
 class HistoricoDireccionSerializer(serializers.ModelSerializer):
     id_persona = PersonasSerializer(read_only=True)
@@ -565,18 +539,6 @@ class HistoricoDireccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoDireccion
         fields = '__all__'
-        
-        
-class HistoricoDireccionPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HistoricoDireccion
-        fields = '__all__'
-        extra_kwargs = {
-                'id_persona': {'required': True},
-                'direccion': {'required': True},
-                'tipo_direccion': {'required': True},
-            }
-        
 
 class ClasesTerceroSerializer(serializers.ModelSerializer):
     class Meta:

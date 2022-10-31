@@ -9,14 +9,14 @@ urlpatterns = [
     path('estado-civil/get-by-id/<str:pk>/', views.GetEstadoCivilById.as_view(), name='estado-civil-id-get'),
     path('estado-civil/delete/<str:pk>/', views.DeleteEstadoCivil.as_view(), name='estado-civil-delete'),
     path('estado-civil/create/', views.RegisterEstadoCivil.as_view(), name='estado-civil-register'),
-    path('estado-civil/update/<str:pk>', views.UpdateEstadoCivil.as_view(), name='estado-civil-update'),
+    path('estado-civil/update/<str:pk>/', views.UpdateEstadoCivil.as_view(), name='estado-civil-update'),
 
     # Tipo Documento 
     path('tipos-documento/get-list/', views.GetTipoDocumento.as_view(), name="tipo-documento-get"),
     path('tipos-documento/get-by-id/<str:pk>/', views.GetTipoDocumentoById.as_view(), name='tipo-documento-id-get'),
     path('tipos-documento/delete/<str:pk>/', views.DeleteTipoDocumento.as_view(), name='tipo-documento-delete'),
     path('tipos-documento/create/', views.RegisterTipoDocumento.as_view(), name='tipo-documento-register'),
-    path('tipos-documento/update/<str:pk>', views.UpdateTipoDocumento.as_view(), name='estado-civil-update'),
+    path('tipos-documento/update/<str:pk>/', views.UpdateTipoDocumento.as_view(), name='estado-civil-update'),
 
     
     # Personas 
@@ -39,11 +39,11 @@ urlpatterns = [
     path('persona-juridica/create/', views.RegisterPersonaJuridica.as_view(), name='persona-juridica-register'),
     
     # Apoderados Personas
-    path('apoderados-personas/get-list/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
-    path('apoderados-personas/get-by-id/<str:pk>/', views.getApoderadoPersonaById.as_view(), name='apoderado-persona-id-get'),
-    path('apoderados-personas/delete/<str:pk>/', views.deleteApoderadoPersona.as_view(), name='apoderado-persona-delete'),
-    path('apoderados-personas/update/<str:pk>/', views.updateApoderadoPersona.as_view(), name='apoderado-persona-update'),
-    path('apoderados-personas/create/', views.registerApoderadoPersona.as_view(), name='apoderado-persona-register'),
+    #path('apoderados-personas/get-list/', views.getApoderadosPersona.as_view(), name="apoderados-personas-get"),
+    #path('apoderados-personas/get-by-id/<str:pk>/', views.getApoderadoPersonaById.as_view(), name='apoderado-persona-id-get'),
+    #path('apoderados-personas/delete/<str:pk>/', views.deleteApoderadoPersona.as_view(), name='apoderado-persona-delete'),
+    #path('apoderados-personas/update/<str:pk>/', views.updateApoderadoPersona.as_view(), name='apoderado-persona-update'),
+    #path('apoderados-personas/create/', views.registerApoderadoPersona.as_view(), name='apoderado-persona-register'),
     
     # Sucursales Empresas
     path('sucursales-empresas/get-list/', views.getSucursalesEmpresas.as_view(), name="sucursales-empresas-get"),

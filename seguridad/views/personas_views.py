@@ -1,5 +1,7 @@
+from asyncio import exceptions
 import datetime
 import copy
+from signal import raise_signal
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -23,7 +25,8 @@ from seguridad.permissions.permissions_user_over_person import (
     PermisoCrearEstadoCivil, 
     PermisoCrearPersona, 
     PermisoActualizarEstadoCivil,
-    PermisoCrearTipoDocumento,)
+    PermisoCrearTipoDocumento
+    )
 from seguridad.models import (
     Personas,
     TipoDocumento,
@@ -33,19 +36,13 @@ from seguridad.models import (
     HistoricoEmails,
     HistoricoDireccion,
     ClasesTercero,
-    ClasesTerceroPersona,
-    User,
-    Modulos,
-    Permisos,
-    Auditorias
+    ClasesTerceroPersona
 )
 
 from rest_framework import filters
 from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
-    EstadoCivilPostSerializer,
     TipoDocumentoSerializer,
-    TipoDocumentoPostSerializer,
     PersonasSerializer,
     PersonaNaturalSerializer,
     PersonaJuridicaSerializer,
@@ -63,9 +60,7 @@ from seguridad.serializers.personas_serializers import (
     SucursalesEmpresasSerializer,
     SucursalesEmpresasPostSerializer,
     HistoricoEmailsSerializer,
-    HistoricoEmailsPostSerializer,
     HistoricoDireccionSerializer,
-    HistoricoDireccionPostSerializer,
     ClasesTerceroSerializer,
     ClasesTerceroPersonaSerializer,
     ClasesTerceroPersonapostSerializer
@@ -105,33 +100,35 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
 
 
 class RegisterEstadoCivil(generics.CreateAPIView):
-    serializer_class = EstadoCivilPostSerializer
+    serializer_class = EstadoCivilSerializer
     permission_classes = [IsAuthenticated, PermisoCrearEstadoCivil]
     queryset = EstadoCivil.objects.all()   
 
 
 class UpdateEstadoCivil(generics.RetrieveUpdateAPIView):
-    serializer_class = EstadoCivilPostSerializer
+    serializer_class = EstadoCivilSerializer
     queryset = EstadoCivil.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarEstadoCivil]
 
     def put(self, request, pk):
-        data = request.data
-        estado_civil = EstadoCivil.objects.get(cod_estado_civil=pk)
-        
-        if estado_civil.precargado == False:
-            personas = Personas.objects.filter(estado_civil=pk)
-            if personas:
-                return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es actualizable'})
-            
-            estado_civil.cod_estado_civil = data['cod_estado_civil']
-            estado_civil.nombre = data['nombre']
-            estado_civil.save()
+        estado_civil = EstadoCivil.objects.filter(cod_estado_civil=pk).first()
 
-            serializer = self.serializer_class(estado_civil, many=False)
-            return Response({'detail': 'Registro actualizado exitosamente', 'data': serializer.data})
+        if estado_civil:
+
+            if estado_civil.precargado == False:
+                personas = Personas.objects.filter(estado_civil=pk)
+
+                if personas:
+                    return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es actualizable'})
+    
+                serializer = self.serializer_class(estado_civil, data=request.data, many=False)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({'detail': 'Registro actualizado exitosamente', 'data': serializer.data})
+            else:
+                return Response({'detail': 'No puedes'})
         else:
-            return Response({'detail': 'Este es un dato precargado en el sistema, no se puede actualizar'})
+            return Response({'detail': 'No existe un estado civil con estos parametros'})
 
 
 # Views for Tipo Documento
@@ -168,33 +165,32 @@ class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
 
 
 class RegisterTipoDocumento(generics.CreateAPIView):
-    serializer_class = TipoDocumentoPostSerializer
+    serializer_class = TipoDocumentoSerializer
     permission_classes = [IsAuthenticated, PermisoCrearTipoDocumento]
     queryset = TipoDocumento.objects.all()
 
 
 class UpdateTipoDocumento(generics.RetrieveUpdateAPIView):
-    serializer_class = TipoDocumentoPostSerializer
+    serializer_class = TipoDocumentoSerializer
     queryset = TipoDocumento.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarTipoDocumento]
 
     def put(self, request, pk):
-        data = request.data
-        tipo_documento = TipoDocumento.objects.get(cod_tipo_documento=pk)
-        
-        if tipo_documento.precargado == False:
-            personas = Personas.objects.filter(tipo_documento=pk)
-            if personas:
-                return Response({'detail': 'Ya existe una persona con este tipo de documento, por ello no es actualizable'})
-            
-            tipo_documento.cod_tipo_documento = data['cod_tipo_documento']
-            tipo_documento.nombre = data['nombre']
-            tipo_documento.save()
-
-            serializer = self.serializer_class(tipo_documento, many=False)
-            return Response({'detail': 'Registro actualizado exitosamente', 'data': serializer.data})
+        tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
+        if tipo_documento:
+            if tipo_documento.precargado == False:
+                personas = Personas.objects.filter(tipo_documento=pk)
+                if personas:
+                    return Response({'detail': 'Ya existe una persona con este tipo de documento, por ello no es actualizable'})
+                
+                serializer = self.serializer_class(tipo_documento, data=request.data, many=False)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({'detail': 'Registro actualizado exitosamente', 'data': serializer.data})
+            else:
+                return Response({'detail': 'Este es un dato precargado en el sistema, no se puede actualizar'})
         else:
-            return Response({'detail': 'Este es un dato precargado en el sistema, no se puede actualizar'})
+            return Response({'detail':'No se encontró ningún tipo de documento con estos parámetros'})
             
 
 # Views for Personas
@@ -452,8 +448,9 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                     
                     #Validación emails entrantes vs existentes
                     try:
-                        persona_validate_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                        return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                        persona_validate_email_primario = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                        print(persona_validate_email_primario)
+                        return Response({'detail': 'Ya existe una persona con este email asociado como email secundario'})
                     except:
                         serializador = persona_serializada.save()
                         
@@ -676,6 +673,7 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                     #Verificacion emails entrantes vs existentes
                     try:
                         persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                        print(persona_validated_email)
                         return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
                     except:
                         serializador = persona_serializada.save()
@@ -713,8 +711,8 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                         return Response({'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
                 except:
                     return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
-            except:
-                return Response({'detail': 'Verificar que el email principal sea único, que tenga una direccion de notificaciones, que haya digitado un telefono celular y que haya seleccionado un municipio de notificación'})
+            except Exception as e:
+                return Response({'detail': e.detail})
         except:
             return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
 
@@ -908,7 +906,7 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
 # Views for apoderados persona
 
 
-class getApoderadosPersona(generics.ListAPIView):
+"""class getApoderadosPersona(generics.ListAPIView):
     serializer_class = ApoderadoPersonaSerializer
     queryset = ApoderadoPersona.objects.all()
 
@@ -930,7 +928,7 @@ class updateApoderadoPersona(generics.RetrieveUpdateAPIView):
 
 class registerApoderadoPersona(generics.CreateAPIView):
     serializer_class = ApoderadoPersonaPostSerializer 
-    queryset = ApoderadoPersona.objects.all()
+    queryset = ApoderadoPersona.objects.all()"""
 
 
 # Views for Sucursales Empresas
