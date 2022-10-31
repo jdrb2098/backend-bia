@@ -94,7 +94,9 @@ class Util:
             if data_descripcion:
                 descripcion = ''
                 for field, value in data_descripcion.items():
-                    descripcion += field + ":" + str(value) + "|"
+                    descripcion += '' if not descripcion else '|'
+                    descripcion += field + ":" + str(value)
+                    
                 descripcion += '.'
                 
             valores_actualizados = None
@@ -111,8 +113,13 @@ class Util:
                 for field, value in data_previous.__dict__.items():
                     new_value = getattr(data_current,field)
                     if value != new_value:
-                        valores_actualizados += field + ":" + str(value) + " con " + str(new_value) + "|"
-                valores_actualizados += '.'
+                        valores_actualizados += '' if not valores_actualizados else '|'
+                        valores_actualizados += field + ":" + str(value) + " con " + str(new_value)
+                
+                if not valores_actualizados:
+                    valores_actualizados = None
+                else:
+                    valores_actualizados += '.'
             
             auditoria_user = Auditorias.objects.create(
                 id_usuario = usuario,

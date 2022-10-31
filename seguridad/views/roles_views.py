@@ -77,10 +77,20 @@ class GetRolById(RetrieveAPIView):
     serializer_class=RolesSerializer
     permission_classes = [IsAuthenticated, PermisoConsultarRoles]
     queryset=Roles.objects.all()   
+    
+class GetRolByName(ListAPIView):
+    serializer_class=RolesSerializer
+    permission_classes = [IsAuthenticated, PermisoConsultarRoles]
+    def get_queryset(self):
+        keyword = self.request.query_params.get('keyword')
+        queryset = Roles.objects.filter(nombre_rol__icontains = keyword)
+        return queryset
+    
 class GetRol(ListAPIView):
     serializer_class=RolesSerializer
     permission_classes = [IsAuthenticated, PermisoConsultarRoles]
     queryset=Roles.objects.all()
+    
 class RegisterRol(CreateAPIView):
     serializer_class=RolesSerializer
     permission_classes = [IsAuthenticated, PermisoCrearRoles]
