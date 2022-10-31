@@ -22,6 +22,7 @@ urlpatterns = [
     # Personas 
     path('get-list/', views.GetPersonas.as_view(), name="personas-get"),
     path('get-by-email/<str:pk>/', views.getPersonaByEmail, name='persona-email-get'),
+    path('get-by-id/<str:pk>/', views.GetPersonasByID.as_view(), name='persona-id-get'),
     path('get-personas-by-document/<str:tipodocumento>/<str:numerodocumento>/', views.GetPersonasByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-by-document-and-tipo-documento-get'),
     path('get-personas-naturales-by-document/<str:tipodocumento>/<str:numerodocumento>/', views.GetPersonaNaturalByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-natural-by-document-and-tipo-documento-get'),
     path('get-personas-juridicas-by-document/<str:tipodocumento>/<str:numerodocumento>/', views.GetPersonaJuridicaByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-juridica-by-document-and-tipo-documento-get'),

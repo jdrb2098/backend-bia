@@ -227,6 +227,18 @@ class GetPersonasByTipoDocumentoAndNumeroDocumento(generics.GenericAPIView):
             return Response({'detail': 'No encontró ninguna persona con los parametros ingresados'})
 
 
+class GetPersonasByID(generics.GenericAPIView):
+    serializer_class = PersonasSerializer
+    
+    def get(self, request, pk):
+        try:
+            queryset = Personas.objects.get(id_persona=pk)  
+            persona_serializer = self.serializer_class(queryset)
+            return Response({'data': persona_serializer.data})
+        except:
+            return Response({'detail': 'No encontró ninguna persona con los parametros ingresados'})
+
+
 class GetPersonaNaturalByTipoDocumentoAndNumeroDocumento(generics.ListAPIView):
     serializer_class = PersonaNaturalSerializer
 
