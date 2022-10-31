@@ -281,10 +281,20 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
             
-            #Validación email entrantes vs existentes
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
-            
+
+            #Validación emails dns
+            validate_email = Util.validate_dns(email_principal)
+            if validate_email == False:
+                return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+            if email_secundario:
+                validate_second_email = Util.validate_dns(email_secundario)
+                if validate_second_email == False:
+                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+            #Validación emails entrantes vs existentes            
             try:
                 persona_email_validated = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if persona_email_validated: 
@@ -317,14 +327,12 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
                 template = render_to_string(('email-update-personanatural-interna.html'), context)
                 subject = 'Actualización de datos exitosa ' + persona.primer_nombre
                 data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-                try:
-                    Util.send_email(data)
-                except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el email, verificar servicio'})
+                email = Util.send_email(data)
                 try:
                     Util.send_sms(persona.telefono_celular, sms)
                 except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
+                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar servicio'})
+                
                 return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data})
         else:
             return Response({'detail': 'No se encontró ninguna persona'})
@@ -346,10 +354,20 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True) 
 
-            # Validación emails entrantes vs existentes
-
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
+            
+             #Validación emails dns
+            validate_email = Util.validate_dns(email_principal)
+            if validate_email == False:
+                return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+            if email_secundario:
+                validate_second_email = Util.validate_dns(email_secundario)
+                if validate_second_email == False:
+                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+            
+            # Validación emails entrantes vs existentes
             try:
                 persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if persona_validated_email: 
@@ -410,10 +428,20 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
             try:    
                 persona_serializada.is_valid(raise_exception=True)
                 try:
-                    #Validación emails entrantes vs existentes
                     email_principal = persona_serializada.validated_data.get('email')
                     email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
+                    #Validación emails dns
+                    validate_email = Util.validate_dns(email_principal)
+                    if validate_email == False:
+                        return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+                    if email_secundario:
+                        validate_second_email = Util.validate_dns(email_secundario)
+                        if validate_second_email == False:
+                            return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                    
+                    #Validación emails entrantes vs existentes
                     try:
                         persona_validate_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                         return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
@@ -457,7 +485,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                 except:
                     return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
             except:
-                return Response({'detail': 'Verificar que el email principal sea único, que tenga una direccion de notificaciones, que haya digitado un telefono celular y que haya seleccionado un municipio de notificación'})
+                return Response({'detail': 'Verificar que el email principal sea único y que haya diligenciado telefono celular, dirección laboral, municipio de dirección laboral, dirección de residencia, municipio de residencia y ubicación georeferenciada'})
         except:
             return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
 
@@ -479,10 +507,21 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
 
-            #Verificación emails entrantes vs salientes        
+                    
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
+            #Validación emails dns
+            validate_email = Util.validate_dns(email_principal)
+            if validate_email == False:
+                return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+            if email_secundario:
+                validate_second_email = Util.validate_dns(email_secundario)
+                if validate_second_email == False:
+                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+            #Verificación emails entrantes vs salientes
             try:
                 personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if personita: 
@@ -546,11 +585,21 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
-
-            #Verificacion emails entrantes vs existentes        
+                    
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
-            
+
+            #Validación emails dns
+            validate_email = Util.validate_dns(email_principal)
+            if validate_email == False:
+                return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+            if email_secundario:
+                validate_second_email = Util.validate_dns(email_secundario)
+                if validate_second_email == False:
+                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+            #Verificacion emails entrantes vs existentes
             try:
                 personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                 if personita: 
@@ -608,14 +657,24 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
             previous_persona = copy.copy(persona_por_actualizar)
 
             try:
-                
                 persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
                 persona_serializada.is_valid(raise_exception=True)
+
                 try:
-                    #Verificacion emails entrantes vs existentes
                     email_principal = persona_serializada.validated_data.get('email')
                     email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
+                    #Validación emails dns
+                    validate_email = Util.validate_dns(email_principal)
+                    if validate_email == False:
+                        return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+                    if email_secundario:
+                        validate_second_email = Util.validate_dns(email_secundario)
+                        if validate_second_email == False:
+                            return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+                    #Verificacion emails entrantes vs existentes
                     try:
                         persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                         return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
@@ -672,9 +731,20 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
-        # validacion de email entrante vs existente
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
+
+        #Validación emails dns
+        validate_email = Util.validate_dns(email_principal)
+        if validate_email == False:
+            return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+        if email_secundario:
+            validate_second_email = Util.validate_dns(email_secundario)
+            if validate_second_email == False:
+                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+        # validacion de email entrante vs existente
         try:
             Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
@@ -720,10 +790,21 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
-
-        #Verificación emails entrantes vs salientes
+        
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
+
+        #Validación emails dns
+        validate_email = Util.validate_dns(email_principal)
+        if validate_email == False:
+            return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+        if email_secundario:
+            validate_second_email = Util.validate_dns(email_secundario)
+            if validate_second_email == False:
+                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+        #Verificación emails entrantes vs salientes
         try: 
             Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
@@ -751,30 +832,38 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
             template = render_to_string(('email-register-personajuridica.html'), context)
             subject = 'Registro exitoso ' + persona.razon_social
             data = {'template': template, 'email_subject': subject, 'to_email': persona.email}
-            try: 
-                Util.send_email(data)
-            except:
-                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el email, verificar servicio'})
+            Util.send_email(data)
             try:
                 Util.send_sms(persona.telefono_celular_empresa, sms)
             except:
-                return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
+                return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero', 'data': serializer.data})
             
             return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
 
 
 class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostByUserSerializer
-    permission_classes = [IsAuthenticated] #Falta añadir el permiso modulo para esta vía
+    permission_classes = [IsAuthenticated, PermisoCrearPersona]
     
     def post(self, request):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
-        # validacion de email entrante vs existente
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
+
+        #Validación emails dns
+        validate_email = Util.validate_dns(email_principal)
+        if validate_email == False:
+            return Response({'detail': 'Valide que el email principal ingresado exista'})
+
+        if email_secundario:
+            validate_second_email = Util.validate_dns(email_secundario)
+            if validate_second_email == False:
+                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+
+        # validacion de email entrante vs existente
         try:
             Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
