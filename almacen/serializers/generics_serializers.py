@@ -34,6 +34,9 @@ class SerializerPorcentajesIVA(serializers.ModelSerializer):
     class Meta:
         model=PorcentajesIVA
         fields=('__all__')
+        extra_kwargs = {
+            'registro_precargado': {'read_only': True}
+        }
 
 class SerializersUnidadesMedida(serializers.ModelSerializer):
 
