@@ -97,9 +97,11 @@ class UsuarioRolesLookSerializers(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
+    roles = serializers.DictField(child=serializers.IntegerField(), read_only=True)
+    
     class Meta:
         model = User
-        fields = ["email", 'nombre_de_usuario', 'persona', 'password', 'id_usuario_creador', 'tipo_usuario', 'is_active', 'is_blocked']
+        fields = ["email", 'nombre_de_usuario', 'persona', 'password', 'id_usuario_creador', 'tipo_usuario', 'is_active', 'is_blocked', 'roles']
 
     def validate(self, attrs):
         email= attrs.get('email', '')

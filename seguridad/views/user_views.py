@@ -1,5 +1,6 @@
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from email import message
+from seguridad.serializers.roles_serializers import UsuarioRolesSerializers
 from django.core import signing
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
@@ -74,7 +75,7 @@ class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
     serializer_class = UserPutSerializerInterno
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarInterno]
-    
+
     def patch(self, request):
         user_loggedin = self.request.user.id_usuario
         user = User.objects.filter(id_usuario = user_loggedin).first()
@@ -83,13 +84,13 @@ class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
             user_serializer = self.serializer_class(user, data=request.data)
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
-            
+
             # AUDITORIA AL ACTUALIZAR USUARIO PROPIO
-            
+
             dirip = Util.get_client_ip(request)
             descripcion = {'nombre_de_usuario': user.nombre_de_usuario}
             valores_actualizados = {'current': user, 'previous': previous_user}
-            
+
             auditoria_data = {
                 'id_usuario': user_loggedin,
                 'id_modulo': 3,
@@ -99,18 +100,18 @@ class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
                 'descripcion': descripcion,
                 'valores_actualizados': valores_actualizados
             }
-            
+
             Util.save_auditoria(auditoria_data)
-            
+
             return Response({'success': True,'data': user_serializer.data})
-        
-        
+
+
 class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
     http_method_names = ["patch"]
     serializer_class = UserPutSerializerExterno
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarExterno]
-    
+
     def patch(self, request):
         user_loggedin = self.request.user.id_usuario
         user = User.objects.filter(id_usuario = user_loggedin).first()
@@ -119,13 +120,13 @@ class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
             user_serializer = self.serializer_class(user, data=request.data)
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
-            
+
             # AUDITORIA AL ACTUALIZAR USUARIO PROPIO
-            
+
             dirip = Util.get_client_ip(request)
             descripcion = {'nombre_de_usuario': user.nombre_de_usuario}
             valores_actualizados = {'current': user, 'previous': previous_user}
-            
+
             auditoria_data = {
                 'id_usuario': user_loggedin,
                 'id_modulo': 4,
@@ -135,9 +136,9 @@ class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
                 'descripcion': descripcion,
                 'valores_actualizados': valores_actualizados
             }
-            
+
             Util.save_auditoria(auditoria_data)
-            
+
             return Response({'success': True,'data': user_serializer.data})
 
 
@@ -146,7 +147,7 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
     serializer_class = UserPutAdminSerializer
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarUsuarios]
-    
+
     def patch(self, request, pk):
         user_loggedin = request.user.id_usuario
         if int(user_loggedin) != int(pk):
@@ -156,13 +157,13 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
                 user_serializer = self.serializer_class(user, data=request.data)
                 user_serializer.is_valid(raise_exception=True)
                 user_serializer.save()
-                
+
                 # AUDITORIA AL ACTUALIZAR USUARIO
-            
+
                 dirip = Util.get_client_ip(request)
                 descripcion = {'nombre_de_usuario': user.nombre_de_usuario}
                 valores_actualizados = {'current': user, 'previous': previous_user}
-                
+
                 auditoria_data = {
                     'id_usuario': user_loggedin,
                     'id_modulo': 2,
@@ -172,9 +173,9 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
                     'descripcion': descripcion,
                     'valores_actualizados': valores_actualizados
                 }
-                
+
                 Util.save_auditoria(auditoria_data)
-                
+
                 return Response({'success': True,'data': user_serializer.data})
             else:
                 return Response({'success': False,'detail': 'No se encontró el usuario'})
@@ -232,9 +233,9 @@ class GetUserByPersonDocument(generics.ListAPIView):
                 return Response({'Persona': serializador.data})
         except:
             return Response({'data': 'No se encuentra persona con este numero de documento'})
-   
-        
-    
+
+
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUser(request, pk):
@@ -245,7 +246,7 @@ def updateUser(request, pk):
     user.nombre_de_usuario= data['email']
     user.email = data['email']
     user.is_staff = data['isAdmin']
-    
+
 
     user.save()
 
@@ -263,7 +264,7 @@ def updateUserAdmin(request, pk):
     user.nombre_de_usuario= data['email']
     user.email = data['email']
     user.is_blocked = data['is_blocked']
-    
+
 
     user.save()
 
@@ -286,43 +287,69 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, PermisoCrearUsuarios]
 
     def post(self, request):
-        user_loggedin = request.user.id_usuario
-        user = request.data
-        serializer = self.serializer_class(data=user)
+        user_logeado = request.user.id_usuario
+        data = request.data
+
+        #CREAR USUARIO
+        serializer = self.serializer_class(data=data, many=False)
         serializer.is_valid(raise_exception=True)
+        nombre_usuario_creado = serializer.validated_data.get('nombre_de_usuario')
         serializer.save()
-        
-        user_data = serializer.data
-        
-        # AUDITORIA AL REGISTRAR USUARIO
-            
+        usuario = User.objects.get(nombre_de_usuario=nombre_usuario_creado)
+
+        #AUDITORIA CREAR USUARIO
         dirip = Util.get_client_ip(request)
-        descripcion = {'nombre_de_usuario': request.user.nombre_de_usuario}
-        
+        descripcion = {'nombre_de_usuario': usuario.nombre_de_usuario}
         auditoria_data = {
-            'id_usuario': user_loggedin,
+            'id_usuario': user_logeado,
             'id_modulo': 2,
             'cod_permiso': 'CR',
             'subsistema': 'SEGU',
             'dirip': dirip,
             'descripcion': descripcion
         }
-        
         Util.save_auditoria(auditoria_data)
+
+        #ASIGNACIÓN DE ROLES AL USUARIO
+        roles = request.data['roles']
+        for rol in roles:
+            try:
+                consulta_rol = Roles.objects.get(id_rol=rol)
+                descripcion["Rol" + str(rol)] = str(consulta_rol.nombre_rol)
+                if consulta_rol:
+                    UsuariosRol.objects.create(
+                        id_rol = consulta_rol,
+                        id_usuario = usuario
+                    )    
+
+                    #Auditoria Asignación de Roles    
+                    dirip = Util.get_client_ip(request)
+                    auditoria_data = {
+                        'id_usuario': user_logeado,
+                        'id_modulo': 5,
+                        'cod_permiso': 'CR',
+                        'subsistema': 'SEGU',
+                        'dirip': dirip,
+                        'descripcion': descripcion,
+                    }
+                    Util.save_auditoria(auditoria_data)
+                else:
+                    return Response({'No se puede asignar este rol por que no existe'})
+            except:
+                return Response({'No se puede consultar por que no existe este rol'})
         
-        user = User.objects.get(email=user_data['email'])
+        #Data paraSMS y EMAIL
+        user = User.objects.get(email=usuario.email)
 
         token = RefreshToken.for_user(user).access_token
-        
         current_site=get_current_site(request).domain
 
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
-        
         short_url = Util.get_short_url(request, absurl)
-        
+
         if user.persona.tipo_persona == 'N':
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
@@ -334,7 +361,7 @@ class RegisterView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-            return Response(user_data, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'creado exitosamente', 'usuario': serializer.data, 'Roles': roles})
 
         else:
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
@@ -344,10 +371,10 @@ class RegisterView(generics.CreateAPIView):
             data = {'template': template, 'email_subject': subject, 'to_email': user.email}
             Util.send_email(data)
             try:
-                Util.send_sms(persona.telefono_celular, sms)
+                Util.send_sms(persona.telefono_celular_empresa, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-            return Response(user_data, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'creado exitosamente', 'usuario': serializer.data, 'Roles': roles})
 
 class RegisterExternoView(generics.CreateAPIView):
     serializer_class = RegisterExternoSerializer
@@ -359,12 +386,12 @@ class RegisterExternoView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer_response = serializer.save()
         user_data = serializer.data
-        
+
         # AUDITORIA AL REGISTRAR USUARIO
-            
+
         dirip = Util.get_client_ip(request)
         descripcion = {'nombre_de_usuario': request.data["nombre_de_usuario"]}
-        
+
         auditoria_data = {
             'id_usuario': serializer_response.pk,
             'id_modulo': 10,
@@ -373,22 +400,22 @@ class RegisterExternoView(generics.CreateAPIView):
             'dirip': dirip,
             'descripcion': descripcion
         }
-        
+
         Util.save_auditoria(auditoria_data)
-        
+
         user = User.objects.get(email=user_data['email'])
 
         token = RefreshToken.for_user(user).access_token
-        
+
         current_site=get_current_site(request).domain
 
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
-        
+
         short_url = Util.get_short_url(request, absurl)
-        
+
         if user.persona.tipo_persona == 'N':
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
             context = {'primer_nombre': user.persona.primer_nombre, 'primer_apellido': user.persona.primer_apellido, 'absurl': absurl}
@@ -443,10 +470,10 @@ class Verify(views.APIView):
             return Response({'email': 'succesfully activated'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
             return Response({'error': 'activation link expired'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class LoginConsultarApiViews(generics.RetrieveAPIView):
     serializer_class=LoginSerializers
     queryset = Login.objects.all()
@@ -456,7 +483,7 @@ class LoginListApiViews(generics.ListAPIView):
     queryset = Login.objects.all()
 
 #__________________LoginErroneo
-    
+
 class LoginErroneoConsultarApiViews(generics.RetrieveAPIView):
     serializer_class=LoginErroneoSerializers
     queryset = LoginErroneo.objects.all()
@@ -478,21 +505,21 @@ class LoginApiView(generics.CreateAPIView):
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).last()
                     serializer = self.serializer_class(data=request.data)
                     serializer.is_valid(raise_exception=True)
-                    
+
                     login = Login.objects.create(
                         id_usuario = user,
                         dirip = str(ip),
                         dispositivo_conexion = device
                     )
-                    
+
                     LoginPostSerializers(login, many=False)
-                    
+
                     if login_error:
                         login_error.contador = 0
                         login_error.save()
-                    
+
                     return Response(serializer.data, status=status.HTTP_200_OK)
-                    
+
                 except:
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).first()
                     if login_error:
@@ -507,7 +534,7 @@ class LoginApiView(generics.CreateAPIView):
                                 login_error.save()
                             if login_error.contador == 3:
                                 user.is_blocked = True
-                                user.save()   
+                                user.save()
 
                                 if user.persona.tipo_persona == 'N':
                                     sms = 'Usuario Cormacarena Bia bloqueado por limite de intentos, desbloquealo enviando un correo a admin@admin.com'
@@ -541,7 +568,7 @@ class LoginApiView(generics.CreateAPIView):
                             else:
                                 login_error.contador = 1
                                 login_error.save()
-                                
+
                                 serializer = LoginErroneoPostSerializers(login_error, many=False)
                                 return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_200_OK)
                     else:
@@ -574,7 +601,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             current_site=get_current_site(request=request).domain
             relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
-            absurl='http://'+ current_site + relativeLink 
+            absurl='http://'+ current_site + relativeLink
             if user.persona.tipo_persona == 'N':
                 context = {
                 'primer_nombre': user.persona.primer_nombre,
@@ -604,17 +631,16 @@ class PasswordTokenCheckApi(generics.GenericAPIView):
             user = User.objects.get(id_usuario=id)
             if not PasswordResetTokenGenerator().check_token(user,token):
                 return Response({'error': 'token invalido, solicita uno nuevo'}, status=status.HTTP_401_UNAUTHORIZED)
-            
+
             return Response({'success':True, 'message':'Credenciales validas', 'uidb64':uidb64,'token':token}, status=status.HTTP_200_OK)
         except encoding.DjangoUnicodeDecodeError as identifier:
-            
+
             if not PasswordResetTokenGenerator().check_token(user):
                 return Response({'error':'aslkdjaslkdjaslk'})
-            
+
 class SetNewPasswordApiView(generics.GenericAPIView):
     serializer_class=SetNewPasswordSerializer
     def patch(self,request):
         serializer=self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success':True,'message':'Contraseña actualizada'},status=status.HTTP_200_OK)
-    

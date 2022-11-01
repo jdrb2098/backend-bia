@@ -39,39 +39,6 @@ class GetUsersByRol(ListAPIView):
         return queryset
 
 
-class UserRolViewSet(viewsets.ModelViewSet):
-    queryset = UsuariosRol.objects.all()
-    serializer_class = UsuarioRolesSerializers
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        usuario = request.user.nombre_de_usuario
-        descripcion ={'Usuario' : usuario}
-        cont = 0
-        for i in request.data:
-            cont = cont + 1
-            consulta_rol = Roles.objects.get(id_rol = i["id_rol"]).nombre_rol
-            descripcion["Rol" + str(cont)] = str(consulta_rol)         
-        
-        dirip = Util.get_client_ip(request)
-        
-        auditoria_data = {
-            'id_usuario': request.user.id_usuario,
-            'id_modulo': 5,
-            'cod_permiso': 'CR',
-            'subsistema': 'SEGU',
-            'dirip': dirip,
-            'descripcion': descripcion,
-        }
-        
-        Util.save_auditoria(auditoria_data)
-        #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')  
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class GetRolById(RetrieveAPIView):
     serializer_class=RolesSerializer
