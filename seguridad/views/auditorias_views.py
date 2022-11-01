@@ -75,7 +75,6 @@ def getAuditorias(request):
                 consultarSubsistema(subsistema)
                 try:
                     auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(id_modulo = modulo).filter(subsistema = subsistema)
-                    serializador = AuditoriasSerializers(auditorias, many=True)
                     page = request.query_params.get('page')
                     paginator = Paginator(auditorias, 10)
                     try:
@@ -87,6 +86,7 @@ def getAuditorias(request):
                     if page == None:
                         page = 1
                     page = int(page)
+                    serializador = AuditoriasSerializers(auditorias, many=True)
                     if len(auditorias) == 0:
                         return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                     return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
@@ -95,7 +95,6 @@ def getAuditorias(request):
             except:
                 #Poner persona, modulo y fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(id_modulo = modulo)
-                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -107,14 +106,14 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
         except:
             try:
                 consultarSubsistema(subsistema)
-                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(subsistema = subsistema)
-                serializador = AuditoriasSerializers(auditorias, many=True)
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(subsistema = subsistema)                
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -126,6 +125,8 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
+
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
@@ -133,7 +134,6 @@ def getAuditorias(request):
             except:
                 #Poner persona y fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario)
-                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -145,6 +145,7 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
@@ -155,7 +156,6 @@ def getAuditorias(request):
                 consultarSubsistema(subsistema)
                 #Poner subsistema, modulo y fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo).filter(subsistema = subsistema)
-                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -167,13 +167,13 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
             except:
                 #Poner modulo y fecha
-                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo)
-                serializador = AuditoriasSerializers(auditorias, many=True)
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo)                
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -185,6 +185,7 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
@@ -193,7 +194,6 @@ def getAuditorias(request):
                 consultarSubsistema(subsistema)
                 #Poner subsistema y fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(subsistema = subsistema)
-                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -204,14 +204,13 @@ def getAuditorias(request):
                     auditorias = paginator.page(paginator.num_pages)
                 if page == None:
                     page = 1
-                page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
             except:
                 #Poner fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date])
-                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -223,6 +222,7 @@ def getAuditorias(request):
                 if page == None:
                     page = 1
                 page = int(page)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
                 return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages}) 
