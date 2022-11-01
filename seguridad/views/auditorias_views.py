@@ -89,7 +89,7 @@ def getAuditorias(request):
                     page = int(page)
                     if len(auditorias) == 0:
                         return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                    return Response({"auditorias" : serializador.data})
+                    return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
                 except:
                     return Response ({"Error" : "Error de auditoria"})
             except:
@@ -109,7 +109,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
         except:
             try:
                 consultarSubsistema(subsistema)
@@ -128,7 +128,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
                 #Poner persona, subsistema y fecha
             except:
                 #Poner persona y fecha
@@ -147,7 +147,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
     except:
         try:
             consultarModulo(modulo)
@@ -169,7 +169,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
             except:
                 #Poner modulo y fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo)
@@ -187,7 +187,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
         except:
             try:
                 consultarSubsistema(subsistema)
@@ -207,7 +207,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages})
             except:
                 #Poner fecha
                 auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date])
@@ -225,7 +225,7 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                return Response({"auditorias" : serializador.data})
+                return Response({"auditorias" : serializador.data, "page" : page, "pages" : paginator.num_pages}) 
 
  
    
