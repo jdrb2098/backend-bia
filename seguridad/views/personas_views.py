@@ -304,9 +304,8 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
 
             #Validación emails entrantes vs existentes            
             try:
-                persona_email_validated = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                if persona_email_validated: 
-                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                persona_email_validated = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
                 serializador = persona_serializada.save()
 
@@ -377,9 +376,8 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
             
             # Validación emails entrantes vs existentes
             try:
-                persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                if persona_validated_email: 
-                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                persona_validated_email = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
                 serializador = persona_serializada.save()
 
@@ -448,10 +446,9 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                     
                     #Validación emails entrantes vs existentes
                     try:
-                        persona_validate_email_primario = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                        print(persona_validate_email_primario)
+                        persona_validate_emails = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                         return Response({'detail': 'Ya existe una persona con este email asociado como email secundario'})
-                    except:
+                    except:  
                         serializador = persona_serializada.save()
                         
                         # auditoria actualizar persona
@@ -526,10 +523,8 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
 
             #Verificación emails entrantes vs salientes
             try:
-                personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                if personita: 
-                    #Personas.objects.get(email_empresarial=email_principal)
-                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                personita = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
                 serializador = persona_serializada.save()
 
@@ -600,9 +595,8 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
 
             #Verificacion emails entrantes vs existentes
             try:
-                personita = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                if personita: 
-                    return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                personita = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
+                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
             except:
                 serializador = persona_serializada.save()
                 
@@ -672,8 +666,7 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
 
                     #Verificacion emails entrantes vs existentes
                     try:
-                        persona_validated_email = Personas.objects.get(Q(email_empresarial=email_principal) | Q(email=email_secundario))
-                        print(persona_validated_email)
+                        persona_validated_email = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                         return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
                     except:
                         serializador = persona_serializada.save()
