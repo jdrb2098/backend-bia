@@ -1,10 +1,12 @@
+from email.policy import default
+from enum import unique
 from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
 from seguridad.models import Personas
 
 class EstadosArticulo(models.Model):
     cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
-    nombre = models.CharField(max_length=50, db_column='T051nombre')
+    nombre = models.CharField(max_length=20, db_column='T051nombre')
 
     def __str__(self):
         return str(self.nombre)
@@ -16,7 +18,7 @@ class EstadosArticulo(models.Model):
         
 class Marcas(models.Model):
     id_marca = models.AutoField(primary_key=True, editable=False, db_column='T052IdMarca')
-    nombre = models.CharField(max_length=75, db_column='T052nombre')
+    nombre = models.CharField(max_length=50, db_column='T052nombre',unique=True)
 
     def __str__(self):
         return str(self.nombre)
@@ -28,9 +30,10 @@ class Marcas(models.Model):
         
 class PorcentajesIVA(models.Model):
     id_porcentaje_iva = models.AutoField(primary_key=True, editable=False, db_column='T053IdPorcentajeIVA')
-    porcentaje = models.FloatField(db_column='T053porcentaje')
+    porcentaje = models.FloatField(db_column='T053porcentaje',unique=True)
     observacion = models.CharField(max_length=255, db_column='T053observacion')
-
+    registro_precargado=models.BooleanField(default=False, db_column='T053registroPrecargado')
+    
     def __str__(self):
         return str(self.porcentaje)
 
@@ -41,8 +44,7 @@ class PorcentajesIVA(models.Model):
         
 class Magnitudes(models.Model):
     cod_magnitud = models.AutoField(primary_key=True, editable=False, db_column='T054CodMagnitud')
-    nombre = models.CharField(max_length=50, db_column='T054nombre')
-    precargado = models.BooleanField(default=False, db_column='T054registroPrecargado')
+    nombre = models.CharField(max_length=50, db_column='T054nombre',unique=True)
 
     def __str__(self):
         return str(self.nombre)
@@ -54,8 +56,8 @@ class Magnitudes(models.Model):
         
 class UnidadesMedida(models.Model):
     id_unidad_medida = models.AutoField(primary_key=True, editable=False, db_column='T055IdUnidadMedida')
-    nombre = models.CharField(max_length=50, db_column='T055nombre')
-    abreviatura = models.CharField(max_length=1, db_column='T055abreviatura')
+    nombre = models.CharField(max_length=50, db_column='T055nombre',unique=True)
+    abreviatura = models.CharField(max_length=5, db_column='T055abreviatura',unique=True)
     id_magnitud = models.ForeignKey(Magnitudes, default=1, on_delete=models.CASCADE, db_column='T055Id_Magnitud')
     precargado = models.BooleanField(default=False, db_column='T055registroPrecargado')
 
@@ -69,7 +71,7 @@ class UnidadesMedida(models.Model):
         
 class Bodegas(models.Model):
     id_bodega = models.AutoField(primary_key=True, editable=False, db_column='T056IdBodega')
-    nombre = models.CharField(max_length=255, db_column='T056nombre')
+    nombre = models.CharField(max_length=255, db_column='T056nombre',unique=True)
     cod_municipio = models.CharField(max_length=5, choices=municipios_CHOICES, null=True, blank=True, db_column='T056Cod_Municipio')
     direccion = models.CharField(max_length=255, null=True, blank=True, db_column='T056direccion')
     id_responsable = models.ForeignKey(Personas, on_delete=models.CASCADE, db_column='T056Id_Responsable')

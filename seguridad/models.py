@@ -446,7 +446,7 @@ class UsuariosRol(models.Model):
 
 class Auditorias(models.Model):
     id_auditoria = models.AutoField(db_column='TzIdAuditoria', primary_key=True, editable=False)
-    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
+    id_usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, db_column='TzId_Usuario') ##No tiene definido tipo de relacion
     id_modulo = models.ForeignKey(Modulos, on_delete=models.CASCADE, db_column='TzId_Modulo')
     id_cod_permiso_accion = models.ForeignKey(Permisos, on_delete=models.CASCADE, db_column='TzCod_PermisoAccion')
     fecha_accion = models.DateTimeField(db_column='TzfechaAccion', auto_now = True)

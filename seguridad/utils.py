@@ -1,4 +1,5 @@
 from django.core.mail import EmailMessage
+from email_validator import validate_email, EmailNotValidError, EmailUndeliverableError, EmailSyntaxError
 from backend.settings import EMAIL_HOST_USER, AUTHENTICATION_360_NRS
 from seguridad.models import Shortener, User, Modulos, Permisos, Auditorias
 import re, requests
@@ -8,8 +9,23 @@ class Util:
     @staticmethod
     def send_email(data):
         email = EmailMessage(subject= data['email_subject'], body=data['template'], to=[data['to_email']], from_email=EMAIL_HOST_USER)
+        
         email.content_subtype ='html'
-        email.send()
+        response = email.send(fail_silently=True)
+        return response
+       
+
+    @staticmethod
+    def validate_dns(email):
+        try: 
+            validation = validate_email(email, check_deliverability=True)
+            validate = validation.email
+            return True
+        except EmailUndeliverableError as e:
+            return False
+
+
+
         
     @staticmethod
     def send_sms(phone, sms):
@@ -65,7 +81,10 @@ class Util:
     @staticmethod
     def save_auditoria(data):
         try:
-            usuario = User.objects.get(id_usuario = data.get('id_usuario'))
+            usuario = None
+            if data.get('id_usuario'):
+                usuario = User.objects.get(id_usuario = data.get('id_usuario'))
+                
             modulo = Modulos.objects.get(id_modulo = data.get('id_modulo'))
             permiso = Permisos.objects.get(cod_permiso = data.get('cod_permiso'))
             data_descripcion = data.get('descripcion')
@@ -75,7 +94,9 @@ class Util:
             if data_descripcion:
                 descripcion = ''
                 for field, value in data_descripcion.items():
-                    descripcion += field + ":" + str(value) + "|"
+                    descripcion += '' if not descripcion else '|'
+                    descripcion += field + ":" + str(value)
+                    
                 descripcion += '.'
                 
             valores_actualizados = None
@@ -92,8 +113,13 @@ class Util:
                 for field, value in data_previous.__dict__.items():
                     new_value = getattr(data_current,field)
                     if value != new_value:
-                        valores_actualizados += field + ":" + str(value) + " con " + str(new_value) + "|"
-                valores_actualizados += '.'
+                        valores_actualizados += '' if not valores_actualizados else '|'
+                        valores_actualizados += field + ":" + str(value) + " con " + str(new_value)
+                
+                if not valores_actualizados:
+                    valores_actualizados = None
+                else:
+                    valores_actualizados += '.'
             
             auditoria_user = Auditorias.objects.create(
                 id_usuario = usuario,
