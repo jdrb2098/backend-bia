@@ -50,52 +50,52 @@ def getAuditorias(request):
             auditoria_usuario_id = User.objects.get(persona=auditoria_persona_id)
             return auditoria_usuario_id.id_usuario
         except:
-            return Response({"error":"Datos invalidos de persona"})
+            raise TypeError('bad type')
     def consultarModulo(modulo):
         try:
             modulo = Modulos.objects.get(id_modulo=modulo)
             return modulo.id_modulo
         except:
-            return Response({"error":"Datos invalidos de modulo"})
+            raise TypeError('bad type')
     def consultarSubsistema(subsistema):
         try:
             subsistema = Modulos.objects.get(subsistema=subsistema)
             return subsistema.subsistema
         except:
-            return Response({"error":"Datos invalidos de subsistema"})
+            raise TypeError('bad type')
+    def consultaAuditoria():
+        return Response({"Mensaje":"Buscando"})
 
     try:
-        id_usuario= consultaPersona(tipo_documento,numero_documento)
+        id_usuario = consultaPersona(tipo_documento,numero_documento)
         print(id_usuario)
         try:
             consultarModulo(modulo)
             try:
                 consultarSubsistema(subsistema)
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(id_usuario=id_usuario) &
-                    Q(id_modulo=int(modulo))&
-                    Q(subsistema=subsistema)&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
-                page = request.query_params.get('page')
-                paginator = Paginator(auditorias, 10)
                 try:
-                    auditorias = paginator.page(page)
-                except PageNotAnInteger:
-                    auditorias = paginator.page(1)
-                except EmptyPage:
-                    auditorias = paginator.page(paginator.num_pages)
-                if page == None:
-                    page = 1
-                page = int(page)
-                if len(auditorias) == 0:
-                    return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                    auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(id_modulo = modulo).filter(subsistema = subsistema)
+                    serializador = AuditoriasSerializers(auditorias, many=True)
+                    page = request.query_params.get('page')
+                    paginator = Paginator(auditorias, 10)
+                    try:
+                        auditorias = paginator.page(page)
+                    except PageNotAnInteger:
+                        auditorias = paginator.page(1)
+                    except EmptyPage:
+                        auditorias = paginator.page(paginator.num_pages)
+                    if page == None:
+                        page = 1
+                    page = int(page)
+                    if len(auditorias) == 0:
+                        return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
+                    return Response({"auditorias" : serializador.data})
+                except:
+                    return Response ({"Error" : "Error de auditoria"})
             except:
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(id_usuario=id_usuario) &
-                    Q(id_modulo=int(modulo))&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner persona, modulo y fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(id_modulo = modulo)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -109,15 +109,12 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
         except:
             try:
                 consultarSubsistema(subsistema)
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(id_usuario=id_usuario) &
-                    Q(subsistema=subsistema)&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario).filter(subsistema = subsistema)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -131,12 +128,12 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
+                #Poner persona, subsistema y fecha
             except:
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(id_usuario=id_usuario) &
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner persona y fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_usuario=id_usuario)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -150,20 +147,15 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
-
-        
-        
+                return Response({"auditorias" : serializador.data})
     except:
         try:
             consultarModulo(modulo)
             try:
                 consultarSubsistema(subsistema)
-                auditorias = Auditorias.objects.filter(
-                    Q(id_modulo=int(modulo))&
-                    Q(subsistema=subsistema)&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner subsistema, modulo y fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo).filter(subsistema = subsistema)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -177,12 +169,11 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
             except:
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(id_modulo=int(modulo))&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner modulo y fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(id_modulo = modulo)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -196,14 +187,13 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
         except:
             try:
                 consultarSubsistema(subsistema)
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(subsistema=subsistema)&
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner subsistema y fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date]).filter(subsistema = subsistema)
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -217,11 +207,11 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
             except:
-                auditorias = Auditorias.objects.distinct().filter(
-                    Q(fecha_accion__range=[start_date,end_date])).order_by('-fecha_accion')
+                #Poner fecha
+                auditorias = Auditorias.objects.filter(fecha_accion__range=[start_date,end_date])
+                serializador = AuditoriasSerializers(auditorias, many=True)
                 page = request.query_params.get('page')
                 paginator = Paginator(auditorias, 10)
                 try:
@@ -235,10 +225,8 @@ def getAuditorias(request):
                 page = int(page)
                 if len(auditorias) == 0:
                     return Response({'success':False, 'Message':"No se encontraron coincidencias con los parametros de busqueda"})
-                serializer = AuditoriasSerializers(auditorias, many=True)
-                return Response({'auditorias': serializer.data, 'page': page, 'pages': paginator.num_pages})
+                return Response({"auditorias" : serializador.data})
 
-        
  
    
     
