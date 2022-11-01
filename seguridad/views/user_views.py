@@ -157,14 +157,44 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
                 user_serializer = self.serializer_class(user, data=request.data)
                 user_serializer.is_valid(raise_exception=True)
                 user_serializer.save()
-
+                
+                roles = user_serializer.validated_data.get("roles")
+                roles_actuales = UsuariosRol.objects.filter(id_usuario=pk).values('id_rol')
+                roles_previous = copy.copy(roles_actuales)
+                
+                roles_asignados = {}
+                
+                # ASIGNAR ROLES NUEVOS A USUARIO
+                for rol in roles:
+                    rol_existe = UsuariosRol.objects.filter(id_usuario=pk, id_rol=rol["id_rol"])
+                    if not rol_existe:
+                        rol_instance = Roles.objects.filter(id_rol=rol["id_rol"]).first()
+                        roles_asignados["nombre_rol_"+str(rol_instance.id_rol)] = rol_instance.nombre_rol
+                        UsuariosRol.objects.create(
+                            id_usuario = user,
+                            id_rol = rol_instance
+                        )
+                
+                # ELIMINAR ROLES A USUARIO
+                
+                roles_eliminados = {}
+                
+                roles_list = [rol['id_rol'] for rol in roles]
+                
+                roles_eliminar = UsuariosRol.objects.filter(id_usuario=pk).exclude(id_rol__in=roles_list)
+                
+                for rol in roles_eliminar:
+                    roles_eliminados["nombre_rol_"+str(rol.id_rol.id_rol)] = rol.id_rol.nombre_rol
+                
+                roles_eliminar.delete()
+                
                 # AUDITORIA AL ACTUALIZAR USUARIO
 
                 dirip = Util.get_client_ip(request)
                 descripcion = {'nombre_de_usuario': user.nombre_de_usuario}
                 valores_actualizados = {'current': user, 'previous': previous_user}
-
-                auditoria_data = {
+                
+                auditoria_user = {
                     'id_usuario': user_loggedin,
                     'id_modulo': 2,
                     'cod_permiso': 'AC',
@@ -173,9 +203,65 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
                     'descripcion': descripcion,
                     'valores_actualizados': valores_actualizados
                 }
-
-                Util.save_auditoria(auditoria_data)
-
+                
+                Util.save_auditoria(auditoria_user)
+                
+                # AUDITORIA AL ACTUALIZAR ROLES
+                
+                usuario = User.objects.get(id_usuario=user_loggedin)
+                modulo = Modulos.objects.get(id_modulo = 5)
+                permiso = Permisos.objects.get(cod_permiso = 'AC')
+                
+                descripcion_roles = 'nombre_de_usuario:' + user.nombre_de_usuario
+                
+                if roles_previous:
+                    for rol in roles_previous:
+                        rol_previous = Roles.objects.filter(id_rol=rol['id_rol']).first()
+                        descripcion_roles += '|' + 'nombre_rol:' + rol_previous.nombre_rol
+                    descripcion_roles += '.'
+                else:
+                    descripcion_roles += '.'
+                
+                if roles_asignados:
+                    valores_actualizados = 'Se agregó en el detalle el rol '
+                    for field, value in roles_asignados.items():
+                        valores_actualizados += '' if not valores_actualizados else '|'
+                        valores_actualizados += field + ":" + str(value)
+                        
+                    valores_actualizados += '.'
+                    
+                    auditoria_user = Auditorias.objects.create(
+                        id_usuario = usuario,
+                        id_modulo = modulo,
+                        id_cod_permiso_accion = permiso,
+                        subsistema = 'SEGU',
+                        dirip = dirip,
+                        descripcion = descripcion_roles,
+                        valores_actualizados = valores_actualizados
+                    )
+                    
+                    auditoria_user.save()
+                
+                if roles_eliminados:
+                    valores_actualizados = 'Se eliminó en el detalle el rol '
+                    for field, value in roles_eliminados.items():
+                        valores_actualizados += '' if not valores_actualizados else '|'
+                        valores_actualizados += field + ":" + str(value)
+                        
+                    valores_actualizados += '.'
+                    
+                    auditoria_user = Auditorias.objects.create(
+                        id_usuario = usuario,
+                        id_modulo = modulo,
+                        id_cod_permiso_accion = permiso,
+                        subsistema = 'SEGU',
+                        dirip = dirip,
+                        descripcion = descripcion_roles,
+                        valores_actualizados = valores_actualizados
+                    )
+                    
+                    auditoria_user.save()
+                
                 return Response({'success': True,'data': user_serializer.data})
             else:
                 return Response({'success': False,'detail': 'No se encontró el usuario'})
