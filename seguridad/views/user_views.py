@@ -420,7 +420,7 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
 
                 usuario_rol_delegante = UsuariosRol.objects.get(Q(id_rol=1) & Q(id_usuario=user_logeado))
                 print(usuario_rol_delegante)
-                #usuario_rol_delegante.delete()
+                usuario_rol_delegante.delete()
 
                 #Auditoria Delegación de Rol Super Usuario
                 descripcion = 'nombre_de_usuario:'+ str(usuario_delegado.nombre_de_usuario)+ '|' + 'Rol:'+ str(rol_superusuario)+ '.'

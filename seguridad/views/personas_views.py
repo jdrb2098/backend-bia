@@ -86,17 +86,19 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
     queryset = EstadoCivil.objects.all()
     
     def delete(self, request, pk):
-        estado_civil = EstadoCivil.objects.get(cod_estado_civil=pk)
-        
-        if estado_civil.precargado == False:
-            persona = Personas.objects.filter(estado_civil=pk)
-            if persona:
-                return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
-            
-            estado_civil.delete()    
-            return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+        estado_civil = EstadoCivil.objects.filter(cod_estado_civil=pk).first()
+        if estado_civil:
+            if estado_civil.precargado == False:
+                persona = Personas.objects.filter(estado_civil=pk)
+                if persona:
+                    return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
+                
+                estado_civil.delete()    
+                return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+            else:
+                return Response({'detail': 'No puedes eliminar un estado civil precargado'})
         else:
-            return Response({'detail': 'No puedes eliminar un estado civil precargado'})
+            return Response({'success':False, 'detail':'No existe el estado civil'})
 
 
 class RegisterEstadoCivil(generics.CreateAPIView):
@@ -151,17 +153,19 @@ class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
     queryset = TipoDocumento.objects.all()
     
     def delete(self, request, pk):
-        tipo_documento = TipoDocumento.objects.get(cod_tipo_documento=pk)
-        
-        if tipo_documento.precargado == False:
-            persona = Personas.objects.filter(tipo_documento=pk)
-            if persona:
-                return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
-            
-            tipo_documento.delete()    
-            return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+        tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
+        if tipo_documento:
+            if tipo_documento.precargado == False:
+                persona = Personas.objects.filter(tipo_documento=pk)
+                if persona:
+                    return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
+                
+                tipo_documento.delete()    
+                return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+            else:
+                return Response({'detail': 'No puedes eliminar un estado civil precargado'})
         else:
-            return Response({'detail': 'No puedes eliminar un estado civil precargado'})
+            return Response({'success':False,'detail': 'No existe el tipo de documento'})
 
 
 class RegisterTipoDocumento(generics.CreateAPIView):

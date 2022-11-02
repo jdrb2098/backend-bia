@@ -137,12 +137,9 @@ class DeletePermisoModuloRol(DestroyAPIView):
     queryset = PermisosModuloRol.objects.all()
 
     def delete(self, request, pk):
-        data = PermisosModuloRol.objects.get(id_permiso_modulo_rol=pk)
+        data = PermisosModuloRol.objects.filter(id_permiso_modulo_rol=pk).first()
         if data:
             data.delete()
-            usuario = request.user.id_usuario
-            user = User.objects.get(id_usuario = usuario)
-            modulo = Modulos.objects.get(id_modulo = 2)
             permiso = Permisos.objects.get(cod_permiso = 'BO')
             consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = data.id_permiso_modulo.id_permisos_modulo)
             consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
@@ -164,7 +161,7 @@ class DeletePermisoModuloRol(DestroyAPIView):
 
             return Response({'detail':'El permiso fue eliminado del rol en el modulo'})
         else:
-            return Response({'detail':'No existe el esa selección ingresada'})
+            return Response({'detail':'No existe esa selección ingresada'})
 
 
 class InsertarPermisosModulo(CreateAPIView):
