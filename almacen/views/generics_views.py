@@ -7,6 +7,7 @@ from rest_framework import generics
 from almacen.serializers.generics_serializers import SerializersMarca, SerializersEstadosArticulo, SerializerPorcentajesIVA
 from almacen.models.generics_models import Marcas, EstadosArticulo, PorcentajesIVA
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 
 #_______Marca
@@ -127,9 +128,44 @@ class UpdateUnidadMedida(generics.UpdateAPIView):
     serializer_class=SerializersUnidadesMedida
     queryset=UnidadesMedida.objects.all()
     
+    def put(self,request,pk):
+        
+        try:
+            unidad_medida=UnidadesMedida.objects.get(id_unidad_medida=pk)
+            data=request.data
+            print(unidad_medida.precargado)
+            if unidad_medida.precargado==True:
+                return Response("No se puede actualizar porque es una unidad de medida precargado")
+            
+            try:
+                if unidad_medida.precargado==False:
+                        unidad_medida_serializer=self.serializer_class(unidad_medida,data)
+                        unidad_medida_serializer.is_valid(raise_exception=True)
+                        unidad_medida_serializer.save()
+                        return Response({'success':True, 'data': unidad_medida_serializer.data})
+            except Exception as e:
+                print(e)
+                return Response({'detail': e.detail})
+        except:
+            return Response({'success':False, 'detail': 'No existe la unidad de medida'})
 class DeleteUnidadMedida(generics.DestroyAPIView):
     serializer_class=SerializersUnidadesMedida
     queryset=UnidadesMedida.objects.all()
+    
+    def delete(self, request, pk):
+        
+        try:
+            unidad_medida=UnidadesMedida.objects.get(id_unidad_medida=pk)
+            
+            if unidad_medida.precargado==False:
+                unidad_medida.delete()
+                
+                return Response({'success':True,'detail': 'se ha eliminado la unidad de medida' })
+            else:
+                return Response({'success':False, 'detail': 'No puede eliminar una unidad de medida precargado'})
+
+        except:
+                return Response({'success':False, 'detail': 'No existe la unidad de medida'})
 
 class GetUnidadMedidaById(generics.RetrieveAPIView):
     serializer_class=SerializersUnidadesMedida

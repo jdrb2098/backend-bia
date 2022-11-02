@@ -39,9 +39,14 @@ class SerializerPorcentajesIVA(serializers.ModelSerializer):
         }
 
 class SerializersUnidadesMedida(serializers.ModelSerializer):
+    nombre=serializers.CharField(validators=[UniqueValidator(queryset=UnidadesMedida.objects.all())])
+    abreviatura=serializers.CharField(validators=[UniqueValidator(queryset=UnidadesMedida.objects.all())])
 
     class Meta:
         model=UnidadesMedida
         fields=('__all__')
+        extra_kwargs = {
+            'precargado': {'read_only': True}
+        }
         
         
