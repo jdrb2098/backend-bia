@@ -1,6 +1,3 @@
-from base64 import urlsafe_b64decode, urlsafe_b64encode
-from email import message
-from seguridad.serializers.roles_serializers import UsuarioRolesSerializers
 from django.core import signing
 from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
@@ -33,7 +30,7 @@ from datetime import datetime
 from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import encoding, http
-import datetime, copy
+import copy
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
