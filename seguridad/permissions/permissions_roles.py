@@ -55,7 +55,7 @@ class PermisoCrearRoles(BasePermission):
 
     return False
 
-class PermisoDelegarRol(BasePermission):
+class PermisoDelegarRolSuperUsuario(BasePermission):
    def has_permission(self, request, view):
     id_user = request.user.id_usuario
     user_roles = UsuariosRol.objects.filter(id_usuario=id_user)
@@ -68,7 +68,7 @@ class PermisoDelegarRol(BasePermission):
 
     return False
 
-class PermisoConsultarDelegacion(BasePermission):
+class PermisoConsultarDelegacionSuperUsuario(BasePermission):
    def has_permission(self, request, view):
     id_user = request.user.id_usuario
     user_roles = UsuariosRol.objects.filter(id_usuario=id_user)

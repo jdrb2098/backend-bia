@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from seguridad.permissions.permissions_user import PermisoCrearUsuarios, PermisoActualizarUsuarios, PermisoActualizarInterno, PermisoActualizarExterno
+from seguridad.permissions.permissions_roles import PermisoDelegarRolSuperUsuario, PermisoConsultarDelegacionSuperUsuario
 from rest_framework.response import Response
 from seguridad.renderers.user_renderers import UserRender
 from seguridad.models import *
@@ -25,6 +26,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from seguridad.serializers.user_serializers import EmailVerificationSerializer ,UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer, RegisterExternoSerializer, LoginErroneoPostSerializers,LoginErroneoSerializers,LoginSerializers,LoginPostSerializers
+from seguridad.serializers.roles_serializers import UsuarioRolesSerializers
 from django.template.loader import render_to_string
 from datetime import datetime
 from django.contrib import auth
@@ -321,6 +323,23 @@ class GetUserByPersonDocument(generics.ListAPIView):
             return Response({'data': 'No se encuentra persona con este numero de documento'})
 
 
+class GetUserByEmail(generics.ListAPIView):
+    persona_serializer = PersonasSerializer
+    serializer_class = UserSerializer
+
+    def get(self, request, email):
+        try:
+            persona = Personas.objects.get(email=email)
+            pass
+        except:
+            return Response({'detail': 'No se encuentra ninguna persona con este email'})
+        try:
+            user = User.objects.get(persona=persona.id_persona)
+            serializer = self.serializer_class(user, many=False)
+            return Response({'Usuario': serializer.data})
+        except:
+            return Response({'detail': 'Este email está conectado a una persona, pero esa persona no tiene asociado un usuario'})
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -367,6 +386,113 @@ def deleteUser(request, pk):
     return Response('User was deleted')
 
 
+class AsignarRolSuperUsuario(generics.CreateAPIView):
+    serializer_class = UsuarioRolesSerializers
+    queryset = UsuariosRol.objects.all()
+    permission_classes = [IsAuthenticated, PermisoDelegarRolSuperUsuario, PermisoConsultarDelegacionSuperUsuario]
+
+    def post(self, request, pk):
+        user_logeado = request.user.id_usuario
+        rol_superusuario = Roles.objects.get(id_rol=1)
+        rol_interno = Roles.objects.get(id_rol=3)
+
+        #Validaciones
+        try:
+            usuario_delegado = User.objects.get(id_usuario=pk)
+            pass
+        except:
+            return Response({'detail': 'No existe este usuario'})
+
+        if usuario_delegado.tipo_usuario == 'I':
+            pass
+        else:
+            return Response({'detail': 'Este usuario no es usuario interno, por lo tanto no puede asignarle este rol'})
+        
+        #Delegación
+        try:
+            creacion_delegacion = UsuariosRol.objects.create(
+            id_rol = rol_superusuario,
+            id_usuario = usuario_delegado
+            )
+            try:
+                usuario_delegante = User.objects.get(id_usuario=user_logeado)
+                print(usuario_delegante)
+
+                usuario_rol_delegante = UsuariosRol.objects.get(Q(id_rol=1) & Q(id_usuario=user_logeado))
+                print(usuario_rol_delegante)
+                #usuario_rol_delegante.delete()
+
+                #Auditoria Delegación de Rol Super Usuario
+                descripcion = 'nombre_de_usuario:'+ str(usuario_delegado.nombre_de_usuario)+ '|' + 'Rol:'+ str(rol_superusuario)+ '.'
+                valores_actualizados = 'Se agregó en el detalle el rol ' + str(rol_superusuario) + '.'
+                modulo = Modulos.objects.get(id_modulo=8)
+                permiso = Permisos.objects.get(cod_permiso= 'AC')
+                dirip = Util.get_client_ip(request)
+                
+                Auditorias.objects.create(
+                    id_usuario = usuario_delegante,
+                    id_modulo = modulo,
+                    id_cod_permiso_accion = permiso,
+                    subsistema = 'SEGU',
+                    dirip = dirip,
+                    descripcion = descripcion,
+                    valores_actualizados = str(valores_actualizados)
+                )
+
+                #Auditoria Eliminación de Rol Super Usuario
+                descripcion = 'nombre_de_usuario:'+ str(usuario_delegante.nombre_de_usuario)+ '.'
+                valores_actualizados = 'Se eliminó en el detalle el rol ' + str(rol_superusuario) + '.'
+                modulo = Modulos.objects.get(id_modulo=8)
+                permiso = Permisos.objects.get(cod_permiso= 'AC')
+                dirip = Util.get_client_ip(request)
+                
+                Auditorias.objects.create(
+                    id_usuario = usuario_delegante,
+                    id_modulo = modulo,
+                    id_cod_permiso_accion = permiso,
+                    subsistema = 'SEGU',
+                    dirip = dirip,
+                    descripcion = descripcion,
+                    valores_actualizados = str(valores_actualizados)
+                )
+
+                pass
+            except:
+                return Response({'No se pudo terminar el proceso de asignación, verificar base de datos'})
+        except:
+            return Response({'detail': 'No se puede asignar dos veces el mismo a un usuario'})        
+        
+        #SMS y EMAIL para DELEGANTE
+        persona_delegante = Personas.objects.get(id_persona = usuario_delegante.persona.id_persona)
+        sms = 'Te informamos que has delegado tu rol super usuario exitosamente'
+        context = {'primer_nombre': persona_delegante.primer_nombre, 'primer_apellido': persona_delegante.primer_apellido}
+        template = render_to_string(('email-delegate-superuser.html'), context)
+        subject = 'Delegación de rol exitosa ' + str(persona_delegante.primer_nombre)
+        data = {'template': template, 'email_subject': subject, 'to_email': persona_delegante.email}
+        Util.send_email(data)
+        try:
+            Util.send_sms(persona_delegante.telefono_celular, sms)
+            pass
+        except:
+            return Response({'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'})
+        
+        #SMS y EMAIL para DELEGADO
+        persona_delegado = Personas.objects.get(id_persona = usuario_delegado.persona.id_persona)
+        sms = 'Te informamos que has sido delegado para tener el rol super usuario '
+        context = {'primer_nombre': persona_delegado.primer_nombre, 'primer_apellido': persona_delegado.primer_apellido}
+        template = render_to_string(('email-delegate-superuser.html'), context)
+        subject = 'Delegación de rol exitosa ' + str(persona_delegado.primer_nombre)
+        data = {'template': template, 'email_subject': subject, 'to_email': persona_delegado.email}
+        Util.send_email(data)
+        try:
+            Util.send_sms(persona_delegado.telefono_celular, sms)
+            pass
+        except:
+            return Response({'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'})
+        
+        return Response({'detail': 'Delegación y notificación exitosa'})
+
+        
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     renderer_classes = (UserRender,)

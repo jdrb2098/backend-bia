@@ -12,6 +12,7 @@ class Util:
         
         email.content_subtype ='html'
         response = email.send(fail_silently=True)
+        print(response)
         return response
        
 

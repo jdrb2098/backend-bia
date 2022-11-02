@@ -19,10 +19,12 @@ urlpatterns = [
     path('verify/', views.Verify.as_view(), name='verify'),
     path("get/<str:pk>/", views.getUserById, name="get-users"), 
     path('get-by-numero-documento/<str:keyword1>/<str:keyword2>', views.GetUserByPersonDocument.as_view(), name='get-users-by-doc'),
+    path('get-by-email/<str:email>/', views.GetUserByEmail.as_view(), name='get-user-by-email-person'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('password-reset/<str:uidb64>/<token>/', views.PasswordTokenCheckApi.as_view(), name='password-reset-confirm'),
     path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'),
     path('pasword-reset-complete', views.SetNewPasswordApiView.as_view(),name='pasword-reset-complete'), 
+    path('delegate-rol-super-usuario/<str:pk>/', views.AsignarRolSuperUsuario.as_view(), name='delegar-rol-super-usuario'),
     #Login
     path('login/get-list/', views.LoginListApiViews.as_view(),name='login-get'),
     path('login/get-by-id/<str:pk>/', views.LoginConsultarApiViews.as_view(),name='login-id-get'),
