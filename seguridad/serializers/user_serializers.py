@@ -85,9 +85,10 @@ class UserPutSerializerExterno(serializers.ModelSerializer):
 class UserPutAdminSerializer(serializers.ModelSerializer):
     nombre_de_usuario = serializers.CharField(max_length=30, min_length=6, validators=[UniqueValidator(queryset=User.objects.all())])
     tipo_usuario = serializers.CharField(max_length=1, write_only=True)
+    roles = serializers.ListField(child=serializers.DictField())
     class Meta:
         model = User
-        fields = ['nombre_de_usuario', 'profile_img', 'is_active', 'is_blocked', 'tipo_usuario']
+        fields = ['nombre_de_usuario', 'profile_img', 'is_active', 'is_blocked', 'tipo_usuario', 'roles']
 
 class UsuarioRolesLookSerializers(serializers.ModelSerializer):
     id_usuario = UserSerializer(read_only=True)
@@ -97,7 +98,7 @@ class UsuarioRolesLookSerializers(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
-    roles = serializers.DictField(child=serializers.IntegerField(), read_only=True)
+    roles = serializers.ListField(child=serializers.DictField(), read_only=True)
     
     class Meta:
         model = User
