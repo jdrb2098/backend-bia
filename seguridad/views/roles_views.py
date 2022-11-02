@@ -20,7 +20,7 @@ class GetRolesByUser(ListAPIView):
         queryset = UsuariosRol.objects.all()
         query = self.request.query_params.get('keyword')
         if query == None:
-            query = ''
+            query = 0
         queryset = queryset.filter(
             Q(id_usuario = query)
         )

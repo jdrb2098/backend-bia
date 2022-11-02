@@ -308,12 +308,15 @@ class GetUserByPersonDocument(generics.ListAPIView):
     persona_serializer = PersonasSerializer
     serializer_class = UserSerializer
     def get(self, request, keyword1, keyword2):
+        
         try:
             persona = Personas.objects.get(Q(tipo_documento = keyword1) & Q(numero_documento = keyword2))
             try:
                 user = User.objects.get(persona=persona.id_persona)
                 serializador = self.serializer_class(user)
-                return Response({'Usuario' : serializador.data})
+                roles = UsuariosRol.objects.filter(id_usuario=user.id_usuario)
+                serializador_roles = UserRolesSerializer(roles,many=True)
+                return Response({'Usuario' : serializador.data, 'Roles':serializador_roles.data})
             except:
                 serializador = PersonasSerializer(persona, many=False)
                 return Response({'Persona': serializador.data})
