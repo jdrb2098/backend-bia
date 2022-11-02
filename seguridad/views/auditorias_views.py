@@ -45,7 +45,14 @@ def getAuditorias(request):
             return auditoria_usuario_id.id_usuario
         except:
             raise TypeError('bad type')
-                
+    if tipo_documento == '':
+        tipo_documento = None
+    if numero_documento == '':
+        numero_documento = None
+    if modulo == '':
+        modulo = 0
+    if subsistema == '':
+        subsistema = None
     if tipo_documento != None and numero_documento != None and modulo != None and subsistema != None:
         if int(modulo) in Modulos.objects.values_list('id_modulo', flat=True):
             pass
