@@ -98,7 +98,7 @@ class UsuarioRolesLookSerializers(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
-    roles = serializers.DictField(child=serializers.IntegerField(), read_only=True)
+    roles = serializers.ListField(child=serializers.DictField(), read_only=True)
     
     class Meta:
         model = User

@@ -400,8 +400,8 @@ class RegisterView(generics.CreateAPIView):
         roles = request.data['roles']
         for rol in roles:
             try:
-                consulta_rol = Roles.objects.get(id_rol=rol)
-                descripcion["Rol" + str(rol)] = str(consulta_rol.nombre_rol)
+                consulta_rol = Roles.objects.get(id_rol=rol['id_rol'])
+                descripcion["Rol" + str(rol['id_rol'])] = str(consulta_rol.nombre_rol)
                 if consulta_rol:
                     UsuariosRol.objects.create(
                         id_rol = consulta_rol,
