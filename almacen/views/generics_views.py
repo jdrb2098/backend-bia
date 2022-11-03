@@ -169,14 +169,14 @@ class UpdateUnidadMedida(generics.UpdateAPIView):
             data=request.data
             print(unidad_medida.precargado)
             if unidad_medida.precargado==True:
-                return Response("No se puede actualizar porque es una unidad de medida precargado")
+                return Response({"success":False, "detail":"No se puede actualizar porque es una unidad de medida precargado"})
             
             try:
                 if unidad_medida.precargado==False:
-                        unidad_medida_serializer=self.serializer_class(unidad_medida,data)
-                        unidad_medida_serializer.is_valid(raise_exception=True)
-                        unidad_medida_serializer.save()
-                        return Response({'success':True, 'data': unidad_medida_serializer.data})
+                    unidad_medida_serializer=self.serializer_class(unidad_medida,data)
+                    unidad_medida_serializer.is_valid(raise_exception=True)
+                    unidad_medida_serializer.save()
+                    return Response({'success':True, 'data': unidad_medida_serializer.data})
             except Exception as e:
                 print(e)
                 return Response({'detail': e.detail})
@@ -194,7 +194,7 @@ class DeleteUnidadMedida(generics.DestroyAPIView):
             if unidad_medida.precargado==False:
                 unidad_medida.delete()
                 
-                return Response({'success':True,'detail': 'se ha eliminado la unidad de medida' })
+                return Response({'success':True,'detail': 'Se ha eliminado la unidad de medida' })
             else:
                 return Response({'success':False, 'detail': 'No puede eliminar una unidad de medida precargado'})
 
