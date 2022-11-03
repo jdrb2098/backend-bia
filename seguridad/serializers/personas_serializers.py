@@ -305,6 +305,8 @@ class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
+    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
+    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -343,6 +345,8 @@ class PersonaNaturalExternoUpdateSerializer(serializers.ModelSerializer):
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
+    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
+    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -381,6 +385,8 @@ class PersonaNaturalUpdateUserPermissionsSerializer(serializers.ModelSerializer)
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
+    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
+    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
