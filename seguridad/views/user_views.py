@@ -298,7 +298,11 @@ def getUsers(request):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def getUserById(request, pk):
-    user = User.objects.get(id_usuario=pk)
+    try:
+        user = User.objects.get(id_usuario=pk)
+        pass
+    except:
+        return Response({'detail': 'No existe ningún usuario con este ID'})
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 
@@ -506,6 +510,10 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.serializer_class(data=data, many=False)
         serializer.is_valid(raise_exception=True)
         nombre_usuario_creado = serializer.validated_data.get('nombre_de_usuario')
+        tipo_usuario = serializer.validated_data.get('tipo_usuario')
+        if tipo_usuario != 'I':
+            return Response({'detail': 'El tipo de usuario debe ser interno'})
+
         serializer.save()
         usuario = User.objects.get(nombre_de_usuario=nombre_usuario_creado)
 
@@ -596,8 +604,17 @@ class RegisterExternoView(generics.CreateAPIView):
         user = request.data
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
+        nombre_de_usuario = serializer.validated_data.get('nombre_de_usuario')
         serializer_response = serializer.save()
         user_data = serializer.data
+        
+        #ASIGNARLE ROL USUARIO EXTERNO POR DEFECTO
+        rol = Roles.objects.get(id_rol=2)
+        usuario_por_asignar = User.objects.get(nombre_de_usuario=nombre_de_usuario)     
+        UsuariosRol.objects.create(
+            id_rol = rol,
+            id_usuario = usuario_por_asignar
+        )
 
         # AUDITORIA AL REGISTRAR USUARIO
 
@@ -612,7 +629,19 @@ class RegisterExternoView(generics.CreateAPIView):
             'dirip': dirip,
             'descripcion': descripcion
         }
+        Util.save_auditoria(auditoria_data)
 
+        #AUDITORIA AL ASIGNARLE ROL DE USUARIO EXTERNO POR DEFECTO
+        dirip = Util.get_client_ip(request)
+        descripcion = {'nombre_de_usuario': request.data["nombre_de_usuario"], 'Rol': rol}
+        auditoria_data = {
+            'id_usuario': serializer_response.pk,
+            'id_modulo': 5,
+            'cod_permiso': 'CR',
+            'subsistema': 'SEGU',
+            'dirip': dirip,
+            'descripcion': descripcion
+        }
         Util.save_auditoria(auditoria_data)
 
         user = User.objects.get(email=user_data['email'])

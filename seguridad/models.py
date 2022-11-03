@@ -346,7 +346,7 @@ class PermisosModuloRol(models.Model):
 
 class User(AbstractBaseUser, PermissionsMixin):   
     id_usuario = models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuario')
-    nombre_de_usuario = models.CharField(max_length=30, db_column='TznombreUsuario')
+    nombre_de_usuario = models.CharField(max_length=30, unique=True, db_column='TznombreUsuario')
     persona = models.OneToOneField(Personas, on_delete=models.CASCADE, db_column='TzId_Persona')
     is_active = models.BooleanField(max_length=1, default=False, db_column='Tzactivo')
     is_staff = models.BooleanField(default=False, db_column='Tzstaff')#Añadido por Juan
