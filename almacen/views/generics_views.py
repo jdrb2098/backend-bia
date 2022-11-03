@@ -47,9 +47,43 @@ class RegisterBodega(generics.CreateAPIView):
     serializer_class=SerializerBodegas
     queryset=Bodegas.objects.all()
     
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        
+        es_principal = serializer.validated_data.get('es_principal')
+        
+        bodega_principal = Bodegas.objects.filter(es_principal=es_principal).first()
+        
+        if bodega_principal and es_principal:
+            return Response({'success': False, 'detail':'Ya existe una bodega principal'})
+        else:
+            serializer.save()
+            return Response({'success': True, 'data':serializer.data})
+    
 class UpdateBodega(generics.UpdateAPIView):
     serializer_class=SerializerBodegas
     queryset=Bodegas.objects.all()
+    
+    def put(self, request, pk):
+        data = request.data
+        bodega = Bodegas.objects.filter(id_bodega=pk).first()
+        if bodega:
+            serializer = self.serializer_class(bodega, data=data, many=False)
+            serializer.is_valid(raise_exception=True)
+            
+            es_principal = serializer.validated_data.get('es_principal')
+            
+            bodega_principal = Bodegas.objects.filter(es_principal=es_principal).first()
+            
+            if bodega_principal and es_principal:
+                return Response({'success': False, 'detail':'Ya existe una bodega principal'})
+            else:
+                serializer.save()
+                return Response({'success': True, 'data':serializer.data})
+        else:
+            return Response({'success': False, 'detail':'La bodega ingresada no existe'})
     
 class DeleteBodega(generics.DestroyAPIView):
     serializer_class=SerializerBodegas
