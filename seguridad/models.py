@@ -380,7 +380,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 # Tablas generadas a partir de User
 class UsuarioErroneo(models.Model):
-    id_login_error = models.AutoField(primary_key=True, editable=False, db_column='TzIdLoginError')
+    id_usuario_error = models.AutoField(primary_key=True, editable=False, db_column='TzIdUsuarioError')
     campo_usuario = models.CharField(max_length=255,db_column='TzcampoUsuario')
     dirip = models.CharField(max_length=40, db_column='TzdirIP')
     dispositivo_conexion = models.CharField(max_length=30, db_column='TzdispositivoConexion')
@@ -390,9 +390,9 @@ class UsuarioErroneo(models.Model):
         return str(self.campo_usuario)
     
     class Meta:
-        db_table = 'TzUsuarioError'
-        verbose_name = 'UsuarioError'
-        verbose_name_plural = 'UsuarioError' 
+        db_table = 'TzUsuarioErroneo'
+        verbose_name = 'Usuario Erroneo'
+        verbose_name_plural = 'Usuarios Erroneos' 
 
 
 class Login(models.Model):

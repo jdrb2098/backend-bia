@@ -769,6 +769,7 @@ class LoginApiView(generics.CreateAPIView):
                             hour_difference = (hour_difference.days * 24) + (hour_difference.seconds//3600)
                             if hour_difference < 24:
                                 login_error.contador += 1
+                                login_error.restantes = 3 - login_error.contador
                                 login_error.save()
                             else :
                                 login_error.contador = 1
@@ -809,7 +810,6 @@ class LoginApiView(generics.CreateAPIView):
                             else:
                                 login_error.contador = 1
                                 login_error.save()
-
                                 serializer = LoginErroneoPostSerializers(login_error, many=False)
                                 return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_200_OK)
                     else:
@@ -822,11 +822,17 @@ class LoginApiView(generics.CreateAPIView):
                                 dispositivo_conexion = device,
                                 contador = 1
                             )
+                        login_error.restantes = 3 - login_error.contador
                         serializer = LoginErroneoPostSerializers(login_error, many=False)
                         return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
             else:
                 return Response({'detail': 'Usuario no verificado'})
         else:
+            UsuarioErroneo.objects.create(
+                campo_usuario = data['email'],
+                dirip = str(ip),
+                dispositivo_conexion = device
+            )
             return Response({'detail':'No existe el correo ingresado'})
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
