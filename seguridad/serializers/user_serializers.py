@@ -236,13 +236,56 @@ class SetNewPasswordSerializer(serializers.Serializer):
             user = User.objects.get(id_usuario=id)
             
             if not PasswordResetTokenGenerator().check_token(user,token):
-                raise AuthenticationFailed('Link de actualizaciuon de contrtaseña invalido',401)
+                raise AuthenticationFailed('Link de actualización de contraseña invalido',401)
             
             user.set_password(password)
             user.save()
 
             return user
         except Exception as e:
-            raise AuthenticationFailed('Link de actualizaciuon de contrtaseña invalido',401)
+            raise AuthenticationFailed('Link de actualización de contraseña invalido',401)
         return super().validate(attrs)
 
+
+class DesbloquearUserSerializer(serializers.Serializer):
+    nombre_de_usuario = serializers.CharField(max_length=30, min_length=1)
+    tipo_documento = serializers.CharField(read_only=True)
+    numero_documento = serializers.CharField(read_only=True)
+    telefono_celular = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
+    fecha_nacimiento = serializers.CharField(read_only=True)
+    redirect_url = serializers.CharField(max_length=1000, required=False)
+
+    class Meta:
+        fields = ['nombre_de_usuario', 'tipo_documento', 'numero_documento', 'telefono_celular', 'email', 'fecha_nacimiento', 'redirect_url']
+
+
+
+class SetNewPasswordUnblockUserSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=6, max_length=68, write_only=True)
+    token = serializers.CharField(min_length=1, write_only=True)
+    uidb64 = serializers.CharField(min_length=1, write_only=True)
+
+    class Meta:
+        fields = ['password', 'token', 'uidb64']
+    
+    def validate(self, attrs):
+        try:
+            password = attrs.get('password')
+            token = attrs.get('token')
+            uidb64 = attrs.get('uidb64')
+
+            id = int(signing.loads(uidb64)['usuario_bloqueado'])
+            user = User.objects.get(id_usuario=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise AuthenticationFailed('Link de desbloqueo de usuario invalido', 401)
+            
+            user.set_password(password)
+            user.is_blocked = False
+            user.save()
+
+            return user
+        except Exception as e:
+            raise AuthenticationFailed('Link de desbloqueo de usuario invalido', 401)
+        return super.validate(attrs)

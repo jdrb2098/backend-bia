@@ -25,6 +25,9 @@ urlpatterns = [
     path('request-reset-email/', views.RequestPasswordResetEmail.as_view(),name='request-reset-email'),
     path('pasword-reset-complete', views.SetNewPasswordApiView.as_view(),name='pasword-reset-complete'), 
     path('delegate-rol-super-usuario/<str:pk>/', views.AsignarRolSuperUsuario.as_view(), name='delegar-rol-super-usuario'),
+    path('unblock/', views.UnblockUser.as_view(), name='unblock-user'),
+    path('password-unblock-complete/', views.UnBlockUserPassword.as_view(), name='password-unblock-complete'),
+
     #Login
     path('login/get-list/', views.LoginListApiViews.as_view(),name='login-get'),
     path('login/get-by-id/<str:pk>/', views.LoginConsultarApiViews.as_view(),name='login-id-get'),
