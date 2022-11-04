@@ -275,7 +275,7 @@ class SetNewPasswordUnblockUserSerializer(serializers.Serializer):
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
 
-            id = int(signing.loads(uidb64)['usuario_bloqueado'])
+            id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
 
             if not PasswordResetTokenGenerator().check_token(user, token):
