@@ -12,14 +12,6 @@ from rest_framework.generics import ListAPIView, CreateAPIView , RetrieveAPIView
 from seguridad.utils import Util
 import datetime
 
- #----------------------------------------------------->Vistas tabla Permisos
-class InsertarPermiso(CreateAPIView):
-    serializer_class = PermisosSerializer
-
-class UpdatePermiso(RetrieveUpdateAPIView):
-    serializer_class = PermisosSerializer
-    queryset = Permisos.objects.all()
-
 class ListarPermisos(ListAPIView):
     serializer_class = PermisosSerializer
     def get_queryset(self):
@@ -28,10 +20,6 @@ class ListarPermisos(ListAPIView):
 class DetailPermisos(RetrieveAPIView):
     serializer_class = PermisosSerializer
     queryset = Permisos.objects.filter()
-
-class DeletePermiso(DestroyAPIView):
-    serializer_class = PermisosSerializer
-    queryset = Permisos.objects.all()
 
 #====================================================>Vistas tabla PermisosModulo
 # #----------------------------------------------------> Crear permisos por módulo
@@ -97,75 +85,9 @@ class PermisosModuloRolViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        usuario = request.user.nombre_de_usuario
-        print(usuario)
-        user = User.objects.get(nombre_de_usuario = usuario)
-        descripcion = {}
-        cont = 0 
-        for i in request.data: 
-            print(i["id_permiso_modulo"])
-            consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = i["id_permiso_modulo"])
-            consulta_rol = Roles.objects.get(id_rol = i["id_rol"])
-            consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
-            permiso = Permisos.objects.get(cod_permiso = consulta_permiso_modulo.cod_permiso.cod_permiso)  
-            if cont == 0:
-                descripcion = {"Rol" : str(consulta_rol.nombre_rol)}
-            cont = cont + 1
-            descripcion["NombrePermiso" + str(cont)] = str(permiso.nombre_permiso)
-            descripcion["NombreModulo" + str(cont)] = str(consulta_modulo.nombre_modulo)
 
-        print(descripcion)
-        dirip = Util.get_client_ip(request)
-        
-        auditoria_data = {
-            'id_usuario': request.user.id_usuario,
-            'id_modulo': 2,
-            'cod_permiso': 'CR',
-            'subsistema': 'SEGU',
-            'dirip': dirip,
-            'descripcion': descripcion
-        }
-            
-        Util.save_auditoria(auditoria_data)
-        #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-#------------------------------------------------> Borrar un permiso de un modulo rol
-class DeletePermisoModuloRol(DestroyAPIView):
-    serializer_class = PermisosModuloRolPostSerializer
-    queryset = PermisosModuloRol.objects.all()
-
-    def delete(self, request, pk):
-        data = PermisosModuloRol.objects.filter(id_permiso_modulo_rol=pk).first()
-        if data:
-            data.delete()
-            permiso = Permisos.objects.get(cod_permiso = 'BO')
-            consulta_permiso_modulo = PermisosModulo.objects.get(id_permisos_modulo = data.id_permiso_modulo.id_permisos_modulo)
-            consulta_modulo = Modulos.objects.get(id_modulo = consulta_permiso_modulo.id_modulo.id_modulo)
-            descripcion =   {"Permiso" : str(permiso.nombre_permiso), "Modulo" :  str(consulta_modulo.nombre_modulo)}
-            print(descripcion)
-            dirip = Util.get_client_ip(request)
-        
-            auditoria_data = {
-                'id_usuario': request.user.id_usuario,
-                'id_modulo': 2,
-                'cod_permiso': 'BO',
-                'subsistema': 'SEGU',
-                'dirip': dirip,
-                'descripcion': descripcion
-            }
-            
-            Util.save_auditoria(auditoria_data)
-            #Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')
-
-            return Response({'detail':'El permiso fue eliminado del rol en el modulo'})
-        else:
-            return Response({'detail':'No existe esa selección ingresada'})
-
-
-class InsertarPermisosModulo(CreateAPIView):
-    serializer_class = PermisosModuloPostSerializer
 
 class UpdatePermisoModulo(RetrieveUpdateAPIView):
     serializer_class = PermisosModuloPostSerializer
@@ -180,18 +102,31 @@ class DetailPermisosModulo(RetrieveAPIView):
     serializer_class = PermisosModuloSerializer
     queryset = PermisosModulo.objects.filter()
 
-class DeletePermisosModulo(DestroyAPIView):
-    serializer_class = PermisosModuloPostSerializer
-    queryset = PermisosModulo.objects.all()
-
-
-#----------------------------------------------------->Vistas tabla PermisosModuloRol
-class InsertarPermisosModuloRol(CreateAPIView):
-    serializer_class = PermisosModuloRolPostSerializer
-
 class UpdatePermisoModuloRol(RetrieveUpdateAPIView):
     serializer_class = PermisosModuloRolPostSerializer
     queryset = PermisosModuloRol.objects.all()
+    permission_classes = [IsAuthenticated]
+    
+    def put(self, request, pk):
+        rol = Roles.objects.filter(id_rol=pk).first()
+        permisos_modulo = request.data
+        if rol:
+            permisos_modulo_eliminar = PermisosModuloRol.objects.filter(id_rol=pk)
+            permisos_modulo_eliminar.delete()
+            
+            for permiso_modulo in permisos_modulo:
+                permiso_modulo_instance = PermisosModulo.objects.filter(id_permisos_modulo=permiso_modulo["id_permisos_modulo"]).first()
+                if permiso_modulo_instance:
+                    PermisosModuloRol.objects.create(
+                        id_rol = rol,
+                        id_permiso_modulo = permiso_modulo_instance
+                    )
+                else:
+                    return Response({'success': False, 'detail':'No existe uno de los permisos, verifique'}, status=status.HTTP_204_NO_CONTENT)
+                
+            return Response({'success': True, 'detail':'Se actualizaron los permisos del rol'}, status=status.HTTP_200_OK)     
+        else:
+            return Response({'success': False, 'detail':'No se encontró el rol'}, status=status.HTTP_204_NO_CONTENT)
 
 class ListarPermisosModuloRol(ListAPIView):
     serializer_class = PermisosModuloRolSerializer
@@ -202,18 +137,7 @@ class DetailPermisosModuloRol(RetrieveAPIView):
     serializer_class = PermisosModuloRolSerializer
     queryset = PermisosModuloRol.objects.filter()
 
-class DeletePermisosModuloRol(DestroyAPIView):
-    serializer_class = PermisosModuloRolPostSerializer
-    queryset = PermisosModuloRol.objects.all()
-
 #----------------------------------------------------->Tabla Modulos
-
-class InsertarModulo(CreateAPIView):
-    serializer_class = ModulosSerializers
-
-class UpdateModulo(RetrieveUpdateAPIView):
-    serializer_class = ModulosSerializers
-    queryset = Modulos.objects.all()
 
 class ListarModulo(ListAPIView):
     serializer_class = ModulosSerializers
@@ -223,7 +147,3 @@ class ListarModulo(ListAPIView):
 class DetailModulo(RetrieveAPIView):
     serializer_class = ModulosSerializers
     queryset = Modulos.objects.filter()
-
-class DeleteModulo(DestroyAPIView):
-    serializer_class = ModulosSerializers
-    queryset = Modulos.objects.all()

@@ -281,10 +281,6 @@ class GetUserRoles(generics.ListAPIView):
     queryset = UsuariosRol.objects.all()
     serializer_class = UserRolesSerializer
 
-class DeleteUserRoles(generics.DestroyAPIView):
-    queryset = UsuariosRol.objects.all()
-    serializer_class = UserRolesSerializer
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserProfile(request):

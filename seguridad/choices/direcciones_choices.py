@@ -118,7 +118,7 @@ direcciones_CHOICES ={
     },
     
     "Principal rural" : {
-        "CASERIO":"CAS",
+        "Caserío":"CAS",
         "Corregimiento":"CRG",
         "Predio":"PD",
         "Unidad Residencial / Urbanización":"UR",

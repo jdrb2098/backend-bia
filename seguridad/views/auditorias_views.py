@@ -10,13 +10,6 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import pytz
-class UpdateApiViews(RetrieveUpdateAPIView):
-    serializer_class=AuditoriasPostSerializers
-    queryset = Auditorias.objects.all()
-
-class DestroyApiViews(generics.DestroyAPIView):
-    serializer_class=AuditoriasSerializers
-    queryset = Auditorias.objects.all()
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -303,10 +296,6 @@ def getAuditorias(request):
 class ListApiViews(generics.ListAPIView):
     serializer_class=AuditoriasSerializers
     queryset = Auditorias.objects.all()
-
-class RegisterApiViews(generics.CreateAPIView):
-    queryset = Auditorias.objects.all()
-    serializer_class = AuditoriasPostSerializers
 
 
 

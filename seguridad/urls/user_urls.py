@@ -33,7 +33,5 @@ urlpatterns = [
     path('login/get-by-id/<str:pk>/', views.LoginConsultarApiViews.as_view(),name='login-id-get'),
     #LoginErroneo
     path('login-erroneo/get-list/', views.LoginErroneoListApiViews.as_view(),name='login-erroneo-get'),
-    path('login-erroneo/get-by-id/<str:pk>/', views.LoginErroneoConsultarApiViews.as_view(),name='login-erroneo-id-get'),
-    #UserRoles
-    path('roles/delete/<int:pk>/', views.DeleteUserRoles.as_view(), name='user-rol-delete')
+    path('login-erroneo/get-by-id/<str:pk>/', views.LoginErroneoConsultarApiViews.as_view(),name='login-erroneo-id-get')
 ]
