@@ -509,6 +509,7 @@ class UnblockUser(generics.CreateAPIView):
 
         try:
             usuario_bloqueado = User.objects.get(nombre_de_usuario=nombre_de_usuario)
+            usuario_bloqueado
             pass
         except:
             return Response({'detail': 'Los datos ingresados de usuario son incorrectos, intenta nuevamente'})
@@ -577,7 +578,7 @@ class UnblockUser(generics.CreateAPIView):
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
             pass
-        return Response({'detail': 'Vamos acá'})
+        return Response({'success': True, 'detail': 'Email y sms enviado para desbloquear usuario'}, status=status.HTTP_200_OK)
 
 class UnBlockUserPassword(generics.GenericAPIView):
     serializer_class = SetNewPasswordUnblockUserSerializer
@@ -691,12 +692,16 @@ class RegisterExternoView(generics.CreateAPIView):
     renderer_classes = (UserRender,)
 
     def post(self, request):
+        redirect_url = request.data.get('redirect_url', '')
         user = request.data
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         nombre_de_usuario = serializer.validated_data.get('nombre_de_usuario')
-        serializer_response = serializer.save()
+        
+
+        
         user_data = serializer.data
+        
         
         #ASIGNARLE ROL USUARIO EXTERNO POR DEFECTO
         rol = Roles.objects.get(id_rol=2)
@@ -710,7 +715,7 @@ class RegisterExternoView(generics.CreateAPIView):
 
         dirip = Util.get_client_ip(request)
         descripcion = {'nombre_de_usuario': request.data["nombre_de_usuario"]}
-
+        serializer_response = serializer.save()
         auditoria_data = {
             'id_usuario': serializer_response.pk,
             'id_modulo': 10,
@@ -739,11 +744,11 @@ class RegisterExternoView(generics.CreateAPIView):
         token = RefreshToken.for_user(user).access_token
 
         current_site=get_current_site(request).domain
-
+        
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
-        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
+        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect_url=' + redirect_url
 
         short_url = Util.get_short_url(request, absurl)
 
@@ -771,6 +776,7 @@ class RegisterExternoView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            
             return Response(user_data, status=status.HTTP_201_CREATED)
 
 class Verify(views.APIView):
@@ -779,6 +785,7 @@ class Verify(views.APIView):
     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
+        redirect_url = request.query_params.get('redirect-url')
         token = request.GET.get('token')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
@@ -798,7 +805,7 @@ class Verify(views.APIView):
                     subject = 'Verificación exitosa ' + user.nombre_de_usuario
                     data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                     Util.send_email(data)
-            return Response({'email': 'succesfully activated'}, status=status.HTTP_200_OK)
+            return redirect(redirect_url + '?token='+token)
         except jwt.ExpiredSignatureError as identifier:
             return Response({'error': 'activation link expired'}, status=status.HTTP_400_BAD_REQUEST)
 
