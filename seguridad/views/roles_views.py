@@ -26,9 +26,7 @@ class GetRolesByUser(ListAPIView):
             queryset = queryset.filter(id_usuario = query)
             return queryset
         except:
-            return []
-       
-    
+            return [] 
 class GetUsersByRol(ListAPIView):
     serializer_class = UsuarioRolesLookSerializers
     def get_queryset(self):
@@ -79,7 +77,7 @@ class DeleteUserRol(DestroyAPIView):
             id_usuarios_rol = UsuariosRol.objects.get(id_usuarios_rol=pk)
             pass
         except:
-            return Response({'detail': 'No se encontró ningún registro con el parámetro ingresado'})
+            return Response({'success':False,'detail': 'No se encontró ningún registro con el parámetro ingresado'},status=status.HTTP_404_NOT_FOUND)
         
         if id_usuarios_rol:
             id_usuarios_rol.delete()
@@ -102,9 +100,9 @@ class DeleteUserRol(DestroyAPIView):
             
             Util.save_auditoria(auditoria_data)
             
-            return Response({'detail':'El rol fue eliminado'})
+            return Response({'success':True,'detail':'El rol fue eliminado'},status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({'detail':'No existe el rol ingresado'})
+            return Response({'success':False,'detail':'No existe el rol ingresado'},status=status.HTTP_404_NOT_FOUND)
             
 #------------------------------------------------> Borrar un rol 
 class DeleteRol(DestroyAPIView):
@@ -115,7 +113,7 @@ class DeleteRol(DestroyAPIView):
         usuario_rol = UsuariosRol.objects.filter(id_rol=pk)
         
         if usuario_rol:
-            return Response({'detail':'No puede eliminar el rol porque ya está asignado a un usuario'})
+            return Response({'success':False,'detail':'No puede eliminar el rol porque ya está asignado a un usuario'},status=status.HTTP_403_FORBIDDEN)
         else:
             rol = Roles.objects.filter(id_rol=pk)
             
@@ -131,10 +129,9 @@ class DeleteRol(DestroyAPIView):
                 print(descripcion)
                 Auditorias.objects.create(id_usuario = user, id_modulo = modulo, id_cod_permiso_accion = permiso, subsistema = "SEGU", dirip=direccion_ip, descripcion=descripcion, valores_actualizados='')  
                 
-                return Response({'detail':'El rol fue eliminado'})
+                return Response({'success':True,'detail':'El rol fue eliminado'},status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response({'detail':'No existe el rol ingresado'})
-            
+                return Response({'success':False,'detail':'No existe el rol ingresado'},status=status.HTTP_404_NOT_FOUND)
             
 @api_view(['GET'])
 def getRoles(request):
@@ -160,7 +157,7 @@ def registerRol(request):
         serializer = RolesSerializer(rol, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except:
-        message = {'detail': 'An error ocurred'}
+        message = {'detail': ''}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -175,7 +172,7 @@ class UpdateRol(RetrieveUpdateAPIView):
         usuario_rol = UsuariosRol.objects.filter(id_rol=pk).first()
         
         if usuario_rol:
-            return Response({'detail':'No puede actualizar el rol porque ya está asignado a un usuario'})
+            return Response({'success':False,'detail':'No puede actualizar el rol porque ya está asignado a un usuario'},status=status.HTTP_403_FORBIDDEN)
         else:
             rol = Roles.objects.filter(id_rol=pk).first()
             
@@ -184,11 +181,11 @@ class UpdateRol(RetrieveUpdateAPIView):
                     serializer = self.serializer_class(rol, data=request.data, many=False)
                     serializer.is_valid(raise_exception=True)
                     serializer.save()
-                    return Response({'detail':'El rol fue actualizado'})
+                    return Response({'success':True,'detail':'El rol fue actualizado'},status=status.HTTP_201_CREATED)
                 else:
-                    return Response({'detail': 'No se puede actualizar un rol precargado'})
+                    return Response({'success':False,'detail': 'No se puede actualizar un rol precargado'},status=status.HTTP_403_FORBIDDEN)
             else:
-                return Response({'detail':'No existe el rol ingresado'})
+                return Response({'success':False,'detail':'No existe el rol ingresado'},status=status.HTTP_404_NOT_FOUND)
 
 class DeleteRol(DestroyAPIView):
     serializer_class = RolesSerializer
@@ -200,15 +197,15 @@ class DeleteRol(DestroyAPIView):
         usuario_rol = UsuariosRol.objects.filter(id_rol=pk).first()
         
         if usuario_rol:
-            return Response({'detail':'No puede eliminar el rol porque ya está asignado a un usuario'})
+            return Response({'success':False,'detail':'No puede eliminar el rol porque ya está asignado a un usuario'},status=status.HTTP_403_FORBIDDEN)
         else:
             rol = Roles.objects.filter(id_rol=pk).first()
             if rol:
                 if rol.Rol_sistema == False:
                     rol.delete()
-                    return Response({'detail':'El rol fue eliminado'})
+                    return Response({'success':True,'detail':'El rol fue eliminado'},status=status.HTTP_204_NO_CONTENT)
                 else:
-                    return Response({'detail':'No se puede eliminar un rol precargado'})
+                    return Response({'success':False,'detail':'No se puede eliminar un rol precargado'},status=status.HTTP_403_FORBIDDEN)
             else:
-                return Response({'detail':'No existe el rol ingresado'})
+                return Response({'success':False,'detail':'No existe el rol ingresado'},status=status.HTTP_404_NOT_FOUND)
 
