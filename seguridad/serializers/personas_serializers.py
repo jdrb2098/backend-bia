@@ -300,8 +300,6 @@ class PersonaNaturalPostByUserSerializer(serializers.ModelSerializer):
 class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_laboral = serializers.CharField(max_length=255, min_length=3)
-    cod_municipio_laboral_nal = serializers.CharField(max_length=5, min_length=4)
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
@@ -340,8 +338,6 @@ class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
 class PersonaNaturalExternoUpdateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_laboral = serializers.CharField(max_length=255, min_length=3)
-    cod_municipio_laboral_nal = serializers.CharField(max_length=5, min_length=4)
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
@@ -380,8 +376,6 @@ class PersonaNaturalExternoUpdateSerializer(serializers.ModelSerializer):
 class PersonaNaturalUpdateUserPermissionsSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_laboral = serializers.CharField(max_length=255, min_length=3)
-    cod_municipio_laboral_nal = serializers.CharField(max_length=5, min_length=4)
     direccion_residencia = serializers.CharField(max_length=255, min_length=4)
     municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)

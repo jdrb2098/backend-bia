@@ -52,27 +52,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
-@api_view(['POST'])
-def registerUser(request):
-    data = request.data
-    try:
-        user = User.objects.create(
-            nombre_de_usuario=data['nombre_de_usuario'],
-            email=data['email'],
-            password=make_password(data['password']),
-            persona =data['persona'],
-            id_usuario_creador = data['id_usuario_creador'],
-            activated_at = data['activated_at'],
-            tipo_usuario = data['tipo_usuario']
-        )
-
-        serializer = UserSerializerWithToken(user, many=False)
-        return Response(serializer.data)
-    except:
-        message = {'detail': 'error'}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-
 class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
     http_method_names = ["patch"]
     serializer_class = UserPutSerializerInterno
@@ -275,7 +254,7 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
 def roles(request):
     roles = UsuariosRol.objects.all()
     serializers = UserRolesSerializer(roles, many=True)
-    return Response(serializers.data)
+    return Response(serializers.data, status=status.HTTP_200_OK)
 
 class GetUserRoles(generics.ListAPIView):
     queryset = UsuariosRol.objects.all()
@@ -286,14 +265,14 @@ class GetUserRoles(generics.ListAPIView):
 def getUserProfile(request):
     user = request.user
     serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUsers(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -302,9 +281,9 @@ def getUserById(request, pk):
         user = User.objects.get(id_usuario=pk)
         pass
     except:
-        return Response({'detail': 'No existe ningún usuario con este ID'})
+        return Response({'success':False,'detail': 'No existe ningún usuario con este ID'}, status=status.HTTP_404_NOT_FOUND)
     serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetUserByPersonDocument(generics.ListAPIView):
@@ -319,12 +298,12 @@ class GetUserByPersonDocument(generics.ListAPIView):
                 serializador = self.serializer_class(user)
                 roles = UsuariosRol.objects.filter(id_usuario=user.id_usuario)
                 serializador_roles = UserRolesSerializer(roles,many=True)
-                return Response({'Usuario' : serializador.data, 'Roles':serializador_roles.data})
+                return Response({'success':True,'Usuario' : serializador.data, 'Roles':serializador_roles.data}, status=status.HTTP_200_OK)
             except:
                 serializador = PersonasSerializer(persona, many=False)
-                return Response({'Persona': serializador.data})
+                return Response({'success':True,'Persona': serializador.data}, status=status.HTTP_200_OK)
         except:
-            return Response({'data': 'No se encuentra persona con este numero de documento'})
+            return Response({'success':False,'detail': 'No se encuentra persona con este numero de documento'}, status=status.HTTP_200_OK)
 
 
 class GetUserByEmail(generics.ListAPIView):
@@ -336,32 +315,13 @@ class GetUserByEmail(generics.ListAPIView):
             persona = Personas.objects.get(email=email)
             pass
         except:
-            return Response({'detail': 'No se encuentra ninguna persona con este email'})
+            return Response({'success':False,'detail': 'No se encuentra ninguna persona con este email'}, status=status.HTTP_404_NOT_FOUND)
         try:
             user = User.objects.get(persona=persona.id_persona)
             serializer = self.serializer_class(user, many=False)
-            return Response({'Usuario': serializer.data})
+            return Response({'success':True,'Usuario': serializer.data}, status=status.HTTP_200_OK)
         except:
-            return Response({'detail': 'Este email está conectado a una persona, pero esa persona no tiene asociado un usuario'})
-
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateUser(request, pk):
-    user = User.objects.get(id_usuario=pk)
-
-    data = request.data
-
-    user.nombre_de_usuario= data['email']
-    user.email = data['email']
-    user.is_staff = data['isAdmin']
-
-
-    user.save()
-
-    serializer = UserSerializer(user, many=False)
-
-    return Response(serializer.data)
+            return Response({'success':False,'detail': 'Este email está conectado a una persona, pero esa persona no tiene asociado un usuario'}, status=status.HTTP_403_FORBIDDEN)
 
 """@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -380,16 +340,7 @@ def updateUserAdmin(request, pk):
     serializer = UserSerializer(user, many=False)
 
     return Response(serializer.data)"""
-
-
-@api_view(['DELETE'])
-@permission_classes([IsAdminUser,])
-def deleteUser(request, pk):
-    userForDeletion = User.objects.get(id_usuario=pk)
-    userForDeletion.delete()
-    return Response('User was deleted')
-
-
+    
 class AsignarRolSuperUsuario(generics.CreateAPIView):
     serializer_class = UsuarioRolesSerializers
     queryset = UsuariosRol.objects.all()
@@ -405,12 +356,12 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
             usuario_delegado = User.objects.get(id_usuario=pk)
             pass
         except:
-            return Response({'detail': 'No existe este usuario'})
+            return Response({'success':False,'detail': 'No existe este usuario'}, status=status.HTTP_404_NOT_FOUND)
 
         if usuario_delegado.tipo_usuario == 'I':
             pass
         else:
-            return Response({'detail': 'Este usuario no es usuario interno, por lo tanto no puede asignarle este rol'})
+            return Response({'success':False,'detail': 'Este usuario no es usuario interno, por lo tanto no puede asignarle este rol'}, status=status.HTTP_403_FORBIDDEN)
         
         #Delegación
         try:

@@ -21,7 +21,10 @@ def create_historico_personas(sender, instance, **kwargs):
             
             # MODIFICA DIRECCION
             if previous.direccion_laboral!= current.direccion_laboral:
-                direccion = current.direccion_laboral if previous.direccion_laboral!= current.direccion_laboral else None
+                if current.direccion_laboral:
+                    direccion = current.direccion_laboral
+                else:
+                    direccion = ''
                 cod_municipio = current.cod_municipio_laboral_nal if previous.cod_municipio_laboral_nal!= current.cod_municipio_laboral_nal else None
                 cod_pais_exterior = current.pais_residencia if previous.pais_residencia!= current.pais_residencia else None
                 
@@ -35,7 +38,10 @@ def create_historico_personas(sender, instance, **kwargs):
                 historico_direccion.save()
                 
             if previous.direccion_residencia!= current.direccion_residencia:
-                direccion = current.direccion_residencia if previous.direccion_residencia!= current.direccion_residencia else None
+                if current.direccion_residencia:
+                    direccion = current.direccion_residencia
+                else:
+                    direccion = ''
                 cod_municipio = current.municipio_residencia if previous.municipio_residencia!= current.municipio_residencia else None
                 cod_pais_exterior = current.pais_residencia if previous.pais_residencia!= current.pais_residencia else None
                 
@@ -49,9 +55,15 @@ def create_historico_personas(sender, instance, **kwargs):
                 historico_direccion.save()
                 
             if previous.direccion_notificaciones!= current.direccion_notificaciones:
-                direccion = current.direccion_notificaciones if previous.direccion_notificaciones!= current.direccion_notificaciones else None
+                if current.direccion_notificaciones:
+                    direccion = current.direccion_notificaciones
+                else:
+                    direccion = ''
+                if current.tipo_persona == 'J':
+                    cod_pais_exterior = current.cod_pais_nacionalidad_empresa if previous.cod_pais_nacionalidad_empresa!= current.cod_pais_nacionalidad_empresa else None
+                else:
+                    cod_pais_exterior = current.pais_residencia if previous.pais_residencia!= current.pais_residencia else None
                 cod_municipio = current.cod_municipio_notificacion_nal if previous.cod_municipio_notificacion_nal!= current.cod_municipio_notificacion_nal else None
-                cod_pais_exterior = current.pais_residencia if previous.pais_residencia!= current.pais_residencia else None
                 
                 historico_direccion = HistoricoDireccion.objects.create(
                     direccion = direccion,
