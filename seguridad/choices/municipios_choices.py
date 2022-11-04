@@ -1,4 +1,6 @@
 municipios_CHOICES = (
+
+('', 'Seleccione')
     #AMAZONAS
 ('91263', 'El Encanto'),
 ('91405', 'La Chorrera'),
