@@ -2,7 +2,7 @@ from django.urls import path
 from seguridad.views import roles_views as views
 
 urlpatterns = [
-    path('get-list', views.GetRol.as_view(), name='roles'),
+    path('get-list/', views.GetRol.as_view(), name='roles'),
     path('get-by-id/<int:pk>/', views.GetRolById.as_view(), name='rol-id'),
     path('get-by-name/', views.GetRolByName.as_view(), name='rol-name'),
     path('create/', views.RegisterRol.as_view(), name='rol-register'),

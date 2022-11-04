@@ -17,26 +17,32 @@ from seguridad.utils import Util
 class GetRolesByUser(ListAPIView):
     serializer_class = UsuarioRolesLookSerializers
     def get_queryset(self):
-        queryset = UsuariosRol.objects.all()
-        query = self.request.query_params.get('keyword')
-        if query == None:
-            query = 0
-        queryset = queryset.filter(
-            Q(id_usuario = query)
-        )
-        return queryset
+        try:
+            queryset = UsuariosRol.objects.all()
+            query = self.request.query_params.get('keyword')
+            if query == None:
+                query = 0
+        
+            queryset = queryset.filter(id_usuario = query)
+            return queryset
+        except:
+            return []
+       
     
 class GetUsersByRol(ListAPIView):
     serializer_class = UsuarioRolesLookSerializers
     def get_queryset(self):
-        queryset = UsuariosRol.objects.all()
-        query = self.request.query_params.get('keyword')
-        if query == None:
-            query = ''
-        queryset = queryset.filter(
-            Q(id_rol = query)
-        )
-        return queryset
+        try:
+            queryset = UsuariosRol.objects.all()
+            query = self.request.query_params.get('keyword')
+            if query == None:
+                query = ''
+            queryset = queryset.filter(
+                Q(id_rol = query)
+            )
+            return queryset
+        except:
+            return []
 
 
 
@@ -69,8 +75,11 @@ class DeleteUserRol(DestroyAPIView):
     queryset = UsuariosRol.objects.all()
     
     def delete(self, request, pk):
-   
-        id_usuarios_rol = UsuariosRol.objects.get(id_usuarios_rol=pk)
+        try:
+            id_usuarios_rol = UsuariosRol.objects.get(id_usuarios_rol=pk)
+            pass
+        except:
+            return Response({'detail': 'No se encontró ningún registro con el parámetro ingresado'})
         
         if id_usuarios_rol:
             id_usuarios_rol.delete()
@@ -162,6 +171,25 @@ class UpdateRol(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated, PermisoActualizarRoles]
     serializer_class=RolesSerializer
 
+    def put(self, request, pk):
+        usuario_rol = UsuariosRol.objects.filter(id_rol=pk).first()
+        
+        if usuario_rol:
+            return Response({'detail':'No puede actualizar el rol porque ya está asignado a un usuario'})
+        else:
+            rol = Roles.objects.filter(id_rol=pk).first()
+            
+            if rol:
+                if rol.Rol_sistema == False:
+                    serializer = self.serializer_class(rol, data=request.data, many=False)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    return Response({'detail':'El rol fue actualizado'})
+                else:
+                    return Response({'detail': 'No se puede actualizar un rol precargado'})
+            else:
+                return Response({'detail':'No existe el rol ingresado'})
+
 class DeleteRol(DestroyAPIView):
     serializer_class = RolesSerializer
     permission_classes = [IsAuthenticated, PermisoBorrarRoles]
@@ -169,16 +197,18 @@ class DeleteRol(DestroyAPIView):
     
     
     def delete(self, request, pk):
-        usuario_rol = UsuariosRol.objects.filter(id_rol=pk)
+        usuario_rol = UsuariosRol.objects.filter(id_rol=pk).first()
         
         if usuario_rol:
             return Response({'detail':'No puede eliminar el rol porque ya está asignado a un usuario'})
         else:
-            rol = Roles.objects.filter(id_rol=pk)
-            
+            rol = Roles.objects.filter(id_rol=pk).first()
             if rol:
-                rol.delete()
-                return Response({'detail':'El rol fue eliminado'})
+                if rol.Rol_sistema == False:
+                    rol.delete()
+                    return Response({'detail':'El rol fue eliminado'})
+                else:
+                    return Response({'detail':'No se puede eliminar un rol precargado'})
             else:
                 return Response({'detail':'No existe el rol ingresado'})
 

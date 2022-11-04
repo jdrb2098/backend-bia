@@ -1,4 +1,5 @@
 from seguridad.serializers.roles_serializers import RolesSerializer
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 from seguridad.models import (
     Permisos, 
@@ -51,3 +52,9 @@ class PermisosModuloRolPostSerializer(serializers.ModelSerializer):
      class Meta:
         model = PermisosModuloRol
         fields = '__all__'
+        validators = [
+           UniqueTogetherValidator(
+               queryset=PermisosModuloRol.objects.all(),
+               fields = ['id_rol', 'id_permiso_modulo']
+           )
+        ]

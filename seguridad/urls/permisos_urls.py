@@ -30,8 +30,8 @@ urlpatterns = [
     path('permisos-modulos-rol/create/', views.PermisosModuloRolViewSet.as_view({'post':'create'}), name='permiso-por-modulo-por-rol-create'),
     path('permisos-modulos-rol/delete/<int:pk>/', views.DeletePermisoModuloRol.as_view(), name='permiso-por-modulo-por-rol-delete'),
     #path('permisos-modulos-rol/update/<pk>/', views.UpdatePermisoModuloRol.as_view(), name='permiso-modulo-rol-update'),    
-    #path('permisos-modulos-rol/get-list/', views.ListarPermisosModuloRol.as_view(), name='permisos-modulo-rol-listar'),
-    #path('permisos-modulos-rol/get-by-id/<pk>', views.DetailPermisosModuloRol.as_view(), name='permisos-modulo-rol-ver'),
+    path('permisos-modulos-rol/get-list/', views.ListarPermisosModuloRol.as_view(), name='permisos-modulo-rol-listar'),
+    path('permisos-modulos-rol/get-by-id/<pk>/', views.DetailPermisosModuloRol.as_view(), name='permisos-modulo-rol-ver'),
     #path('permisos-modulos-rol/create/', views.InsertarPermisosModuloRol.as_view(), name='permiso-modulo-rol-insertar'),
     #path('permisos-modulos-rol/delete/<pk>/', views.DeletePermisosModuloRol.as_view(), name='permiso-modulo-rol-delete'),
 ]

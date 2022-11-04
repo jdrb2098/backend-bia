@@ -86,17 +86,19 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
     queryset = EstadoCivil.objects.all()
     
     def delete(self, request, pk):
-        estado_civil = EstadoCivil.objects.get(cod_estado_civil=pk)
-        
-        if estado_civil.precargado == False:
-            persona = Personas.objects.filter(estado_civil=pk)
-            if persona:
-                return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
-            
-            estado_civil.delete()    
-            return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+        estado_civil = EstadoCivil.objects.filter(cod_estado_civil=pk).first()
+        if estado_civil:
+            if estado_civil.precargado == False:
+                persona = Personas.objects.filter(estado_civil=pk)
+                if persona:
+                    return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
+                
+                estado_civil.delete()    
+                return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+            else:
+                return Response({'detail': 'No puedes eliminar un estado civil precargado'})
         else:
-            return Response({'detail': 'No puedes eliminar un estado civil precargado'})
+            return Response({'success':False, 'detail':'No existe el estado civil'})
 
 
 class RegisterEstadoCivil(generics.CreateAPIView):
@@ -151,17 +153,19 @@ class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
     queryset = TipoDocumento.objects.all()
     
     def delete(self, request, pk):
-        tipo_documento = TipoDocumento.objects.get(cod_tipo_documento=pk)
-        
-        if tipo_documento.precargado == False:
-            persona = Personas.objects.filter(tipo_documento=pk)
-            if persona:
-                return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
-            
-            tipo_documento.delete()    
-            return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+        tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
+        if tipo_documento:
+            if tipo_documento.precargado == False:
+                persona = Personas.objects.filter(tipo_documento=pk)
+                if persona:
+                    return Response({'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'})   
+                
+                tipo_documento.delete()    
+                return Response({'detail': 'Este estado civil ha sido eliminado exitosamente'})
+            else:
+                return Response({'detail': 'No puedes eliminar un estado civil precargado'})
         else:
-            return Response({'detail': 'No puedes eliminar un estado civil precargado'})
+            return Response({'success':False,'detail': 'No existe el tipo de documento'})
 
 
 class RegisterTipoDocumento(generics.CreateAPIView):
@@ -425,7 +429,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, tipodocumento, numerodocumento):
         try: 
-            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento))
+            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento) & Q(tipo_persona='N'))
             previous_persona = copy.copy(persona_por_actualizar)
             
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
@@ -644,13 +648,11 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
 
     def patch(self, request, tipodocumento, numerodocumento):
         try:
-            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento))           
+            persona_por_actualizar = Personas.objects.get(Q(tipo_documento=tipodocumento) & Q(numero_documento=numerodocumento) & Q(tipo_persona='J'))           
             previous_persona = copy.copy(persona_por_actualizar)
-
             try:
                 persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
                 persona_serializada.is_valid(raise_exception=True)
-
                 try:
                     email_principal = persona_serializada.validated_data.get('email')
                     email_secundario = persona_serializada.validated_data.get('email_empresarial')
@@ -692,10 +694,10 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                         #SMS y EMAILS
                         persona = Personas.objects.get(email=email_principal)
 
-                        sms = 'Hola ' + persona.razon_social + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA JURIDICA'
+                        sms = 'Hola ' + str(persona.razon_social) + ' te informamos que ha sido exitosa la actualización de tus datos como PERSONA JURIDICA'
                         context = {'razon_social': persona.razon_social}
                         template = render_to_string(('email-update-personajuridica-byuser-withpermissions.html'), context)
-                        subject = 'Actualización de datos exitosa ' + persona.razon_social
+                        subject = 'Actualización de datos exitosa ' + str(persona.razon_social)
                         data = {'template': template, 'email_subject': subject, 'to_email': persona.email} 
                         Util.send_email(data)
                         try:
@@ -704,13 +706,13 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                             return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
                         return Response({'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
                 except:
-                    return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
+                    return Response({'detail': 'No pudo obtener el email principal y/o secundario'})
             except Exception as e:
                 return Response({'detail': e.detail})
         except:
             return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
-
-
+        
+        
 class RegisterPersonaNatural(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostSerializer
     
@@ -719,12 +721,18 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
+        #Validación de persona natural
+        tipo_persona = serializer.validated_data.get('tipo_persona')
+        if tipo_persona != 'N':
+            return Response({'detail':'El tipo de persona debe ser Natural'})
+
+        #Validación de tipo documento
+        tipo_documento = serializer.validated_data.get('tipo_documento')
+        if tipo_documento.cod_tipo_documento == 'NU':
+            return Response({'detail':'El tipo de documento debe ser el de una persona natural'})
+
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
-
-        #Validación entre emails entrantes
-        if email_principal == email_secundario:
-            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
 
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
@@ -779,13 +787,19 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
+
+        #Validación de persona natural
+        tipo_persona = serializer.validated_data.get('tipo_persona')
+        if tipo_persona != 'J':
+            return Response({'detail':'El tipo de persona debe ser Juridica'})
+
+        #Validación de tipo documento
+        tipo_documento = serializer.validated_data.get('tipo_documento')
+        if tipo_documento.cod_tipo_documento != 'NU':
+            return Response({'detail':'El tipo de documento debe ser el de una persona juridica'})
         
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
-
-        #Validación entre emails entrantes
-        if email_principal == email_secundario:
-            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
 
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
@@ -846,10 +860,16 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
 
-        #Validación entre emails entrantes
-        if email_principal == email_secundario:
-            return Response({'detail': 'El email principal no puede ser el mismpo que el email secundario'})
+        #Validación de persona natural
+        tipo_persona = serializer.validated_data.get('tipo_persona')
+        if tipo_persona != 'N':
+            return Response({'detail':'El tipo de persona debe ser Natural'})
 
+        #Validación de tipo documento
+        tipo_documento = serializer.validated_data.get('tipo_documento')
+        if tipo_documento.cod_tipo_documento == 'NU':
+            return Response({'detail':'El tipo de documento debe ser el de una persona natural'})
+        
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
         if validate_email == False:

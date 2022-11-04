@@ -5,8 +5,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import encoding, http
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
-from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo
-from seguridad.models import User, UsuariosRol, HistoricoActivacion, PermisosModuloRol
+from seguridad.models import User, UsuariosRol, HistoricoActivacion,Login,LoginErroneo,PermisosModuloRol,UsuarioErroneo
 from seguridad.serializers.personas_serializers import PersonasSerializer
 from seguridad.serializers.permisos_serializers import PermisosModuloRolSerializer
 from rest_framework.validators import UniqueValidator
@@ -186,7 +185,7 @@ class LoginPostSerializers(serializers.ModelSerializer):
                 'dispositivo_conexion': {'required': True},
                 'fecha_login': {'required': True},
             }
-    
+        
 class LoginErroneoSerializers(serializers.ModelSerializer):
     id_usuario=UserSerializer(read_only=True)
     class Meta:
@@ -194,6 +193,7 @@ class LoginErroneoSerializers(serializers.ModelSerializer):
         fields= '__all__'
 
 class LoginErroneoPostSerializers(serializers.ModelSerializer):
+    restantes = serializers.IntegerField(read_only=True)
     class Meta:
      model=LoginErroneo
      fields= '__all__'
@@ -203,7 +203,7 @@ class LoginErroneoPostSerializers(serializers.ModelSerializer):
                 'dirip':  {'required': True},
                 'dispositivo_conexion': {'required': True},
                 'fecha_login_error': {'required': True},
-                'contador': {'required': True},  
+                'contador': {'required': True},
             }
     
 class EmailVerificationSerializer(serializers.ModelSerializer):
