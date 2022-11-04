@@ -1,5 +1,7 @@
 from django.core import signing
+from backend.settings import FRONTEND_URL
 from django.urls import reverse
+from django.shortcuts import redirect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from seguridad.permissions.permissions_user import PermisoCrearUsuarios, PermisoActualizarUsuarios, PermisoActualizarInterno, PermisoActualizarExterno
@@ -33,6 +35,8 @@ from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import encoding, http
 import copy
+from django.http import HttpResponsePermanentRedirect
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -813,12 +817,13 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             current_site=get_current_site(request=request).domain
             relativeLink=reverse('password-reset-confirm',kwargs={'uidb64':uidb64,'token':token})
-            absurl='http://'+ current_site + relativeLink
+            redirect_url= request.data.get('redirect_url','')
+            absurl='http://'+ current_site + relativeLink 
             if user.persona.tipo_persona == 'N':
                 context = {
                 'primer_nombre': user.persona.primer_nombre,
                 'primer_apellido':user.persona.primer_apellido,
-                'absurl': absurl,
+                'absurl': absurl + '?redirect-url='+ redirect_url,
                 }
                 template = render_to_string(('email-resetpassword.html'), context)
                 subject = 'Actualiza tu contraseña ' + user.persona.primer_nombre
@@ -827,7 +832,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             else:
                 context = {
                 'razon_social': user.persona.razon_social,
-                'absurl': absurl,
+                'absurl': absurl + '?redirect-url='+ redirect_url,
                 }
                 template = render_to_string(('email-resetpassword.html'), context)
                 subject = 'Actualiza tu contraseña ' + user.persona.razon_social
@@ -838,17 +843,25 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 class PasswordTokenCheckApi(generics.GenericAPIView):
     serializer_class=UserSerializer
     def get(self,request,uidb64,token):
+        redirect_url= request.query_params.get('redirect-url')
         try:
             id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
             if not PasswordResetTokenGenerator().check_token(user,token):
-                return Response({'error': 'token invalido, solicita uno nuevo'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            return Response({'success':True, 'message':'Credenciales validas', 'uidb64':uidb64,'token':token}, status=status.HTTP_200_OK)
+                if len(redirect_url)>3:
+                    return redirect(redirect_url+'?token-valid=False')
+                else:
+                    return redirect(FRONTEND_URL+redirect_url+'?token-valid=False')
+                
+            print(request.query_params.get('redirect-url'))
+            print(token)
+            print(uidb64)
+            return redirect(redirect_url+'?token-valid=True&?message=Credentials-valid?&uidb64='+uidb64+'&?token='+token)
         except encoding.DjangoUnicodeDecodeError as identifier:
 
             if not PasswordResetTokenGenerator().check_token(user):
-                return Response({'error':'aslkdjaslkdjaslk'})
+                return redirect(redirect_url+'?token-valid=False')
+
 
 class SetNewPasswordApiView(generics.GenericAPIView):
     serializer_class=SetNewPasswordSerializer

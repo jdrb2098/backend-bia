@@ -215,9 +215,10 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 class ResetPasswordEmailRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=2)
+    redirect_url=serializers.CharField(max_length=1000, required=False)
 
     class Meta:
-        fields=['email']
+        fields=['email','redirect_url']
     
 class SetNewPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=6,max_length=68,write_only=True)

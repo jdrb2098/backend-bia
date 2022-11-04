@@ -222,5 +222,8 @@ AUTHENTICATION_360_NRS = os.environ.get('AUTHENTICATION_360_NRS')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'seguridad.User'
+FRONTEND_URL = os.environ.get('FRONTEND_URL')
+
+
 if os.getcwd() == '/app':
     DEBUG = False
