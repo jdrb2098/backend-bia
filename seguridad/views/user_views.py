@@ -23,7 +23,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import jwt
 from django.conf import settings
-from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserPutAdminSerializer, UserPutSerializerExterno, UserPutSerializerInterno, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer
+from seguridad.serializers.user_serializers import EmailVerificationSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserPutAdminSerializer, UserPutSerializerExterno, UserPutSerializerInterno, UserSerializer, UserSerializerWithToken, UserRolesSerializer, RegisterSerializer  ,LoginSerializer, DesbloquearUserSerializer, SetNewPasswordUnblockUserSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
@@ -281,10 +281,6 @@ class GetUserRoles(generics.ListAPIView):
     queryset = UsuariosRol.objects.all()
     serializer_class = UserRolesSerializer
 
-class DeleteUserRoles(generics.DestroyAPIView):
-    queryset = UsuariosRol.objects.all()
-    serializer_class = UserRolesSerializer
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserProfile(request):
@@ -500,7 +496,97 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
         
         return Response({'detail': 'Delegación y notificación exitosa'})
 
+class UnblockUser(generics.CreateAPIView):
+    serializer_class = DesbloquearUserSerializer
+
+    def post(self, request):
+        nombre_de_usuario = request.data['nombre_de_usuario']
+        tipo_documento = request.data['tipo_documento']
+        numero_documento = request.data['numero_documento']
+        telefono_celular = request.data['telefono_celular']
+        email = request.data['email']
+        fecha_nacimiento = request.data['fecha_nacimiento']
+
+        try:
+            usuario_bloqueado = User.objects.get(nombre_de_usuario=nombre_de_usuario)
+            pass
+        except:
+            return Response({'detail': 'Los datos ingresados de usuario son incorrectos, intenta nuevamente'})
         
+        uidb64 = signing.dumps({'user': str(usuario_bloqueado.id_usuario)})
+        token = PasswordResetTokenGenerator().make_token(usuario_bloqueado)
+        current_site = get_current_site(request=request).domain
+
+        relative_link = reverse('password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
+
+        redirect_url = request.data.get('redirect_url', '')
+        absurl = 'http://' + current_site + relative_link
+
+        try:
+            persona_usuario_bloqueado = Personas.objects.get( Q(id_persona=usuario_bloqueado.persona.id_persona))
+            pass
+        except:
+            return Response({'detail': 'Los datos ingresados de usuario-persona son incorrectos, intenta nuevamente' }, status=status.HTTP_400_BAD_REQUEST)
+        
+        tipo_persona = persona_usuario_bloqueado.tipo_persona
+        if tipo_persona == 'N':    
+            try:
+                persona_usuario_bloqueado = Personas.objects.get( Q(id_persona=usuario_bloqueado.persona.id_persona)
+                                                                & Q(tipo_documento=tipo_documento) 
+                                                                & Q(numero_documento=numero_documento) 
+                                                                & Q(telefono_celular=telefono_celular) 
+                                                                & Q(email=email) 
+                                                                & Q(fecha_nacimiento=fecha_nacimiento)
+                                                                )
+                pass
+            except:
+                return Response({'detail': 'Los datos ingresados de persona natural son incorrectos, intenta nuevamente'})
+            short_url = Util.get_short_url(request, absurl+'?redirect-url='+redirect_url)
+            sms = 'Puedes desbloquear tu usuario en el siguiente link ' + short_url
+            context = {'primer_nombre': persona_usuario_bloqueado.primer_nombre, 'primer_apellido': persona_usuario_bloqueado.primer_apellido, 'absurl': absurl+'?redirect-url='+ redirect_url}
+            template = render_to_string(('email-unblock-user-naturalperson.html'), context)
+            subject = 'Desbloquea tu usuario' + persona_usuario_bloqueado.primer_nombre
+            data = {'template': template, 'email_subject': subject, 'to_email': persona_usuario_bloqueado.email}
+            Util.send_email(data)
+            try:
+                Util.send_sms(persona_usuario_bloqueado.telefono_celular, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            pass 
+
+        else:
+            try:
+                persona_usuario_bloqueado = Personas.objects.get( Q(id_persona=usuario_bloqueado.persona.id_persona)
+                                                                & Q(tipo_documento=tipo_documento) 
+                                                                & Q(numero_documento=numero_documento) 
+                                                                & Q(telefono_celular_empresa=telefono_celular) 
+                                                                & Q(email=email) 
+                                                                )
+                pass
+            except:
+                return Response({'detail': 'Los datos ingresados de persona juridica son incorrectos, intenta nuevamente'})                                 
+            short_url = Util.get_short_url(request, absurl+'?redirect-url='+redirect_url)
+            sms = 'Puedes desbloquear tu usuario en el siguiente link ' + short_url
+            context = {'razon_social': persona_usuario_bloqueado.razon_social, 'absurl': absurl+'?redirect-url='+ redirect_url}
+            template = render_to_string(('email-unblock-user-naturaljuridica.html'), context)
+            subject = 'Desbloquea tu usuario' + persona_usuario_bloqueado.razon_social
+            data = {'template': template, 'email_subject': subject, 'to_email': persona_usuario_bloqueado.email}
+            Util.send_email(data)
+            try:
+                Util.send_sms(persona_usuario_bloqueado.telefono_celular_empresa, sms)
+            except:
+                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+            pass
+        return Response({'detail': 'Vamos acá'})
+
+class UnBlockUserPassword(generics.GenericAPIView):
+    serializer_class = SetNewPasswordUnblockUserSerializer
+
+    def patch(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'success': True, 'message': 'Usuario Desbloqueado'}, status=status.HTTP_200_OK)
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     renderer_classes = (UserRender,)
