@@ -136,7 +136,14 @@ class ListarPermisosModuloRol(ListAPIView):
 class DetailPermisosModuloRol(RetrieveAPIView):
     serializer_class = PermisosModuloRolSerializer
     queryset = PermisosModuloRol.objects.filter()
-
+    
+class ListarPermisosModuloRolByRol(ListAPIView):
+    serializer_class = PermisosModuloRolSerializer
+    def get(self, request, pk):
+        permisos_modulo_rol = PermisosModuloRol.objects.filter(id_rol=pk)
+        serializer = self.serializer_class(permisos_modulo_rol, many=True)
+        return Response({'success':True,'data':serializer.data}, status=status.HTTP_200_OK)
+    
 #----------------------------------------------------->Tabla Modulos
 
 class ListarModulo(ListAPIView):

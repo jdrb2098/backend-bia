@@ -33,7 +33,7 @@ class PermisosModuloPostSerializer(serializers.ModelSerializer):
 class PermisosModuloRolSerializer(serializers.ModelSerializer):
     cod_permiso = PermisosSerializer(read_only=True)
     id_rol = RolesSerializer(read_only=True)
-    id_modulo = PermisosModuloSerializer(read_only=True)
+    id_permiso_modulo = PermisosModuloSerializer(read_only=True)
     class Meta:
         model = PermisosModuloRol
         fields = '__all__'

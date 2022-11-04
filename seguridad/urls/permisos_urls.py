@@ -23,4 +23,5 @@ urlpatterns = [
     path('permisos-modulos-rol/update/<pk>/', views.UpdatePermisoModuloRol.as_view(), name='permiso-modulo-rol-update'),    
     path('permisos-modulos-rol/get-list/', views.ListarPermisosModuloRol.as_view(), name='permisos-modulo-rol-listar'),
     path('permisos-modulos-rol/get-by-id/<pk>/', views.DetailPermisosModuloRol.as_view(), name='permisos-modulo-rol-ver'),
+    path('permisos-modulos-rol/get-by-rol/<pk>/', views.ListarPermisosModuloRolByRol.as_view(), name='permisos-modulo-rol-by-rol'),
 ]

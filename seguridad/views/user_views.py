@@ -106,7 +106,7 @@ class UpdateUserProfileInterno(generics.RetrieveUpdateAPIView):
 
             Util.save_auditoria(auditoria_data)
 
-            return Response({'success': True,'data': user_serializer.data})
+            return Response({'success': True,'data': user_serializer.data}, status=status.HTTP_200_OK)
 
 
 class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
@@ -142,7 +142,7 @@ class UpdateUserProfileExterno(generics.RetrieveUpdateAPIView):
 
             Util.save_auditoria(auditoria_data)
 
-            return Response({'success': True,'data': user_serializer.data})
+            return Response({'success': True,'data': user_serializer.data}, status=status.HTTP_200_OK)
 
 
 class UpdateUser(generics.RetrieveUpdateAPIView):
@@ -265,11 +265,11 @@ class UpdateUser(generics.RetrieveUpdateAPIView):
                     
                     auditoria_user.save()
                 
-                return Response({'success': True,'data': user_serializer.data})
+                return Response({'success': True,'data': user_serializer.data}, status=status.HTTP_200_OK)
             else:
-                return Response({'success': False,'detail': 'No se encontró el usuario'})
+                return Response({'success': False,'detail': 'No se encontró el usuario'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'success': False,'detail': 'No puede realizar esa acción'})
+            return Response({'success': False,'detail': 'No puede realizar esa acción'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def roles(request):
