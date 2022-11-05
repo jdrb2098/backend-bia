@@ -643,18 +643,14 @@ class RegisterExternoView(generics.CreateAPIView):
     renderer_classes = (UserRender,)
 
     def post(self, request):
-        redirect_url = request.data.get('redirect_url', '')
         user = request.data
         redirect_url=request.data.get('redirect_url','')
         print(redirect_url)
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         nombre_de_usuario = serializer.validated_data.get('nombre_de_usuario')
-        
-
-        
+        serializer_response = serializer.save()
         user_data = serializer.data
-        
         
         #ASIGNARLE ROL USUARIO EXTERNO POR DEFECTO
         rol = Roles.objects.get(id_rol=2)
@@ -668,7 +664,7 @@ class RegisterExternoView(generics.CreateAPIView):
 
         dirip = Util.get_client_ip(request)
         descripcion = {'nombre_de_usuario': request.data["nombre_de_usuario"]}
-        serializer_response = serializer.save()
+
         auditoria_data = {
             'id_usuario': serializer_response.pk,
             'id_modulo': 10,
@@ -697,13 +693,11 @@ class RegisterExternoView(generics.CreateAPIView):
         token = RefreshToken.for_user(user).access_token
 
         current_site=get_current_site(request).domain
-        
+
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
-
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect-url=' + redirect_url
-
 
         short_url = Util.get_short_url(request, absurl)
 
@@ -731,9 +725,7 @@ class RegisterExternoView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-
             return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
-
 
 class Verify(views.APIView):
 
@@ -744,7 +736,6 @@ class Verify(views.APIView):
     def get(self, request):
         redirect_url = request.query_params.get('redirect-url')
         token = request.GET.get('token')
-        redirect_url= request.query_params.get('redirect-url')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
             user = User.objects.get(id_usuario=payload['user_id'])
