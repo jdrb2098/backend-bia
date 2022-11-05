@@ -645,6 +645,8 @@ class RegisterExternoView(generics.CreateAPIView):
     def post(self, request):
         redirect_url = request.data.get('redirect_url', '')
         user = request.data
+        redirect_url=request.data.get('redirect_url','')
+        print(redirect_url)
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         nombre_de_usuario = serializer.validated_data.get('nombre_de_usuario')
@@ -699,7 +701,11 @@ class RegisterExternoView(generics.CreateAPIView):
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
+<<<<<<< HEAD
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect_url=' + redirect_url
+=======
+        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect-url=' + redirect_url
+>>>>>>> main
 
         short_url = Util.get_short_url(request, absurl)
 
@@ -714,7 +720,7 @@ class RegisterExternoView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-            return Response(user_data, status=status.HTTP_201_CREATED)
+            return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
 
         else:
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
@@ -727,17 +733,23 @@ class RegisterExternoView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+<<<<<<< HEAD
             
             return Response(user_data, status=status.HTTP_201_CREATED)
+=======
+            return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
+>>>>>>> main
 
 class Verify(views.APIView):
 
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         redirect_url = request.query_params.get('redirect-url')
         token = request.GET.get('token')
+        redirect_url= request.query_params.get('redirect-url')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
             user = User.objects.get(id_usuario=payload['user_id'])
@@ -756,12 +768,16 @@ class Verify(views.APIView):
                     subject = 'Verificación exitosa ' + user.nombre_de_usuario
                     data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                     Util.send_email(data)
+<<<<<<< HEAD
             return redirect(redirect_url + '?token='+token)
+=======
+            return redirect(redirect_url+'?verify=True')
+>>>>>>> main
         except jwt.ExpiredSignatureError as identifier:
-            return Response({'error': 'activation link expired'}, status=status.HTTP_400_BAD_REQUEST)
+            return redirect(redirect_url+'?verify=False')
 
         except jwt.exceptions.DecodeError as identifier:
-            return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return redirect(redirect_url+'?verify=False')
 
 class LoginConsultarApiViews(generics.RetrieveAPIView):
     serializer_class=LoginSerializers

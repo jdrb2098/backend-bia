@@ -114,14 +114,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class RegisterExternoSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length= 68, min_length = 6, write_only=True)
-    redirect_url = serializers.CharField(max_length=500, min_length=6, required=False)
+
+    redirect_url=serializers.CharField(max_length=500, read_only=True)
     class Meta:
         model = User
-        fields = ["email", 'nombre_de_usuario', 'persona', 'password', 'redirect_url']
+        fields = ["email", 'nombre_de_usuario', 'persona', 'password','redirect_url']
+
 
     def validate(self, attrs):
         email= attrs.get('email', '')
         nombre_de_usuario=attrs.get('nombre_de_usuario', '')
+        redirect_url=attrs.get('redirect_url','')
         if not nombre_de_usuario.isalnum():
             raise serializers.ValidationError("El Nombre de usuario solo debe tener caracteres alfanumericos")
         return attrs
