@@ -413,9 +413,9 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
 
                 pass
             except:
-                return Response({'No se pudo terminar el proceso de asignación, verificar base de datos'})
+                return Response({'success':False,'detail':'No se pudo terminar el proceso de asignación, verificar base de datos'}, status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response({'detail': 'No se puede asignar dos veces el mismo a un usuario'})        
+            return Response({'success':False,'detail': 'No se puede asignar dos veces el mismo a un usuario'}, status=status.HTTP_403_FORBIDDEN)        
         
         #SMS y EMAIL para DELEGANTE
         persona_delegante = Personas.objects.get(id_persona = usuario_delegante.persona.id_persona)
@@ -429,7 +429,7 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
             Util.send_sms(persona_delegante.telefono_celular, sms)
             pass
         except:
-            return Response({'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'})
+            return Response({'success':True,'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'}, status=status.HTTP_200_OK)
         
         #SMS y EMAIL para DELEGADO
         persona_delegado = Personas.objects.get(id_persona = usuario_delegado.persona.id_persona)
@@ -443,9 +443,9 @@ class AsignarRolSuperUsuario(generics.CreateAPIView):
             Util.send_sms(persona_delegado.telefono_celular, sms)
             pass
         except:
-            return Response({'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'})
+            return Response({'success':True,'detail':'Se realizó la asignación sin problema pero no se pudo enviar sms de confirmación'}, status=status.HTTP_200_OK)
         
-        return Response({'detail': 'Delegación y notificación exitosa'})
+        return Response({'success':True,'detail': 'Delegación y notificación exitosa'}, status=status.HTTP_200_OK)
 
 class UnblockUser(generics.CreateAPIView):
     serializer_class = DesbloquearUserSerializer
@@ -463,7 +463,7 @@ class UnblockUser(generics.CreateAPIView):
             usuario_bloqueado
             pass
         except:
-            return Response({'detail': 'Los datos ingresados de usuario son incorrectos, intenta nuevamente'})
+            return Response({'success':False,'detail': 'Los datos ingresados de usuario son incorrectos, intenta nuevamente'}, status=status.HTTP_400_BAD_REQUEST)
         
         uidb64 = signing.dumps({'user': str(usuario_bloqueado.id_usuario)})
         token = PasswordResetTokenGenerator().make_token(usuario_bloqueado)
@@ -478,7 +478,7 @@ class UnblockUser(generics.CreateAPIView):
             persona_usuario_bloqueado = Personas.objects.get( Q(id_persona=usuario_bloqueado.persona.id_persona))
             pass
         except:
-            return Response({'detail': 'Los datos ingresados de usuario-persona son incorrectos, intenta nuevamente' }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success':False,'detail': 'Los datos ingresados de usuario-persona son incorrectos, intenta nuevamente' }, status=status.HTTP_400_BAD_REQUEST)
         
         tipo_persona = persona_usuario_bloqueado.tipo_persona
         if tipo_persona == 'N':    
@@ -492,7 +492,7 @@ class UnblockUser(generics.CreateAPIView):
                                                                 )
                 pass
             except:
-                return Response({'detail': 'Los datos ingresados de persona natural son incorrectos, intenta nuevamente'})
+                return Response({'success':False,'detail': 'Los datos ingresados de persona natural son incorrectos, intenta nuevamente'}, status=status.HTTP_400_BAD_REQUEST)
             short_url = Util.get_short_url(request, absurl+'?redirect-url='+redirect_url)
             sms = 'Puedes desbloquear tu usuario en el siguiente link ' + short_url
             context = {'primer_nombre': persona_usuario_bloqueado.primer_nombre, 'primer_apellido': persona_usuario_bloqueado.primer_apellido, 'absurl': absurl+'?redirect-url='+ redirect_url}
@@ -503,7 +503,7 @@ class UnblockUser(generics.CreateAPIView):
             try:
                 Util.send_sms(persona_usuario_bloqueado.telefono_celular, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+                return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_200_OK)
             pass 
 
         else:
@@ -516,7 +516,7 @@ class UnblockUser(generics.CreateAPIView):
                                                                 )
                 pass
             except:
-                return Response({'detail': 'Los datos ingresados de persona juridica son incorrectos, intenta nuevamente'})                                 
+                return Response({'success':False,'detail': 'Los datos ingresados de persona juridica son incorrectos, intenta nuevamente'}, status=status.HTTP_400_BAD_REQUEST)                                 
             short_url = Util.get_short_url(request, absurl+'?redirect-url='+redirect_url)
             sms = 'Puedes desbloquear tu usuario en el siguiente link ' + short_url
             context = {'razon_social': persona_usuario_bloqueado.razon_social, 'absurl': absurl+'?redirect-url='+ redirect_url}
@@ -527,7 +527,7 @@ class UnblockUser(generics.CreateAPIView):
             try:
                 Util.send_sms(persona_usuario_bloqueado.telefono_celular_empresa, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+                return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_200_OK)
             pass
         return Response({'success': True, 'detail': 'Email y sms enviado para desbloquear usuario'}, status=status.HTTP_200_OK)
 
@@ -537,7 +537,7 @@ class UnBlockUserPassword(generics.GenericAPIView):
     def patch(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({'success': True, 'message': 'Usuario Desbloqueado'}, status=status.HTTP_200_OK)
+        return Response({'success': True, 'detail': 'Usuario Desbloqueado'}, status=status.HTTP_200_OK)
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -554,7 +554,7 @@ class RegisterView(generics.CreateAPIView):
         nombre_usuario_creado = serializer.validated_data.get('nombre_de_usuario')
         tipo_usuario = serializer.validated_data.get('tipo_usuario')
         if tipo_usuario != 'I':
-            return Response({'detail': 'El tipo de usuario debe ser interno'})
+            return Response({'success':False,'detail': 'El tipo de usuario debe ser interno'}, status=status.HTTP_403_FORBIDDEN)
 
         serializer.save()
         usuario = User.objects.get(nombre_de_usuario=nombre_usuario_creado)
@@ -596,9 +596,9 @@ class RegisterView(generics.CreateAPIView):
                     }
                     Util.save_auditoria(auditoria_data)
                 else:
-                    return Response({'No se puede asignar este rol por que no existe'})
+                    return Response({'success':False,'detail':'No se puede asignar este rol por que no existe'}, status=status.HTTP_400_BAD_REQUEST)
             except:
-                return Response({'No se puede consultar por que no existe este rol'})
+                return Response({'success':False,'detail':'No se puede consultar por que no existe este rol'}, status=status.HTTP_400_BAD_REQUEST)
         
         #Data paraSMS y EMAIL
         user = User.objects.get(email=usuario.email)
@@ -622,8 +622,8 @@ class RegisterView(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-            return Response({'detail': 'creado exitosamente', 'usuario': serializer.data, 'Roles': roles})
+                return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
+            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles}, status=status.HTTP_201_CREATED)
 
         else:
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
@@ -635,8 +635,8 @@ class RegisterView(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular_empresa, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-            return Response({'detail': 'creado exitosamente', 'usuario': serializer.data, 'Roles': roles})
+                return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
+            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles}, status=status.HTTP_201_CREATED)
 
 class RegisterExternoView(generics.CreateAPIView):
     serializer_class = RegisterExternoSerializer
@@ -711,7 +711,7 @@ class RegisterExternoView(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+                return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
             return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
 
         else:
@@ -724,7 +724,7 @@ class RegisterExternoView(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
-                return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
+                return Response({'success':True, 'message':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
             return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
 
 
@@ -835,8 +835,8 @@ class LoginApiView(generics.CreateAPIView):
                                     try:
                                         Util.send_sms(user.persona.telefono_celular, sms)
                                     except:
-                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'})
-                                    return Response({'detail':'Su usuario ha sido bloqueado'})
+                                        return Response({'success':False,'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'}, status=status.HTTP_403_FORBIDDEN)
+                                    return Response({'success':False,'detail':'Su usuario ha sido bloqueado'}, status=status.HTTP_403_FORBIDDEN)
                                 else:
                                     sms = 'Usuario Cormacarena Bia bloqueado por limite de intentos, desbloquealo enviando un correo a admin@admin.com'
                                     context = {'razon_social': user.persona.razon_social}
@@ -847,21 +847,21 @@ class LoginApiView(generics.CreateAPIView):
                                     try:
                                         Util.send_sms(user.persona.telefono_celular, sms)
                                     except:
-                                        return Response({'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'})
-                                    return Response({'detail':'Su usuario ha sido bloqueado'})
+                                        return Response({'success':False,'detail': 'Se bloqueó el usuario pero no pudo enviar el sms, verificar servicio o número'}, status=status.HTTP_403_FORBIDDEN)
+                                    return Response({'success':False,'detail':'Su usuario ha sido bloqueado'}, status=status.HTTP_403_FORBIDDEN)
                             serializer = LoginErroneoPostSerializers(login_error, many=False)
-                            return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                            return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_400_BAD_REQUEST)
                         else:
                             if user.is_blocked:
-                                return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                                return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'}, status=status.HTTP_403_FORBIDDEN)
                             else:
                                 login_error.contador = 1
                                 login_error.save()
                                 serializer = LoginErroneoPostSerializers(login_error, many=False)
-                                return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_200_OK)
+                                return Response({'success':False, 'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         if user.is_blocked:
-                            return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'})
+                            return Response({'success':False, 'detail':'Su usuario está bloqueado, debe comunicarse con el administrador'}, status=status.HTTP_403_FORBIDDEN)
                         else:
                             login_error = LoginErroneo.objects.create(
                                 id_usuario = user,
@@ -871,16 +871,16 @@ class LoginApiView(generics.CreateAPIView):
                             )
                         login_error.restantes = 3 - login_error.contador
                         serializer = LoginErroneoPostSerializers(login_error, many=False)
-                        return Response({'detail':'La contraseña es invalida', 'login_erroneo': serializer.data})
+                        return Response({'success':False,'detail':'La contraseña es invalida', 'login_erroneo': serializer.data}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'detail': 'Usuario no verificado'})
+                return Response({'success':False,'detail': 'Usuario no verificado'}, status=status.HTTP_403_FORBIDDEN)
         else:
             UsuarioErroneo.objects.create(
                 campo_usuario = data['email'],
                 dirip = str(ip),
                 dispositivo_conexion = device
             )
-            return Response({'detail':'No existe el correo ingresado'})
+            return Response({'success':False,'detail':'No existe el correo ingresado'}, status=status.HTTP_400_BAD_REQUEST)
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
@@ -916,7 +916,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
                 subject = 'Actualiza tu contraseña ' + user.persona.razon_social
                 data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                 Util.send_email(data)
-        return Response( {'success': 'te enviamos el link  para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
+        return Response( {'success':True,'detail':'Te enviamos el link para poder actualizar tu contraseña'},status=status.HTTP_200_OK)
 
 class PasswordTokenCheckApi(generics.GenericAPIView):
     serializer_class=UserSerializer
