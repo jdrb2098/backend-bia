@@ -94,7 +94,7 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
                     return Response({'success': False,'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'}, status=status.HTTP_403_FORBIDDEN)   
                 
                 estado_civil.delete()    
-                return Response({'success': True, 'detail': 'Este estado civil ha sido eliminado exitosamente'}, status=status.HTTP)
+                return Response({'success': True, 'detail': 'Este estado civil ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({'success': False, 'detail': 'No puedes eliminar un estado civil precargado'}, status=status.HTTP_403_FORBIDDEN)
         else:
@@ -382,7 +382,7 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
             # Validación emails entrantes vs existentes
             persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             if len(persona_email_validate):
-                return Response({'success': False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'success': False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 serializador = persona_serializada.save()
 
@@ -452,7 +452,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                     #Validación emails entrantes vs existentes
                     persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                     if len(persona_email_validate):
-                        return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                        return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         serializador = persona_serializada.save()
                         
@@ -485,14 +485,14 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                         try:
                             Util.send_sms(persona.telefono_celular, sms)
                         except:
-                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                        return Response({'message': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
+                            return Response({'success': True, 'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'}, status=status.HTTP_201_CREATED)
+                        return Response({'success':True,'message': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data}, status=status.HTTP_201_CREATED)
                 except:
-                    return Response({'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'})
-            except Exception as e:
-                return Response({'detail': e.detail})
+                    return Response({'success':False,'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({'success': False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único, debe tener telefono celular, dirección de residencia, municipio residencia, ubicación georeferenciada, direccion notificaciones y municipio notificación'}, status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
+            return Response({'success':False,'detail': 'No existe ninguna persona con estos datos, por favor verificar'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
@@ -519,17 +519,17 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
             #Validación emails dns
             validate_email = Util.validate_dns(email_principal)
             if validate_email == False:
-                return Response({'detail': 'Valide que el email principal ingresado exista'})
+                return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
             if email_secundario:
                 validate_second_email = Util.validate_dns(email_secundario)
                 if validate_second_email == False:
-                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                    return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
             #Verificación emails entrantes vs salientes
             persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             if len(persona_email_validate):    
-                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 serializador = persona_serializada.save()
 
@@ -562,10 +562,10 @@ class UpdatePersonaJuridicaInternoBySelf(generics.RetrieveUpdateAPIView):
                 try:
                     Util.send_sms(persona.telefono_celular_empresa, sms)
                 except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data})
+                    return Response({'success':True,'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'}, status=status.HTTP_201_CREATED)
+                return Response({'success':True,'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail': 'No se encontró ninguna persona'})
+            return Response({'success':False,'detail': 'No se encontró ninguna persona'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
@@ -591,17 +591,17 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
             #Validación emails dns
             validate_email = Util.validate_dns(email_principal)
             if validate_email == False:
-                return Response({'detail': 'Valide que el email principal ingresado exista'})
+                return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
             if email_secundario:
                 validate_second_email = Util.validate_dns(email_secundario)
                 if validate_second_email == False:
-                    return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                    return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
             #Verificacion emails entrantes vs existentes
             persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
             if len(persona_email_validate):
-                return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 serializador = persona_serializada.save()
                 
@@ -634,10 +634,10 @@ class UpdatePersonaJuridicaExternoBySelf(generics.RetrieveUpdateAPIView):
                 try:
                     Util.send_sms(persona.telefono_celular_empresa, sms)
                 except:
-                    return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                return Response({'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data})
+                    return Response({'success':True,'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'}, status=status.HTTP_201_CREATED)
+                return Response({'success':True,'detail': 'Persona actualizada y notificada correctamente', 'data': persona_serializada.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail': 'No se encontró ninguna persona'})
+            return Response({'success':False,'detail': 'No se encontró ninguna persona'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView):
@@ -660,17 +660,17 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                     #Validación emails dns
                     validate_email = Util.validate_dns(email_principal)
                     if validate_email == False:
-                        return Response({'detail': 'Valide que el email principal ingresado exista'})
+                        return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
                     if email_secundario:
                         validate_second_email = Util.validate_dns(email_secundario)
                         if validate_second_email == False:
-                            return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                            return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
                     #Verificacion emails entrantes vs existentes
                     persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
                     if len(persona_email_validate):
-                        return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+                        return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         serializador = persona_serializada.save()
 
@@ -703,14 +703,14 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                         try:
                             Util.send_sms(persona.telefono_celular_empresa, sms)
                         except:
-                            return Response({'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'})
-                        return Response({'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data})
+                            return Response({'success':True,'detail': 'Se actualizó la persona pero no se pudo enviar el mensaje, verificar numero o servicio'}, status=status.HTTP_201_CREATED)
+                        return Response({'success':True,'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data}, status=status.HTTP_201_CREATED)
                 except:
-                    return Response({'detail': 'No pudo obtener el email principal y/o secundario'})
+                    return Response({'success':False,'detail': 'No pudo obtener el email principal y/o secundario'}, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
-                return Response({'detail': e.detail})
+                return Response({'success':False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único y debe tener dirección de notificaciones, municipio de notificaciones, email y telefono celular empresa y'}, status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response({'detail': 'No existe ninguna persona con estos datos, por favor verificar'})
+            return Response({'success':False,'detail': 'No existe ninguna persona con estos datos, por favor verificar'}, status=status.HTTP_400_BAD_REQUEST)
         
         
 class RegisterPersonaNatural(generics.CreateAPIView):
@@ -724,12 +724,12 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         #Validación de persona natural
         tipo_persona = serializer.validated_data.get('tipo_persona')
         if tipo_persona != 'N':
-            return Response({'detail':'El tipo de persona debe ser Natural'})
+            return Response({'success':False,'detail':'El tipo de persona debe ser Natural'}, status=status.HTTP_400_BAD_REQUEST)
 
         #Validación de tipo documento
         tipo_documento = serializer.validated_data.get('tipo_documento')
         if tipo_documento.cod_tipo_documento == 'NU':
-            return Response({'detail':'El tipo de documento debe ser el de una persona natural'})
+            return Response({'success':False,'detail':'El tipo de documento debe ser el de una persona natural'}, status=status.HTTP_400_BAD_REQUEST)
 
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
@@ -737,17 +737,17 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
         if validate_email == False:
-            return Response({'detail': 'Valide que el email principal ingresado exista'})
+            return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         if email_secundario:
             validate_second_email = Util.validate_dns(email_secundario)
             if validate_second_email == False:
-                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         # validacion de email entrante vs existente
         persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
         if len(persona_email_validate):
-            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+            return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializador = serializer.save()
 
@@ -776,8 +776,8 @@ class RegisterPersonaNatural(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
-                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
-            return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
+                return Response({'success':True,'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'}, status=status.HTTP_201_CREATED)
+            return Response({'success':True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 class RegisterPersonaJuridica(generics.CreateAPIView):
@@ -791,12 +791,12 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         #Validación de persona natural
         tipo_persona = serializer.validated_data.get('tipo_persona')
         if tipo_persona != 'J':
-            return Response({'detail':'El tipo de persona debe ser Juridica'})
+            return Response({'success':False,'detail':'El tipo de persona debe ser Juridica'}, status=status.HTTP_400_BAD_REQUEST)
 
         #Validación de tipo documento
         tipo_documento = serializer.validated_data.get('tipo_documento')
         if tipo_documento.cod_tipo_documento != 'NU':
-            return Response({'detail':'El tipo de documento debe ser el de una persona juridica'})
+            return Response({'success':False,'detail':'El tipo de documento debe ser el de una persona juridica'}, status=status.HTTP_400_BAD_REQUEST)
         
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
@@ -804,17 +804,17 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
         if validate_email == False:
-            return Response({'detail': 'Valide que el email principal ingresado exista'})
+            return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         if email_secundario:
             validate_second_email = Util.validate_dns(email_secundario)
             if validate_second_email == False:
-                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         #Verificación emails entrantes vs salientes
         persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
         if len(persona_email_validate):
-            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+            return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
         else: 
             serializador = serializer.save()
             
@@ -843,9 +843,9 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular_empresa, sms)
             except:
-                return Response({'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero', 'data': serializer.data})
+                return Response({'success':True,'detail':'Se guardo la persona pero no se pudo enviar el sms, verificar numero', 'data': serializer.data}, status=status.HTTP_201_CREATED)
             
-            return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data})
+            return Response({'success':True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
@@ -863,27 +863,27 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
         #Validación de persona natural
         tipo_persona = serializer.validated_data.get('tipo_persona')
         if tipo_persona != 'N':
-            return Response({'detail':'El tipo de persona debe ser Natural'})
+            return Response({'success':False,'detail':'El tipo de persona debe ser Natural'}, status=status.HTTP_400_BAD_REQUEST)
 
         #Validación de tipo documento
         tipo_documento = serializer.validated_data.get('tipo_documento')
         if tipo_documento.cod_tipo_documento == 'NU':
-            return Response({'detail':'El tipo de documento debe ser el de una persona natural'})
+            return Response({'success':False,'detail':'El tipo de documento debe ser el de una persona natural'}, status=status.HTTP_400_BAD_REQUEST)
         
         #Validación emails dns
         validate_email = Util.validate_dns(email_principal)
         if validate_email == False:
-            return Response({'detail': 'Valide que el email principal ingresado exista'})
+            return Response({'success':False,'detail': 'Valide que el email principal ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         if email_secundario:
             validate_second_email = Util.validate_dns(email_secundario)
             if validate_second_email == False:
-                return Response({'detail': 'Valide que el email secundario ingresado exista'})
+                return Response({'success':False,'detail': 'Valide que el email secundario ingresado exista'}, status=status.HTTP_400_BAD_REQUEST)
 
         # validacion de email entrante vs existente
         persona_email_validate = Personas.objects.filter(Q(email_empresarial=email_principal) | Q(email=email_secundario))
         if len(persona_email_validate):
-            return Response({'detail': 'Ya existe una persona con este email asociado como email principal o secundario'})
+            return Response({'success':False,'detail': 'Ya existe una persona con este email asociado como email principal o secundario'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializador = serializer.save()
             
@@ -914,8 +914,8 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
             try:
                 Util.send_sms(persona.telefono_celular, sms)
             except:
-                return Response({'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'})
-            return Response({'status': status.HTTP_201_CREATED, 'detail': serializer.data, 'message': 'Se ejecutó todo exitosamente'})
+                return Response({'success':True,'detail': 'Se guardo la persona pero no se pudo enviar el sms, verificar numero'}, status=status.HTTP_201_CREATED)
+            return Response({'success':True, 'detail': serializer.data, 'message': 'Se ejecutó todo exitosamente'}, status=status.HTTP_201_CREATED)
 
 # Views for apoderados persona
 
@@ -983,9 +983,9 @@ class deleteSucursalEmpresa(generics.DestroyAPIView):
             
             Util.save_auditoria(auditoria_data)
 
-            return Response({'detail':'la sucursal empresa fue eliminada'})
+            return Response({'success':True,'detail':'la sucursal empresa fue eliminada'}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({'detail':'No existe sucursal'})
+            return Response({'success':False,'detail':'No existe sucursal'}, status=status.HTTP_400_BAD_REQUEST)
             
 class updateSucursalEmpresa(generics.RetrieveUpdateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer
@@ -1017,9 +1017,9 @@ class updateSucursalEmpresa(generics.RetrieveUpdateAPIView):
             }
             
             Util.save_auditoria(auditoria_data)
-            return Response({'detail':'la sucursal empresa actualizada'})
+            return Response({'success':True,'detail':'la sucursal empresa actualizada'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'detail':'No existe sucursal'})
+            return Response({'success':False,'detail':'No existe sucursal'}, status=status.HTTP_400_BAD_REQUEST)
 
 class registerSucursalEmpresa(generics.CreateAPIView):
     serializer_class = SucursalesEmpresasPostSerializer 
@@ -1049,7 +1049,7 @@ class registerSucursalEmpresa(generics.CreateAPIView):
         
         Util.save_auditoria(auditoria_data)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response({'success':True},serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
 
         # descripcion = "idUsuario:" + str(serializer_response.pk) + ";" + "fecha:" + formatDate + ";" + "observaciones:Registro de otro usuario" + ";" + "nombreUsuario:"+ serializer_response.nombre_de_usuario + "."

@@ -139,6 +139,7 @@ class DetailPermisosModuloRol(RetrieveAPIView):
     
 class ListarPermisosModuloRolByRol(ListAPIView):
     serializer_class = PermisosModuloRolSerializer
+    queryset = PermisosModuloRol
     def get(self, request, pk):
         permisos_modulo_rol = PermisosModuloRol.objects.filter(id_rol=pk)
         serializer = self.serializer_class(permisos_modulo_rol, many=True)
