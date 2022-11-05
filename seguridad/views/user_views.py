@@ -727,6 +727,7 @@ class RegisterExternoView(generics.CreateAPIView):
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
             return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
 
+
 class Verify(views.APIView):
 
     serializer_class = EmailVerificationSerializer
@@ -734,8 +735,8 @@ class Verify(views.APIView):
 
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
-        redirect_url = request.query_params.get('redirect-url')
         token = request.GET.get('token')
+        redirect_url= request.query_params.get('redirect-url')
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
             user = User.objects.get(id_usuario=payload['user_id'])
@@ -754,9 +755,7 @@ class Verify(views.APIView):
                     subject = 'Verificación exitosa ' + user.nombre_de_usuario
                     data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                     Util.send_email(data)
-
             return redirect(redirect_url+'?verify=True')
-
         except jwt.ExpiredSignatureError as identifier:
             return redirect(redirect_url+'?verify=False')
 
