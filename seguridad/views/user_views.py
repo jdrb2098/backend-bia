@@ -701,11 +701,9 @@ class RegisterExternoView(generics.CreateAPIView):
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
-<<<<<<< HEAD
-        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect_url=' + redirect_url
-=======
+
         absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect-url=' + redirect_url
->>>>>>> main
+
 
         short_url = Util.get_short_url(request, absurl)
 
@@ -733,12 +731,9 @@ class RegisterExternoView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':False, 'message':'no se pudo envias sms de confirmacion'})
-<<<<<<< HEAD
-            
-            return Response(user_data, status=status.HTTP_201_CREATED)
-=======
+
             return Response([user_data,{"redi:":redirect_url}], status=status.HTTP_201_CREATED)
->>>>>>> main
+
 
 class Verify(views.APIView):
 
@@ -768,11 +763,9 @@ class Verify(views.APIView):
                     subject = 'Verificación exitosa ' + user.nombre_de_usuario
                     data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                     Util.send_email(data)
-<<<<<<< HEAD
-            return redirect(redirect_url + '?token='+token)
-=======
+
             return redirect(redirect_url+'?verify=True')
->>>>>>> main
+
         except jwt.ExpiredSignatureError as identifier:
             return redirect(redirect_url+'?verify=False')
 
