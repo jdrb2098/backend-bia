@@ -4,8 +4,11 @@ from almacen.models.generics_models import Magnitudes
 from almacen.models.generics_models import Bodegas
 from almacen.serializers.generics_serializers import SerializerBodegas,SerializerMagnitudes
 from rest_framework import generics
+from rest_framework.views import APIView
 from almacen.serializers.generics_serializers import SerializersMarca, SerializersEstadosArticulo, SerializerPorcentajesIVA
 from almacen.models.generics_models import Marcas, EstadosArticulo, PorcentajesIVA
+from almacen.choices.estados_articulo_choices import estados_articulo_CHOICES
+from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
@@ -208,3 +211,16 @@ class GetUnidadMedidaById(generics.RetrieveAPIView):
 class GetUnidadMedidaList(generics.ListAPIView):
     serializer_class=SerializersUnidadesMedida
     queryset=UnidadesMedida.objects.all()
+
+# Choices
+
+class EstadosArticuloChoices(APIView):
+    def get(self,request):
+        choices = estados_articulo_CHOICES
+        return Response(choices)
+
+
+class MagnitudesChoices(APIView):
+    def get(self,request):
+        choices = magnitudes_CHOICES
+        return Response(choices)

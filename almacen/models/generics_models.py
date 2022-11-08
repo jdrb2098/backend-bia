@@ -5,7 +5,7 @@ from seguridad.choices.municipios_choices import municipios_CHOICES
 from seguridad.models import Personas
 
 class EstadosArticulo(models.Model):
-    cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
+    cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051CodEstado')
     nombre = models.CharField(max_length=20, db_column='T051nombre')
 
     def __str__(self):
