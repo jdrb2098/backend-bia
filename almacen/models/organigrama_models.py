@@ -34,7 +34,7 @@ class NivelesOrganigrama(models.Model):
     class Meta:
         db_table = 'T018NivelesOrgnigrama'
         verbose_name = 'NivelOrganigrama'
-        verbose_name_plurar = 'NivelesOrganigrama'
+        verbose_name_plural = 'NivelesOrganigrama'
         unique_together = ['id_organigrama', 'orden_nivel']
         unique_together = ['id_organigrama', 'nombre']
 
