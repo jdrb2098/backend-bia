@@ -32,21 +32,21 @@ class NivelesOrganigrama(models.Model):
         return str(self.nombre)
 
     class Meta:
-        db_table = 'T018NivelesOrgnigrama'
-        verbose_name = 'NivelOrganigrama'
-        verbose_name_plural = 'NivelesOrganigrama'
+        db_table = 'T018NivelesOrganigrama'
+        verbose_name = 'Nivel Organigrama'
+        verbose_name_plural = 'Niveles Organigrama'
         unique_together = ['id_organigrama', 'orden_nivel']
         unique_together = ['id_organigrama', 'nombre']
 
 
 class UnidadesOrganizacionales(models.Model):
-    unidades_organizacional=models.AutoField(primary_key=True,editable=False,db_column='T019IdUnidadOrganizacional')
+    id_unidad_organizacional=models.AutoField(primary_key=True,editable=False,db_column='T019IdUnidadOrganizacional')
     id_organigrama=models.ForeignKey(Organigramas, on_delete=models.CASCADE, db_column='T019Id_Organigrama')
     id_nivel_organigrama=models.ForeignKey(NivelesOrganigrama, on_delete=models.CASCADE, db_column='T019Id_NivelOrganigrama')
     nombre=models.CharField(max_length=50, db_column='T019nombre')
     codigo=models.CharField(max_length=10,db_column='T019codigo')
     cod_tipo_unidad=models.CharField(max_length=2,db_column='T019codTipoUnidad')
-    cod_agrupacion_documental=models.CharField(max_length=3,db_column='T019codAgrupacionDocumental')
+    cod_agrupacion_documental=models.CharField(max_length=3, null=True, blank=True, db_column='T019codAgrupacionDocumental')
     unidad_raiz=models.BooleanField(db_column='T019unidadRaiz',default=False)
     id_unidad_org_padre=models.ForeignKey('self',on_delete=models.SET_NULL,blank=True,null=True,db_column='T019Id_UnidadOrgPadre')
 
