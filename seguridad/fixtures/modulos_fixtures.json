@@ -98,5 +98,75 @@
           "subsistema":"SEGU",
           "descripcion":"Permite crear un usuario vía Portal"
         }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 11,
+        "fields": {
+          "id_modulo": 11,
+          "nombre_modulo": "Marcas",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información básica de las Marcas de artículos activos fijos"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 12,
+        "fields": {
+          "id_modulo": 12,
+          "nombre_modulo": "Bodegas",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar las bodegas del Almacén creadas en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 13,
+        "fields": {
+          "id_modulo": 13,
+          "nombre_modulo": "Porcentajes de IVA",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información básica de los porcentajes de IVA que manejará el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 14,
+        "fields": {
+          "id_modulo": 14,
+          "nombre_modulo": "Unidades de Medida",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información básica de las unidades de medida que manejará el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 15,
+        "fields": {
+          "id_modulo": 15,
+          "nombre_modulo": "Organigramas",
+          "subsistema":"TRSV",
+          "descripcion":"Permite administrar los organigramas del sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 16,
+        "fields": {
+          "id_modulo": 16,
+          "nombre_modulo": "Cambio de Organigrama Actual",
+          "subsistema":"TRSV",
+          "descripcion":"Permite adoptar un nuevo organigrama de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 17,
+        "fields": {
+          "id_modulo": 17,
+          "nombre_modulo": "Cargos",
+          "subsistema":"TRSV",
+          "descripcion":"Permite administrar los cargos disponibles en el sistema"
+        }
       }
   ]
