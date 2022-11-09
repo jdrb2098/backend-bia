@@ -34,25 +34,30 @@ class NivelesPostSerializer(serializers.ModelSerializer):
 
 
 class NivelesUpdateSerializer(serializers.ModelSerializer):
-    nombre = serializers.CharField(max_length=50, min_length=2, validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
-    orden_nivel = serializers.IntegerField(validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
+    # nombre = serializers.CharField(max_length=50, min_length=2, validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
+    # orden_nivel = serializers.IntegerField(validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
 
     class Meta:
         model = NivelesOrganigrama
         fields = '__all__'
+        extra_kwargs = {
+            'id_organigrama': {'required': True},
+            'nombre': {'required': True},
+            'orden_nivel': {'required': True}
+        }
         validators = [
            UniqueTogetherValidator(
                queryset=NivelesOrganigrama.objects.all(),
-               fields = ['id_organigrama', 'orden_nivel']
-           )
-        ]
-        validators = [
+               fields = ['id_organigrama', 'orden_nivel'],
+               message='El id_organigrama y orden de nivel deben ser una pareja única'
+           ),
            UniqueTogetherValidator(
                queryset=NivelesOrganigrama.objects.all(),
-               fields = ['id_organigrama', 'nombre']
+               fields = ['id_organigrama', 'nombre'],
+               message='El id_organigrama y nombre deben ser una pareja única'
            )
         ]
-
+        
 class UnidadesPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnidadesOrganizacionales

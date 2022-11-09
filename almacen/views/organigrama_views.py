@@ -49,42 +49,45 @@ class UpdateNiveles(generics.UpdateAPIView):
 
     def put(self, request, id_organigrama):
         data = request.data
+
+        #VALIDA SI NO HA CREADO NINGÚN NIVEL
+        if not data:
+            return Response({'success': False, 'detail': 'No se puede guardar sin crear al menos un nivel'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #VALIDACION DE ORGANIGRAMA
         try:
             organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)
-            print(organigrama)
             pass
         except:
-            return Response({'success': False, 'detail': 'No se pudo encontrar un organigrama con los parámetros ingresados'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'detail': 'No se pudo encontrar un organigrama con el parámetro ingresado'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if data:
-            nivel_list = []
-            for nivel in data:
-                id_nivel = nivel.get('id_nivel_organigrama')
-                if id_nivel:
-                    nivel_list.append(id_nivel)
-                    nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=id_nivel).first()
-                    nivel_serializer = self.serializer_class(nivel_instance, data=nivel)
-                    nivel_serializer.is_valid(raise_exception=True)
-                    nivel_serializer.save()
-                else:
-                    organigrama = Organigramas.objects.filter(id_organigrama=id_organigrama).first()
-                    nivel_creado = NivelesOrganigrama.objects.create(
-                        id_organigrama=organigrama,
-                        orden_nivel= nivel['orden_nivel'],
-                        nombre=nivel['nombre']
-                    )
-                    nivel_list.append(nivel_creado.id_nivel_organigrama)
+        #VALIDACION DE FECHA DE TERMINADO
+        if organigrama.fecha_terminado != None:
+            return Response({'success': False, 'detail': 'El organigrama ya está terminado, por lo cúal no es posible realizar acciones sobre los niveles'})
+
+        #ELIMINACION DE TODOS LOS NIVELES
+        niveles = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama)
+        niveles.delete()
+
+        #CREACION DE NIVELES Y VALIDACION DEL ORDEN DE NIVEL
+        contador = 1
+        for nivel in data:
+            id_nivel = nivel.get('id_nivel_organigrama')
+            orden_nivel = nivel.get('orden_nivel')
             
-            # ELIMINACION DE NIVELES
-            niveles_eliminar = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama).exclude(id_nivel_organigrama__in=nivel_list)
-            niveles_eliminar.delete()
+            if orden_nivel == contador:
+                contador += 1
+                pass
+            else:
+                return Response({'detail': 'No coincide el orden de los niveles'})
+            
+            nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=id_nivel).first()
+            nivel_serializer = self.serializer_class(nivel_instance, data=nivel)
+            nivel_serializer.is_valid(raise_exception=True)
+            nivel_serializer.save()
 
-            return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)
-        else:
-            niveles_eliminar = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama)
-            niveles_eliminar.delete()
-
-            return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)
+        return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)
+    
     
 class CreateUnidades(generics.CreateAPIView):
     serializer_class = UnidadesPutSerializer

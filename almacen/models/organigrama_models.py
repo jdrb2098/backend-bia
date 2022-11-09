@@ -4,7 +4,7 @@ from django.db import models
 class Organigramas(models.Model):
     id_organigrama = models.AutoField(primary_key=True, editable=False, db_column='T017IdOrganigrama')
     nombre = models.CharField(max_length=50, unique=True, db_column='T017nombre')
-    fecha_terminado = models.DateTimeField(auto_now_add=True, null=True, blank=True,db_column='T017fechaTerminado')
+    fecha_terminado = models.DateTimeField(null=True, blank=True,db_column='T017fechaTerminado')
     descripcion = models.CharField(max_length=255, db_column='T017descripcion')
     fecha_puesta_produccion = models.DateField(null=True, blank=True, db_column='T017fechaPuestaEnProduccion')
     fecha_retiro_produccion = models.DateField(null=True, blank=True, db_column='T017fechaRetiroDeProduccion')
@@ -25,8 +25,8 @@ class Organigramas(models.Model):
 class NivelesOrganigrama(models.Model):
     id_nivel_organigrama = models.AutoField(primary_key = True, editable=False, db_column='T018IdNivelOrganigrama')
     id_organigrama = models.ForeignKey(Organigramas, on_delete=models.CASCADE, null=False, blank=False, db_column='T018Id_Organigrama')
-    orden_nivel = models.SmallIntegerField(db_column='T018ordenDelNivel', unique=True)
-    nombre = models.CharField(max_length=50, db_column='T018nombre', unique=True)
+    orden_nivel = models.SmallIntegerField(db_column='T018ordenDelNivel')
+    nombre = models.CharField(max_length=50, db_column='T018nombre')
     
     def __str__(self):
         return str(self.nombre)
@@ -35,8 +35,9 @@ class NivelesOrganigrama(models.Model):
         db_table = 'T018NivelesOrganigrama'
         verbose_name = 'Nivel Organigrama'
         verbose_name_plural = 'Niveles Organigrama'
-        unique_together = ['id_organigrama', 'orden_nivel']
         unique_together = ['id_organigrama', 'nombre']
+        unique_together = ['id_organigrama', 'orden_nivel']
+
 
 
 class UnidadesOrganizacionales(models.Model):

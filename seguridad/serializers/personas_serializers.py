@@ -300,11 +300,7 @@ class PersonaNaturalPostByUserSerializer(serializers.ModelSerializer):
 class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_residencia = serializers.CharField(max_length=255, min_length=4)
-    municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -338,11 +334,7 @@ class PersonaNaturalInternoUpdateSerializer(serializers.ModelSerializer):
 class PersonaNaturalExternoUpdateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_residencia = serializers.CharField(max_length=255, min_length=4)
-    municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -376,11 +368,7 @@ class PersonaNaturalExternoUpdateSerializer(serializers.ModelSerializer):
 class PersonaNaturalUpdateUserPermissionsSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular = serializers.CharField(max_length=15, min_length=10)
-    direccion_residencia = serializers.CharField(max_length=255, min_length=4)
-    municipio_residencia = serializers.CharField(max_length=5, min_length=4)
     ubicacion_georeferenciada = serializers.CharField(max_length=50, min_length=5)
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -411,10 +399,8 @@ class PersonaNaturalUpdateUserPermissionsSerializer(serializers.ModelSerializer)
         ]
 
 class PersonaJuridicaInternaUpdateSerializer(serializers.ModelSerializer):
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular_empresa = serializers.CharField(max_length=15, min_length=10)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
 
     class Meta:
@@ -435,10 +421,8 @@ class PersonaJuridicaInternaUpdateSerializer(serializers.ModelSerializer):
 
 
 class PersonaJuridicaExternaUpdateSerializer(serializers.ModelSerializer):
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular_empresa = serializers.CharField(max_length=15, min_length=10)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
@@ -458,10 +442,8 @@ class PersonaJuridicaExternaUpdateSerializer(serializers.ModelSerializer):
 
 
 class PersonaJuridicaUpdateUserPermissionsSerializer(serializers.ModelSerializer):
-    direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
     email = serializers.EmailField(validators=[UniqueValidator(queryset=Personas.objects.all())])
     telefono_celular_empresa = serializers.CharField(max_length=15, min_length=10)
-    cod_municipio_notificacion_nal = serializers.CharField(max_length=5, min_length=4)
 
     class Meta:
         model = Personas
