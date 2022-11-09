@@ -7,12 +7,21 @@ from seguridad.utils import Util
 from datetime import date
 import copy
 from operator import itemgetter
-from almacen.serializers.organigrama_serializers import NivelesPostSerializer, OrganigramaSerializer, UnidadesPutSerializer, OrganigramaActivateSerializer, NivelesUpdateSerializer
+from almacen.serializers.organigrama_serializers import (
+    NivelesPostSerializer, 
+    OrganigramaSerializer, 
+    UnidadesPutSerializer, 
+    OrganigramaActivateSerializer, 
+    NivelesUpdateSerializer, 
+    NivelesGetSerializer,
+    UnidadesGetSerializer
+    )
 from almacen.models.organigrama_models import (
     Organigramas,
     UnidadesOrganizacionales,
     NivelesOrganigrama
     )
+
 
 class GetOrganigramas(generics.ListAPIView):
     serializer_class = OrganigramaSerializer
@@ -87,6 +96,20 @@ class UpdateNiveles(generics.UpdateAPIView):
             nivel_serializer.save()
 
         return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)
+
+class GetNiveles(generics.ListAPIView):
+    serializer_class = NivelesGetSerializer
+
+    def get(self, request):
+        consulta = request.query_params.get('pk')
+        if consulta == None:
+            niveles = NivelesOrganigrama.objects.all().values()
+            if len(niveles) == 0:
+                return Response({'success': False, 'detail' : 'Aún no hay niveles registrados'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': True, 'Niveles' : niveles}, status=status.HTTP_200_OK)
+        else:
+            nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama=int(consulta)).values()
+            return Response({'success': True, 'Nivel': nivel}, status=status.HTTP_200_OK)
     
     
 class CreateUnidades(generics.CreateAPIView):
@@ -199,26 +222,32 @@ class UpdateUnidades(generics.UpdateAPIView):
         else:
             return Response({'success':False, 'detail':'El organigrama no existe'}, status=status.HTTP_404_NOT_FOUND)
 
-class ActivarOrganigrama(generics.UpdateAPIView):
-    serializer_class = OrganigramaActivateSerializer
-    queryset=Organigramas.objects.all()
-    
-    def put(self,request,pk):
 
-        organigrama_activado=Organigramas.objects.filter(actual=True).first()
-        organigrama_desactivado=Organigramas.objects.filter(id_organigrama=pk).first()
-        
-        if organigrama_activado:
-            if organigrama_desactivado:
-                desactivado=organigrama_desactivado.actual=True
-                activado=organigrama_activado.actual=False
-                desactivado.save()
-                activado.save()
-                return Response("Organigrama activado")
-            else:
-                return Response(" No hay ningun organigrama con esta id")
+class GetUnidadesByID(generics.ListAPIView):
+    serializer_class = UnidadesGetSerializer
+    queryset = UnidadesOrganizacionales.objects.all()
+
+    def get(self, request, pk):
+            unidad = UnidadesOrganizacionales.objects.get(id_unidad_organizacional=int(pk)).values()
+            print(unidad)
+            return Response(unidad)
+
+
+class GetUnidades(generics.ListAPIView):
+    serializer_class = UnidadesGetSerializer 
+    queryset = UnidadesOrganizacionales.objects.all() 
+
+    def get(self, request):
+        consulta = request.query_params.get('pk')
+        if consulta == None:
+            unidades = UnidadesOrganizacionales.objects.all().values()
+            if len(unidades) == 0:
+                return Response({'success': False, 'detail' : 'Aún no hay unidades registradas'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': True, 'Unidades' : unidades}, status=status.HTTP_200_OK)
         else:
-            return Response("No existe ningún organigrama activado")
+            unidad = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional=int(consulta)).values()
+            return Response({'success': True, 'Unidad': unidad}, status=status.HTTP_200_OK)
+
 class ActivarOrganigrama(generics.UpdateAPIView):
     serializer_class =OrganigramaSerializer
     queryset=Organigramas.objects.all()

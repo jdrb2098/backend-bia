@@ -490,7 +490,7 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
                 except:
                     return Response({'success':False,'detail': 'No pudo obtener el email principal y secundario que está intentando añadir'}, status=status.HTTP_400_BAD_REQUEST)
             except:
-                return Response({'success': False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único, debe tener telefono celular, dirección de residencia, municipio residencia, ubicación georeferenciada, direccion notificaciones y municipio notificación'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único, debe tener telefono celular y ubicación georeferenciada'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({'success':False,'detail': 'No existe ninguna persona con estos datos, por favor verificar'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -707,8 +707,8 @@ class UpdatePersonaJuridicaByUserWithPermissions(generics.RetrieveUpdateAPIView)
                         return Response({'success':True,'detail': 'Persona actualizada y notificada exitosamente', 'data': persona_serializada.data}, status=status.HTTP_201_CREATED)
                 except:
                     return Response({'success':False,'detail': 'No pudo obtener el email principal y/o secundario'}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                return Response({'success':False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único y debe tener dirección de notificaciones, municipio de notificaciones, email y telefono celular empresa y'}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({'success':False,'detail': 'Revisar parámetros de ingreso de información, el email debe ser único y debe tener telefono celular empresa'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({'success':False,'detail': 'No existe ninguna persona con estos datos, por favor verificar'}, status=status.HTTP_400_BAD_REQUEST)
         

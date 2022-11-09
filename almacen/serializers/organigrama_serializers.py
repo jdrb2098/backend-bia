@@ -8,10 +8,12 @@ from almacen.models.organigrama_models import (
     Cargos
 )
 
-class NivelesPostSerializer(serializers.ModelSerializer):
-    nombre = serializers.CharField(max_length=50, min_length=2, validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
-    orden_nivel = serializers.IntegerField(validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
+class NivelesGetSerializer(serializers.ModelSerializer):
+    model = NivelesOrganigrama
+    fields = '__all__'
 
+class NivelesPostSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = NivelesOrganigrama
         fields = [
@@ -34,9 +36,7 @@ class NivelesPostSerializer(serializers.ModelSerializer):
 
 
 class NivelesUpdateSerializer(serializers.ModelSerializer):
-    # nombre = serializers.CharField(max_length=50, min_length=2, validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
-    # orden_nivel = serializers.IntegerField(validators=[UniqueValidator(queryset=NivelesOrganigrama.objects.all())])
-
+    
     class Meta:
         model = NivelesOrganigrama
         fields = '__all__'
@@ -74,7 +74,14 @@ class UnidadesPutSerializer(serializers.ModelSerializer):
                 message='El id organigrama y el nombre deben ser una pareja única'
             )
         ]
-        extra_kwargs = {"cod_tipo_unidad": {"error_messages": {"required": "El campo de cod_tipo_unidad es requerido"}}}    
+        extra_kwargs = {"cod_tipo_unidad": {"error_messages": {"required": "El campo de cod_tipo_unidad es requerido"}}}
+
+class UnidadesGetSerializer(serializers.ModelSerializer):
+    id_nivel_organigrama = NivelesGetSerializer(read_only=True)
+    class Meta:
+        model = UnidadesOrganizacionales
+        fields = '__all__'
+
 
 class OrganigramaSerializer(serializers.ModelSerializer):
     class Meta:
