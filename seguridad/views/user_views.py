@@ -547,6 +547,7 @@ class RegisterView(generics.CreateAPIView):
     def post(self, request):
         user_logeado = request.user.id_usuario
         data = request.data
+        redirect_url=request.data.get('redirect_url','')
 
         #CREAR USUARIO
         serializer = self.serializer_class(data=data, many=False)
@@ -609,7 +610,7 @@ class RegisterView(generics.CreateAPIView):
         persona = Personas.objects.get(id_persona = request.data['persona'])
 
         relativeLink= reverse('verify')
-        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token)
+        absurl= 'http://'+ current_site + relativeLink + "?token="+ str(token) + '&redirect-url=' + redirect_url
         short_url = Util.get_short_url(request, absurl)
 
         if user.persona.tipo_persona == 'N':
@@ -623,7 +624,7 @@ class RegisterView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular, sms)
             except:
                 return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
-            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles}, status=status.HTTP_201_CREATED)
+            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles, "redi:":redirect_url}, status=status.HTTP_201_CREATED)
 
         else:
             sms = 'Verifica tu usuario de Cormarena-Bia aqui: ' + short_url
@@ -636,7 +637,7 @@ class RegisterView(generics.CreateAPIView):
                 Util.send_sms(persona.telefono_celular_empresa, sms)
             except:
                 return Response({'success':True, 'detail':'No se pudo enviar sms de confirmacion'}, status=status.HTTP_201_CREATED)
-            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles}, status=status.HTTP_201_CREATED)
+            return Response({'success':True,'detail': 'Creado exitosamente', 'usuario': serializer.data, 'Roles': roles, "redirect:":redirect_url}, status=status.HTTP_201_CREATED)
 
 class RegisterExternoView(generics.CreateAPIView):
     serializer_class = RegisterExternoSerializer
