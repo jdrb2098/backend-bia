@@ -67,7 +67,8 @@ class UnidadesPutSerializer(serializers.ModelSerializer):
 class OrganigramaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organigramas
-        fields = '__all__'
+        fields = ['nombre','fecha_terminado','descripcion', 'fecha_puesta_produccion','fecha_retiro_produccion','justificacion_nueva_version','version','ruta_resolucion']
+        read_only_fields = ['actual']
 
 class OrganigramaActivateSerializer(serializers.ModelSerializer):
     class Meta:

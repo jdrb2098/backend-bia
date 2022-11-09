@@ -11,8 +11,8 @@ urlpatterns = [
     path('niveles/update/<str:id_organigrama>/', views.UpdateNiveles.as_view(), name='update-niveles'),
 
     #ACTIVACION
-    path('organigrama/activacion/<str:pk>/',views.ActivarOrganigrama.as_view(),name='activacion'),
-    path('organigrama/create/', views.CreateOrgChart.as_view(),name="crear-organigrama"),
-    path('organigrama/get/', views.GetOrganigrama.as_view(), name='get-organigrama'),
+    path('activacion/<str:pk>/',views.ActivarOrganigrama.as_view(),name='activacion'),
+    path('create/', views.CreateOrgChart.as_view(),name="crear-organigrama"),
+    path('get/', views.GetOrganigrama.as_view(), name='get-organigrama'),
     
 ]
