@@ -9,8 +9,9 @@ from almacen.models.organigrama_models import (
 )
 
 class NivelesGetSerializer(serializers.ModelSerializer):
-    model = NivelesOrganigrama
-    fields = '__all__'
+    class Meta:
+        model = NivelesOrganigrama
+        fields = '__all__'
 
 class NivelesPostSerializer(serializers.ModelSerializer):
     

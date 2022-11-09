@@ -223,14 +223,14 @@ class UpdateUnidades(generics.UpdateAPIView):
             return Response({'success':False, 'detail':'El organigrama no existe'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class GetUnidadesByID(generics.ListAPIView):
-    serializer_class = UnidadesGetSerializer
-    queryset = UnidadesOrganizacionales.objects.all()
+# class GetUnidadesByID(generics.ListAPIView):
+#     serializer_class = UnidadesGetSerializer
+#     queryset = UnidadesOrganizacionales.objects.all()
 
-    def get(self, request, pk):
-            unidad = UnidadesOrganizacionales.objects.get(id_unidad_organizacional=int(pk)).values()
-            print(unidad)
-            return Response(unidad)
+#     def get(self, request, pk):
+#             unidad = UnidadesOrganizacionales.objects.get(id_unidad_organizacional=int(pk)).values()
+#             print(unidad)
+#             return Response(unidad)
 
 
 class GetUnidades(generics.ListAPIView):
