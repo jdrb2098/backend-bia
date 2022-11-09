@@ -60,9 +60,16 @@ class UnidadesPutSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=UnidadesOrganizacionales.objects.all(),
-                fields=['id_organigrama', 'nombre']
+                fields=['id_organigrama', 'codigo'],
+                message='El id organigrama y el código deben ser una pareja única'
+            ),
+            UniqueTogetherValidator(
+                queryset=UnidadesOrganizacionales.objects.all(),
+                fields=['id_organigrama', 'nombre'],
+                message='El id organigrama y el nombre deben ser una pareja única'
             )
         ]
+        extra_kwargs = {"cod_tipo_unidad": {"error_messages": {"required": "El campo de cod_tipo_unidad es requerido"}}}    
 
 class OrganigramaSerializer(serializers.ModelSerializer):
     class Meta:

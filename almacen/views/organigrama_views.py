@@ -111,44 +111,48 @@ class UpdateUnidades(generics.UpdateAPIView):
     def put(self, request, pk):
         data = request.data
         organigrama=Organigramas.objects.filter(id_organigrama=pk).first()
-        if data:
-            nivel_unidades = sorted(data, key=itemgetter('id_nivel_organigrama'))
-            unidades_list = []
-            for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
-                # CREACION Y ACTUALIZACION DE UNIDADES
-                for unidad in unidades:
-                    id_unidad = unidad.get('id_unidad_organizacional')
-                    if id_unidad:
-                        unidades_list.append(id_unidad)
-                        unidad_instance = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional=id_unidad).first()
-                        unidad_serializer = self.serializer_class(unidad_instance, data=unidad)
-                        unidad_serializer.is_valid(raise_exception=True)
-                        unidad_serializer.save()
-                    else:
-                        nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).first()
-                        unidad_creada = UnidadesOrganizacionales.objects.create(
-                            id_nivel_organigrama=nivel_instance,
-                            nombre=unidad['nombre'],
-                            codigo=unidad['codigo'],
-                            cod_tipo_unidad=unidad['cod_tipo_unidad'],
-                            cod_agrupacion_documental=unidad['cod_agrupacion_documental'],
-                            unidad_raiz=unidad['unidad_raiz'],
-                            id_organigrama=organigrama,
-                            id_unidad_org_padre=unidad['id_unidad_org_padre']
-                        )
-                        unidades_list.append(unidad_creada.id_unidad_organizacional)
+        if organigrama:
+            if data:
+                nivel_unidades = sorted(data, key=itemgetter('id_nivel_organigrama'))
                 
-            # ELIMINACION DE UNIDADES
-            unidades_eliminar = UnidadesOrganizacionales.objects.filter(id_organigrama=pk).exclude(id_unidad_organizacional__in=unidades_list)
-            unidades_eliminar.delete()
-
-            return Response({'success':True,'detail': 'Actualizacion exitosa de las unidades'}, status=status.HTTP_201_CREATED)
+                # ELIMINACION DE UNIDADES
+                unidades_eliminar = UnidadesOrganizacionales.objects.filter(id_organigrama=pk)
+                unidades_eliminar.delete()
+                
+                # VALIDACIONES
+                raiz_list = [unidad['unidad_raiz'] for unidad in data]
+                if raiz_list.count(True) > 1:
+                    return Response({'success':False, 'detail':'No puede definir más de una unidad como raíz'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                unidad_raiz = list(filter(lambda unidad: unidad['unidad_raiz'] == True, data))
+                if unidad_raiz[0]:
+                    nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=unidad_raiz[0]['id_nivel_organigrama']).first()
+                    if nivel_instance.orden_nivel != 1:
+                        return Response({'success':False, 'detail':'La unidad raíz solo puede pertenecer al nivel uno'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                staff_unidades = list(filter(lambda unidad: unidad['cod_tipo_unidad'] != 'LI', data))
+                for unidad in staff_unidades:
+                    nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=unidad['id_nivel_organigrama']).first()
+                    if nivel_instance.orden_nivel != 2:
+                        return Response({'success':False, 'detail':'Las unidades de staff solo pueden pertenecer al nivel dos'}, status=status.HTTP_400_BAD_REQUEST)
+                        
+                # CREACION DE UNIDADES
+                for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
+                    nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).first()
+                    if nivel_instance:
+                        # CREACION Y ACTUALIZACION DE UNIDADES
+                        for unidad in unidades:
+                            unidad_serializer = self.serializer_class(data=unidad)
+                            unidad_serializer.is_valid(raise_exception=True)
+                            unidad_serializer.save()
+                    else:
+                        return Response({'success':False, 'detail':'El nivel con id ' + str(nivel) + ' no existe'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                return Response({'success':True,'detail': 'Actualizacion exitosa de las unidades'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'success':False, 'detail':'Debe crear por lo menos una unidad'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            unidades_organigrama = UnidadesOrganizacionales.objects.filter(id_organigrama=pk)
-            unidades_organigrama.delete()
-
-            return Response({'success':True,'detail': 'Actualizacion exitosa de las unidades'}, status=status.HTTP_201_CREATED)
-
+            return Response({'success':False, 'detail':'El organigrama no existe'}, status=status.HTTP_404_NOT_FOUND)
 
 class ActivarOrganigrama(generics.UpdateAPIView):
     serializer_class = OrganigramaActivateSerializer
