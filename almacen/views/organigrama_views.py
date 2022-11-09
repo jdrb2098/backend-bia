@@ -3,6 +3,9 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from itertools import groupby
+from seguridad.utils import Util
+from datetime import date
+import copy
 from operator import itemgetter
 from almacen.serializers.organigrama_serializers import NivelesPostSerializer, OrganigramaSerializer, UnidadesPutSerializer, OrganigramaActivateSerializer, NivelesUpdateSerializer
 from almacen.models.organigrama_models import (
@@ -167,109 +170,91 @@ class ActivarOrganigrama(generics.UpdateAPIView):
                 return Response(" No hay ningun organigrama con esta id")
         else:
             return Response("No existe ningún organigrama activado")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
+class ActivarOrganigrama(generics.UpdateAPIView):
+    serializer_class =OrganigramaSerializer
+    queryset=Organigramas.objects.all()
+    
+    def put(self,request,pk):    
+
+        try:
+            organigrama_a_remplazar=Organigramas.objects.filter(actual=True).first()
+            organigrama_remplazante=Organigramas.objects.filter(id_organigrama=pk).first()
+            previous_remplazante=copy.copy(organigrama_remplazante)
+            previous_a_remplazar=copy.copy(organigrama_a_remplazar)
+            if organigrama_a_remplazar:
+                if organigrama_remplazante:
+                    organigrama_remplazante.actual=True
+                    organigrama_a_remplazar.actual=False
+                    organigrama_remplazante.fecha_puesta_produccion=date.today()
+                    organigrama_a_remplazar.fecha_retiro_produccion=date.today()
+                    organigrama_a_remplazar.save()
+                    organigrama_remplazante.save()
+                    
+                    #auditoria de organigrama activado
+                    user_logeado = request.user.id_usuario
+                    dirip = Util.get_client_ip(request)
+                    descripcion = {"nombre":str(organigrama_remplazante.nombre)}
+                    valores_actualizados={'previous':previous_remplazante, 'current':organigrama_remplazante}
+                    auditoria_data = {
+                        'id_usuario': user_logeado,
+                        'id_modulo': 16,
+                        'cod_permiso': 'AC',
+                        'subsistema': 'TRSV',
+                        'dirip': dirip,
+                        'descripcion': descripcion,
+                        'valores_actualizados': valores_actualizados
+                    }
+                    Util.save_auditoria(auditoria_data)
+                    
+                    #auditoria de organigrama desactivado
+                
+                    descripcion = {"nombre":str(organigrama_a_remplazar.nombre)}
+                    valores_actualizados={'previous':previous_a_remplazar, 'current':organigrama_a_remplazar}
+                    auditoria_data = {
+                        'id_usuario': user_logeado,
+                        'id_modulo': 16,
+                        'cod_permiso': 'AC',
+                        'subsistema': 'TRSV',
+                        'dirip': dirip,
+                        'descripcion': descripcion,
+                        'valores_actualizados': valores_actualizados
+                    }
+                    Util.save_auditoria(auditoria_data)
+                    
+                    return Response({'success':True,'detail': 'Organigrama activado'}, status=status.HTTP_200_OK)
+                return Response({'success':False,'detail': 'No existe ningún organigrama con este ID'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                #primer organigrama activado
+                if organigrama_remplazante:
+                    organigrama_remplazante.actual=True
+                    organigrama_remplazante.fecha_puesta_produccion=date.today()
+                    organigrama_remplazante.save()
+                    
+                    user_logeado = request.user.id_usuario
+                    dirip = Util.get_client_ip(request)
+                    descripcion = {"nombre":str(organigrama_remplazante.nombre)}
+                    valores_actualizados={'previous':previous_remplazante, 'current':organigrama_remplazante}
+                    auditoria_data = {
+                        'id_usuario': user_logeado,
+                        'id_modulo': 16,
+                        'cod_permiso': 'AC',
+                        'subsistema': 'TRSV',
+                        'dirip': dirip,
+                        'descripcion': descripcion,
+                        'valores_actualizados': valores_actualizados
+                    }
+                    Util.save_auditoria(auditoria_data)
+                    return Response({'success':True,'detail': 'Primer organigrama activado'}, status=status.HTTP_200_OK)
+                return Response({'success':False,'detail': 'No existe ningún organigrama con este ID'}, status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response({'success':False,'detail':'Los parametros enviados son incorrecto'},status=status.HTTP_404_NOT_FOUND)
+
+class CreateOrgChart(generics.CreateAPIView):
+    serializer_class = OrganigramaSerializer
+    queryset = Organigramas.objects.all()
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
