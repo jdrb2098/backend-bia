@@ -60,4 +60,4 @@ class OrganigramaSerializer(serializers.ModelSerializer):
 class OrganigramaActivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organigramas
-        fields = 'actual'
+        fields = ['actual']

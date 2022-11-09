@@ -4,6 +4,7 @@ from almacen.views import organigrama_views as views
 urlpatterns = [
     # UNIDADES ORGANIZACIONALES
     path('unidades/update/<str:pk>/',views.UpdateUnidades.as_view(),name='unidades-org-update'),
+    path('unidades/create/', views.CreateUnidades.as_view(), name='unidades-org-create'),
 
     # NIVELES
     path('niveles/create/', views.CreateNiveles.as_view(), name='create-niveles'),
