@@ -63,7 +63,7 @@ class UpdateNiveles(generics.UpdateAPIView):
 
         #VALIDACION DE FECHA DE TERMINADO
         if organigrama.fecha_terminado != None:
-            return Response({'success': False, 'detail': 'El organigrama ya está terminado, por lo cúal no es posible realizar acciones sobre los niveles'})
+            return Response({'success': False, 'detail': 'El organigrama ya está terminado, por lo cúal no es posible realizar acciones sobre los niveles'}, status=status.HTTP_403_FORBIDDEN)
 
         #ELIMINACION DE TODOS LOS NIVELES
         niveles = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama)
@@ -79,7 +79,7 @@ class UpdateNiveles(generics.UpdateAPIView):
                 contador += 1
                 pass
             else:
-                return Response({'detail': 'No coincide el orden de los niveles'})
+                return Response({'success': False, 'detail': 'No coincide el orden de los niveles'}, status=status.HTTP_400_BAD_REQUEST)
             
             nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=id_nivel).first()
             nivel_serializer = self.serializer_class(nivel_instance, data=nivel)
