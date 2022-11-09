@@ -258,3 +258,30 @@ class CreateOrgChart(generics.CreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetOrganigrama(generics.ListAPIView):
+    serializer_class = OrganigramaSerializer  
+
+    def get(self, request):
+        consulta = request.query_params.get('pk')
+        if consulta == None:
+            organigramas = Organigramas.objects.all().values()
+            if len(organigramas) == 0:
+                return Response({'Error' : 'Aún no hay organigramas registrados'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Organigramas' : organigramas}, status=status.HTTP_200_OK) 
+        organigrama = Organigramas.objects.filter(id_organigrama=int(consulta)).values()
+        if len(organigrama) == 0:
+            return Response({'Error' : 'No se encontró el organigrama ingresado'}, status=status.HTTP_404_NOT_FOUND)
+        niveles = NivelesOrganigrama.objects.filter(id_organigrama=int(consulta)).values()
+        if len(niveles) == 0:
+            niveles = 'No hay niveles registrados'
+            unidades = 'No hay unidades registradas'
+            datos_finales = {'Organigrama' : organigrama, 'Niveles' : niveles, 'Unidades' : unidades}
+            return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)   
+        unidades = UnidadesOrganizacionales.objects.filter(id_organigrama=int(consulta)).values()
+        if len(unidades) == 0:
+            unidades = 'No hay unidades registradas'
+            datos_finales = {'Organigrama' : organigrama, 'Niveles' : niveles, 'Unidades' : unidades}
+            return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)
+        datos_finales = {'Organigrama' : organigrama, 'Niveles' : niveles, 'Unidades' : unidades}
+        return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)

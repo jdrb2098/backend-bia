@@ -12,6 +12,7 @@ urlpatterns = [
 
     #ACTIVACION
     path('organigrama/activación/<str:pk>/',views.ActivarOrganigrama.as_view(),name='activacion'),
-    path('organigrama/create/', views.CreateOrgChart.as_view(),name="crear-organigrama")
+    path('organigrama/create/', views.CreateOrgChart.as_view(),name="crear-organigrama"),
+    path('organigrama/get/', views.GetOrganigrama.as_view(), name='get-organigrama'),
     
 ]
