@@ -21,8 +21,14 @@ class NivelesPostSerializer(serializers.ModelSerializer):
         ]
         validators = [
            UniqueTogetherValidator(
-               queryset=Organigramas.objects.all(),
+               queryset=NivelesOrganigrama.objects.all(),
                fields = ['id_organigrama', 'orden_nivel']
+           )
+        ]
+        validators = [
+           UniqueTogetherValidator(
+               queryset=NivelesOrganigrama.objects.all(),
+               fields = ['id_organigrama', 'nombre']
            )
         ]
 
@@ -36,8 +42,14 @@ class NivelesUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         validators = [
            UniqueTogetherValidator(
-               queryset=Organigramas.objects.all(),
+               queryset=NivelesOrganigrama.objects.all(),
                fields = ['id_organigrama', 'orden_nivel']
+           )
+        ]
+        validators = [
+           UniqueTogetherValidator(
+               queryset=NivelesOrganigrama.objects.all(),
+               fields = ['id_organigrama', 'nombre']
            )
         ]
 
