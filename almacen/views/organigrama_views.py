@@ -123,16 +123,43 @@ class UpdateUnidades(generics.UpdateAPIView):
                 unidades_eliminar.delete()
                 
                 # VALIDACIONES
+                
+                # VALIDACIÓN DE EXISTENCIA DE NIVELES
+                niveles_list = [unidad['id_nivel_organigrama'] for unidad in data]
+                niveles_existe = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=niveles_list)
+                if niveles_existe.count() != len(list(dict.fromkeys(niveles_list))):
+                    return Response({'success':False, 'detail':'Uno o varios niveles que está asociando no existen'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # VALIDACIÓN DE UNA SOLA RAÍZ
                 raiz_list = [unidad['unidad_raiz'] for unidad in data]
                 if raiz_list.count(True) > 1:
                     return Response({'success':False, 'detail':'No puede definir más de una unidad como raíz'}, status=status.HTTP_400_BAD_REQUEST)
                 
+                # VALIDACIÓN DE EXISTENCIA DE SECCIÓN Y UNA SOLA SECCIÓN
+                seccion_list = [unidad['cod_agrupacion_documental'] for unidad in data]
+                if seccion_list:
+                    if seccion_list.count('SEC') > 1:
+                        return Response({'success':False, 'detail':'No puede definir más de una unidad como sección'}, status=status.HTTP_400_BAD_REQUEST)
+                    if ('SUB' in seccion_list) and ('SEC' not in seccion_list):
+                        return Response({'success':False, 'detail':'Debe definir la sección para las subsecciones'}, status=status.HTTP_400_BAD_REQUEST)           
+                
+                # VALIDACIÓN DE EXISTENCIA UNIDAD RAÍZ Y PERTENENCIA A NIVEL UNO
                 unidad_raiz = list(filter(lambda unidad: unidad['unidad_raiz'] == True, data))
-                if unidad_raiz[0]:
+                if unidad_raiz:
                     nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=unidad_raiz[0]['id_nivel_organigrama']).first()
                     if nivel_instance.orden_nivel != 1:
                         return Response({'success':False, 'detail':'La unidad raíz solo puede pertenecer al nivel uno'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({'success':False, 'detail':'Debe enviar la unidad raíz'}, status=status.HTTP_400_BAD_REQUEST)
                 
+                # VALIDACIÓN QUE SECCIÓN SEA UNIDAD RAÍZ
+                seccion_raiz = list(filter(lambda unidad: unidad['cod_agrupacion_documental'] == 'SEC', data))
+                if seccion_raiz:
+                    nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=seccion_raiz[0]['id_nivel_organigrama']).first()
+                    if nivel_instance.orden_nivel != 1:
+                        return Response({'success':False, 'detail':'La sección solo puede pertenecer a la unidad del nivel raíz'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # VALIDACIÓN QUE UNIDADES STAFF SEAN DE NIVEL DOS
                 staff_unidades = list(filter(lambda unidad: unidad['cod_tipo_unidad'] != 'LI', data))
                 for unidad in staff_unidades:
                     nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=unidad['id_nivel_organigrama']).first()
@@ -143,11 +170,26 @@ class UpdateUnidades(generics.UpdateAPIView):
                 for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
                     nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).first()
                     if nivel_instance:
-                        # CREACION Y ACTUALIZACION DE UNIDADES
                         for unidad in unidades:
                             unidad_serializer = self.serializer_class(data=unidad)
                             unidad_serializer.is_valid(raise_exception=True)
-                            unidad_serializer.save()
+                            
+                            unidad_org = None
+                            
+                            if unidad['cod_tipo_unidad'] == 'LI':
+                                unidad_org = UnidadesOrganizacionales.objects.filter(codigo=unidad['cod_unidad_org_padre']).first()
+                                unidad_org = unidad_org if unidad_org else None
+                            
+                            UnidadesOrganizacionales.objects.create(
+                                id_nivel_organigrama=nivel_instance,
+                                nombre=unidad['nombre'],
+                                codigo=unidad['codigo'],
+                                cod_tipo_unidad=unidad['cod_tipo_unidad'],
+                                cod_agrupacion_documental=unidad['cod_agrupacion_documental'],
+                                unidad_raiz=unidad['unidad_raiz'],
+                                id_organigrama=organigrama,
+                                id_unidad_org_padre=unidad_org
+                            )
                     else:
                         return Response({'success':False, 'detail':'El nivel con id ' + str(nivel) + ' no existe'}, status=status.HTTP_400_BAD_REQUEST)
                 
