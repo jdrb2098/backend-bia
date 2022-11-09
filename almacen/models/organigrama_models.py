@@ -1,5 +1,6 @@
 from django.db import models
-
+from almacen.choices.agrupacion_documental_choices import agrupacion_documental_CHOICES
+from almacen.choices.tipo_unidad_choices import tipo_unidad_CHOICES
 
 class Organigramas(models.Model):
     id_organigrama = models.AutoField(primary_key=True, editable=False, db_column='T017IdOrganigrama')
@@ -46,8 +47,8 @@ class UnidadesOrganizacionales(models.Model):
     id_nivel_organigrama=models.ForeignKey(NivelesOrganigrama, on_delete=models.CASCADE, db_column='T019Id_NivelOrganigrama')
     nombre=models.CharField(max_length=50, db_column='T019nombre')
     codigo=models.CharField(max_length=10,db_column='T019codigo')
-    cod_tipo_unidad=models.CharField(max_length=2,db_column='T019codTipoUnidad')
-    cod_agrupacion_documental=models.CharField(max_length=3, null=True, blank=True, db_column='T019codAgrupacionDocumental')
+    cod_tipo_unidad=models.CharField(max_length=2,choices=tipo_unidad_CHOICES,db_column='T019codTipoUnidad')
+    cod_agrupacion_documental=models.CharField(max_length=3, choices=agrupacion_documental_CHOICES, null=True, blank=True, db_column='T019codAgrupacionDocumental')
     unidad_raiz=models.BooleanField(db_column='T019unidadRaiz',default=False)
     id_unidad_org_padre=models.ForeignKey('self',on_delete=models.SET_NULL,blank=True,null=True,db_column='T019Id_UnidadOrgPadre')
 

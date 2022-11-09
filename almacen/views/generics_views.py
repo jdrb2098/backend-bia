@@ -211,16 +211,3 @@ class GetUnidadMedidaById(generics.RetrieveAPIView):
 class GetUnidadMedidaList(generics.ListAPIView):
     serializer_class=SerializersUnidadesMedida
     queryset=UnidadesMedida.objects.all()
-
-# Choices
-
-class EstadosArticuloChoices(APIView):
-    def get(self,request):
-        choices = estados_articulo_CHOICES
-        return Response(choices)
-
-
-class MagnitudesChoices(APIView):
-    def get(self,request):
-        choices = magnitudes_CHOICES
-        return Response(choices)

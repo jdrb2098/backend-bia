@@ -39,8 +39,4 @@ urlpatterns = [
     path('unidades-medida/delete/<str:pk>/',views.DeleteUnidadMedida.as_view(), name='unidades-medida-delete'),
     path('unidades-medida/get-by-id/<str:pk>/',views.GetUnidadMedidaById.as_view(),name='unidades-medida-id-get'),
     path('unidades-medida/get-list/',views.GetUnidadMedidaList.as_view(),name='unidades-medida-list-get'),
-
-    #CHOICES
-    path('estados-articulo-choices/', views.EstadosArticuloChoices.as_view(), name='estados-articulo-choices'),
-    path('magnitudes-choices/', views.MagnitudesChoices.as_view(), name='magnitudes-choices'),
 ]
