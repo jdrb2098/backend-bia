@@ -18,10 +18,10 @@ class SerializersEstadosArticulo(serializers.ModelSerializer):
         fields=('__all__')
         
 class SerializerBodegas(serializers.ModelSerializer):
-    persona=PersonasSerializer(read_only=True)
+    id_responsable=PersonasSerializer(read_only=True)
     class Meta:
         model=Bodegas
-        fields=('__all__')
+        fields='__all__'
         
 class SerializerMagnitudes(serializers.ModelSerializer):
     nombre = serializers.CharField(validators=[UniqueValidator(queryset=Magnitudes.objects.all())])
