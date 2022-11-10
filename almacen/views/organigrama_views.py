@@ -22,6 +22,7 @@ from almacen.models.organigrama_models import (
     NivelesOrganigrama
     )
 
+# VIEWS FOR NIVELES ORGANIGRAMA
 class CreateNiveles(generics.CreateAPIView):
     serializer_class = NivelesPostSerializer
     queryset = NivelesOrganigrama.objects.all()
@@ -99,7 +100,9 @@ class GetNiveles(generics.ListAPIView):
         else:
             nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama=int(consulta)).values()
             return Response({'success': True, 'Nivel': nivel}, status=status.HTTP_200_OK)
-    
+
+
+#VIEWS FOR UNIDADES ORGANIZACIONALES 
     
 class CreateUnidades(generics.CreateAPIView):
     serializer_class = UnidadesPutSerializer
@@ -230,6 +233,26 @@ class UpdateUnidades(generics.UpdateAPIView):
             return Response({'success':False, 'detail':'El organigrama no existe'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class GetUnidades(generics.ListAPIView):
+        serializer_class = UnidadesGetSerializer
+        queryset = UnidadesOrganizacionales.objects.filter()
+           
+        def get(self, request):
+            consulta = request.query_params.get('pk')
+            if consulta == None:
+                unidades = UnidadesOrganizacionales.objects.all().values()
+                if len(unidades) == 0:
+                    return Response({'success': False, 'detail' : 'Aún no hay unidades registradas'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'success': True, 'Unidades' : unidades}, status=status.HTTP_200_OK)
+            unidades = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional = int(consulta)).values()
+            unidades_vector = unidades[0]
+            id_niveles = unidades_vector['id_nivel_organigrama_id']
+            nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama = id_niveles).values()
+            unidades_vector['id_nivel_organigrama_id'] = nivel
+            return Response({'Unidades' : unidades_vector})
+
+#VIEWS FOR ORGANIGRAMA
+
 class ActivarOrganigrama(generics.UpdateAPIView):
     serializer_class =OrganigramaSerializer
     queryset=Organigramas.objects.all()
@@ -345,21 +368,3 @@ class GetOrganigrama(generics.ListAPIView):
             return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)
         datos_finales = {'Organigrama' : organigrama, 'Niveles' : niveles, 'Unidades' : unidades}
         return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)
-
-class GetUnidades(generics.ListAPIView):
-        serializer_class = UnidadesGetSerializer
-        queryset = UnidadesOrganizacionales.objects.filter()
-           
-        def get(self, request):
-            consulta = request.query_params.get('pk')
-            if consulta == None:
-                unidades = UnidadesOrganizacionales.objects.all().values()
-                if len(unidades) == 0:
-                    return Response({'success': False, 'detail' : 'Aún no hay unidades registradas'}, status=status.HTTP_404_NOT_FOUND)
-                return Response({'success': True, 'Unidades' : unidades}, status=status.HTTP_200_OK)
-            unidades = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional = int(consulta)).values()
-            unidades_vector = unidades[0]
-            id_niveles = unidades_vector['id_nivel_organigrama_id']
-            nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama = id_niveles).values()
-            unidades_vector['id_nivel_organigrama_id'] = nivel
-            return Response({'Unidades' : unidades_vector})
