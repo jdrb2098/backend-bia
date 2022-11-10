@@ -718,6 +718,28 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
+        #Marcar estado civil como item ya usado
+        estado_civil = serializer.validated_data.get('estado_civil')
+        try:
+            estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
+            if estado_civil_instance.item_ya_usado == False:
+                estado_civil_instance.item_ya_usado = True
+                estado_civil_instance.save()
+                pass
+        except:
+            return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'})
+
+        #Marcar tipo de documento como item ya usado
+        tipo_documento_usado = serializer.validated_data.get('tipo_documento')
+        try:
+            tipo_documento_instance = TipoDocumento.objects.get(cod_tipo_documento=tipo_documento_usado.cod_tipo_documento)
+            if tipo_documento_instance.item_ya_usado == False:
+                tipo_documento_instance.item_ya_usado = True
+                tipo_documento_instance.save()
+                pass
+        except:
+            return Response({'success': False, 'detail': 'No existe el tipo de documento que está ingresando'})
+
         #Validación de persona natural
         tipo_persona = serializer.validated_data.get('tipo_persona')
         if tipo_persona != 'N':
@@ -782,8 +804,21 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
 
     def post(self, request):
         persona = request.data
+        print(persona)
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
+
+        #Marcar tipo de documento como item ya usado
+        tipo_documento_usado = serializer.validated_data.get('tipo_documento')
+        try:
+            tipo_documento_instance = TipoDocumento.objects.get(cod_tipo_documento=tipo_documento_usado.cod_tipo_documento)
+            if tipo_documento_instance.item_ya_usado == False:
+                tipo_documento_instance.item_ya_usado = True
+                tipo_documento_instance.save()
+                pass
+        except:
+            return Response({'success': False, 'detail': 'No existe el tipo de documento que está ingresando'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         #Validación de persona natural
         tipo_persona = serializer.validated_data.get('tipo_persona')
@@ -847,12 +882,37 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
 
 class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostByUserSerializer
-    permission_classes = [IsAuthenticated, PermisoCrearPersona]
+    # permission_classes = [IsAuthenticated, PermisoCrearPersona]
     
     def post(self, request):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
+
+
+        #Marcar estado civil como item ya usado
+        estado_civil = serializer.validated_data.get('estado_civil')
+        print(estado_civil.cod_estado_civil)
+        try:
+            estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
+            if estado_civil_instance.item_ya_usado == False:
+                estado_civil_instance.item_ya_usado = True
+                estado_civil_instance.save()
+                pass
+        except:
+            return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #Marcar tipo de documento como item ya usado
+        tipo_documento_usado = serializer.validated_data.get('tipo_documento')
+        try:
+            tipo_documento_instance = TipoDocumento.objects.get(cod_tipo_documento=tipo_documento_usado.cod_tipo_documento)
+            if tipo_documento_instance.item_ya_usado == False:
+                tipo_documento_instance.item_ya_usado = True
+                tipo_documento_instance.save()
+                pass
+        except:
+            return Response({'success': False, 'detail': 'No existe el tipo de documento que está ingresando'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         email_principal = serializer.validated_data.get('email')
         email_secundario = serializer.validated_data.get('email_empresarial')
