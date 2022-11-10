@@ -78,7 +78,8 @@ class TipoDocumento(models.Model):
     cod_tipo_documento = models.CharField(max_length=2, primary_key=True, unique=True, db_column='T006CodTipoDocumentoID')
     nombre = models.CharField(max_length=40, db_column='T006nombre')
     precargado = models.BooleanField(default=False, db_column='T006registroPrecargado')
-    
+    activo = models.BooleanField(default=True, db_column='T006activo')
+    item_ya_usado = models.BooleanField(default=False, db_column='T006itemYaUsado')
     def __str__(self):
         return str(self.nombre)
     
