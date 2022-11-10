@@ -5,7 +5,9 @@
         "fields": {
             "cod_estado_civil" : "S",
             "nombre": "Soltero",
-            "precargado": true
+            "precargado": true,
+            "activo" : true,
+            "item_ya_usado" : false
         }
     },
     {
@@ -14,7 +16,9 @@
         "fields": {
             "cod_estado_civil" : "C",
             "nombre": "Casado",
-            "precargado": true
+            "precargado": true,
+            "activo" : true,
+            "item_ya_usado" : false
         }
     },
     {
@@ -23,7 +27,9 @@
         "fields": {
             "cod_estado_civil" : "U",
             "nombre": "Unión libre",
-            "precargado": true
+            "precargado": true,
+            "activo" : true,
+            "item_ya_usado" : false
         }
     },
     {
@@ -32,7 +38,9 @@
         "fields": {
             "cod_estado_civil" : "V",
             "nombre": "Viudo",
-            "precargado": true
+            "precargado": true,
+            "activo" : true,
+            "item_ya_usado" : false
         }
     },
     {
@@ -41,7 +49,9 @@
         "fields": {
             "cod_estado_civil" : "D",
             "nombre": "Divorciado",
-            "precargado": true
+            "precargado": true,
+            "activo" : true,
+            "item_ya_usado" : false
         }
     }
 ]

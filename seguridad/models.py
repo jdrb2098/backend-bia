@@ -92,8 +92,9 @@ class TipoDocumento(models.Model):
 class EstadoCivil(models.Model):
     cod_estado_civil = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T005CodEstadoCivil')
     nombre = models.CharField(max_length=20, db_column='T005nombre')
-    precargado = models.BooleanField(default=False, db_column='T006registroPrecargado')
-
+    precargado = models.BooleanField(default=False, db_column='T005registroPrecargado')
+    activo = models.BooleanField(default=True, db_column='T005activo')
+    item_ya_usado = models.BooleanField(default=False, db_column='T005itemYaUsado')
     
     def __str__(self):
         return str(self.nombre)
