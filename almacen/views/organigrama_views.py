@@ -179,12 +179,28 @@ class UpdateUnidades(generics.UpdateAPIView):
                     if seccion_list.count('SEC') > 1:
                         return Response({'success':False, 'detail':'No puede definir más de una unidad como sección'}, status=status.HTTP_400_BAD_REQUEST)
                     if ('SUB' in seccion_list) and ('SEC' not in seccion_list):
-                        return Response({'success':False, 'detail':'Debe definir la sección para las subsecciones'}, status=status.HTTP_400_BAD_REQUEST)           
+                        return Response({'success':False, 'detail':'Debe definir la sección para las subsecciones'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # VALIDACIÓN DE EXISTENCIA DE UNIDADES PADRE
+                unidades_codigo_list = [unidad['codigo'] for unidad in data]
+                unidades_padre_list = [unidad['cod_unidad_org_padre'] for unidad in data if unidad['cod_unidad_org_padre'] is not None]
+                if not set(unidades_padre_list).issubset(unidades_codigo_list):
+                    return Response({'success':False, 'detail':'Debe asociar unidades padre que existan'}, status=status.HTTP_400_BAD_REQUEST)          
                         
                 # VALIDACIÓN DE UNA UNIDAD EN NIVEL UNO
+                current_cod_unidades = []
                 for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
                     nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).first()
                     unidades_list = list(unidades)
+                    
+                    # VALIDACIÓN DE UNIDAD PADRE QUE SEA DE  LÍNEA Y DE NIVEL SUPERIOR
+                    unidades_codigo_list = [unidad['codigo'] for unidad in unidades_list if unidad['cod_tipo_unidad'] == 'LI']
+                    current_cod_unidades.extend(unidades_codigo_list)
+                    unidades_padre_list = [unidad['cod_unidad_org_padre'] for unidad in unidades_list if unidad['cod_unidad_org_padre'] is not None]
+                    if not set(unidades_padre_list).issubset(current_cod_unidades):
+                        return Response({'success':False, 'detail':'Debe asociar unidades padre de línea y superiores a unidades hijos'}, status=status.HTTP_400_BAD_REQUEST)   
+                    
+                    # VALIDACIÓN DE UNA UNIDAD EN NIVEL UNO
                     if nivel_instance.orden_nivel == 1 and (len(unidades_list) > 1):
                         return Response({'success':False, 'detail':'Solo debe establecer una unidad para el nivel uno'}, status=status.HTTP_400_BAD_REQUEST)
                     if nivel_instance.orden_nivel != 1:
@@ -200,7 +216,7 @@ class UpdateUnidades(generics.UpdateAPIView):
                             unidad_padre = list(filter(lambda unidad: unidad['codigo'] == unidades_sub[0]['cod_unidad_org_padre'], data))
                             if unidad_padre:
                                 if unidad_padre[0]['cod_agrupacion_documental'] == None or unidad_padre[0]['cod_agrupacion_documental'] == '':
-                                    return Response({'success':False, 'detail':'Debe marcar las unidades padre como subsecciones'})
+                                    return Response({'success':False, 'detail':'Debe marcar las unidades padre como subsecciones'})     
                 
                 # CREACION DE UNIDADES
                 for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
@@ -214,6 +230,8 @@ class UpdateUnidades(generics.UpdateAPIView):
                         if unidad['cod_tipo_unidad'] == 'LI':
                             unidad_org = UnidadesOrganizacionales.objects.filter(codigo=unidad['cod_unidad_org_padre']).first()
                             unidad_org = unidad_org if unidad_org else None
+                        else:
+                            unidad['cod_agrupacion_documental'] = None
                         
                         UnidadesOrganizacionales.objects.create(
                             id_nivel_organigrama=nivel_instance,
