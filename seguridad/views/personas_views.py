@@ -42,7 +42,9 @@ from seguridad.models import (
 from rest_framework import filters
 from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
+    EstadoCivilPutSerializer,
     TipoDocumentoSerializer,
+    TipoDocumentoPutSerializer,
     PersonasSerializer,
     PersonaNaturalSerializer,
     PersonaJuridicaSerializer,
@@ -72,7 +74,7 @@ from seguridad.serializers.personas_serializers import (
 class GetEstadoCivil(generics.ListAPIView):
     serializer_class = EstadoCivilSerializer
     permission_classes = [IsAuthenticated, PermisoConsultarEstadoCivil]
-    queryset = EstadoCivil.objects.all()
+    queryset = EstadoCivil.objects.filter(activo=True)
 
 
 class GetEstadoCivilById(generics.RetrieveAPIView):
@@ -88,11 +90,11 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
     def delete(self, request, pk):
         estado_civil = EstadoCivil.objects.filter(cod_estado_civil=pk).first()
         if estado_civil:
+            pass 
             if estado_civil.precargado == False:
-                persona = Personas.objects.filter(estado_civil=pk)
-                if persona:
-                    return Response({'success': False,'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'}, status=status.HTTP_403_FORBIDDEN)   
-                
+                if estado_civil.item_ya_usado == True:
+                    return Response({'success': False,'detail': 'Este estado civil ya está siendo usado, por lo cúal no es eliminable'}, status=status.HTTP_403_FORBIDDEN)   
+  
                 estado_civil.delete()    
                 return Response({'success': True, 'detail': 'Este estado civil ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
             else:
@@ -108,7 +110,7 @@ class RegisterEstadoCivil(generics.CreateAPIView):
 
 
 class UpdateEstadoCivil(generics.RetrieveUpdateAPIView):
-    serializer_class = EstadoCivilSerializer
+    serializer_class = EstadoCivilPutSerializer
     queryset = EstadoCivil.objects.all()
     permission_classes = [IsAuthenticated, PermisoActualizarEstadoCivil]
 
@@ -116,19 +118,16 @@ class UpdateEstadoCivil(generics.RetrieveUpdateAPIView):
         estado_civil = EstadoCivil.objects.filter(cod_estado_civil=pk).first()
 
         if estado_civil:
-
             if estado_civil.precargado == False:
-                personas = Personas.objects.filter(estado_civil=pk)
-
-                if personas:
-                    return Response({'success':False, 'detail': 'Ya existe una persona con este estado civil, por ello no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
+                if estado_civil.item_ya_usado == True:
+                    return Response({'success':False, 'detail': 'Este estado civil ya está siendo usado, por lo cúal no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
     
                 serializer = self.serializer_class(estado_civil, data=request.data, many=False)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 return Response({'success': True,'detail': 'Registro actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
             else:
-                return Response({'success': False, 'detail': 'No puede eliminar un estado civil precargado'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'success': False, 'detail': 'No puede actualizar un estado civil precargado'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success': False, 'detail': 'No existe un estado civil con estos parametros'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -138,8 +137,8 @@ class UpdateEstadoCivil(generics.RetrieveUpdateAPIView):
 
 class GetTipoDocumento(generics.ListAPIView):
     serializer_class = TipoDocumentoSerializer
-    permission_classes = [IsAuthenticated, PermisoConsultarTipoDocumento]
-    queryset = TipoDocumento.objects.all()
+    # permission_classes = [IsAuthenticated, PermisoConsultarTipoDocumento]
+    queryset = TipoDocumento.objects.filter(activo=True)
 
 
 class GetTipoDocumentoById(generics.RetrieveAPIView):
@@ -149,43 +148,41 @@ class GetTipoDocumentoById(generics.RetrieveAPIView):
 
 class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
     serializer_class = TipoDocumentoSerializer
-    permission_classes = [IsAuthenticated, PermisoBorrarTipoDocumento]
+    # permission_classes = [IsAuthenticated, PermisoBorrarTipoDocumento]
     queryset = TipoDocumento.objects.all()
     
     def delete(self, request, pk):
         tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
         if tipo_documento:
             if tipo_documento.precargado == False:
-                persona = Personas.objects.filter(tipo_documento=pk)
-                if persona:
-                    return Response({'success': False,'detail': 'Ya existe una persona con este estado civil, por ello no es eliminable'}, status=status.HTTP_403_FORBIDDEN)   
+                if tipo_documento.item_ya_usado == True:
+                    return Response({'success': False,'detail': 'Este tipo de documento ya está siendo usado, por lo cúal no es eliminable'}, status=status.HTTP_403_FORBIDDEN)   
                 
                 tipo_documento.delete()    
-                return Response({'success': True,'detail': 'Este estado civil ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+                return Response({'success': True,'detail': 'Este tipo de documento ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response({'success': False,'detail': 'No puedes eliminar un estado civil precargado'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'success': False,'detail': 'No puedes eliminar un tipo de documento precargado'}, status=status.HTTP_403_FORBIDDEN)
         else:
-            return Response({'success':False, 'detail': 'No existe el tipo de documento'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success':False, 'detail': 'No se encontró ningún tipo de documento con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class RegisterTipoDocumento(generics.CreateAPIView):
     serializer_class = TipoDocumentoSerializer
-    permission_classes = [IsAuthenticated, PermisoCrearTipoDocumento]
+    # permission_classes = [IsAuthenticated, PermisoCrearTipoDocumento]
     queryset = TipoDocumento.objects.all()
 
 
 class UpdateTipoDocumento(generics.RetrieveUpdateAPIView):
-    serializer_class = TipoDocumentoSerializer
+    serializer_class = TipoDocumentoPutSerializer
     queryset = TipoDocumento.objects.all()
-    permission_classes = [IsAuthenticated, PermisoActualizarTipoDocumento]
+    # permission_classes = [IsAuthenticated, PermisoActualizarTipoDocumento]
 
     def put(self, request, pk):
         tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
         if tipo_documento:
             if tipo_documento.precargado == False:
-                personas = Personas.objects.filter(tipo_documento=pk)
-                if personas:
-                    return Response({'success': False,'detail': 'Ya existe una persona con este tipo de documento, por ello no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
+                if tipo_documento.item_ya_usado == True:
+                    return Response({'success': False,'detail': 'Este tipo de documento ya está siendo usado, por lo cúal no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
                 
                 serializer = self.serializer_class(tipo_documento, data=request.data, many=False)
                 serializer.is_valid(raise_exception=True)
