@@ -66,7 +66,7 @@ class RegisterBodega(generics.CreateAPIView):
             return Response({'success': True, 'data':serializer.data})
     
 class UpdateBodega(generics.UpdateAPIView):
-    serializer_class=SerializerBodegas
+    serializer_class=SerializerPostBodegas
     queryset=Bodegas.objects.all()
     
     def put(self, request, pk):
