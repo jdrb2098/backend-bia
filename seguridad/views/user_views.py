@@ -786,6 +786,14 @@ class LoginApiView(generics.CreateAPIView):
     def post(self, request):
         data = request.data
         user = User.objects.filter(email=data['email']).first()
+        roles = UsuariosRol.objects.filter(id_usuario=user.id_usuario).values()
+        rol_id_list = [rol['id_rol_id'] for rol in roles]
+        permisos_list = []
+        for rol in rol_id_list:
+            permisos = PermisosModuloRol.objects.filter(id_rol=rol).values()
+            permisos_list.append(permisos)
+        print([*set(permisos_list)])
+        
         ip = Util.get_client_ip(request)
         device = Util.get_client_device(request)
         if user:
@@ -807,7 +815,7 @@ class LoginApiView(generics.CreateAPIView):
                         login_error.contador = 0
                         login_error.save()
 
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                    return Response({'userinfo':serializer.data,'permisos':permisos_list[0]}, status=status.HTTP_200_OK)
 
                 except:
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).first()
