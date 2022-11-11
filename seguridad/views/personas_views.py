@@ -65,7 +65,8 @@ from seguridad.serializers.personas_serializers import (
     HistoricoDireccionSerializer,
     ClasesTerceroSerializer,
     ClasesTerceroPersonaSerializer,
-    ClasesTerceroPersonapostSerializer
+    ClasesTerceroPersonapostSerializer,
+    GetPersonaJuridicaByRepresentanteLegalSerializer
 )
 
 # Views for Estado Civil
@@ -273,8 +274,21 @@ class GetPersonaJuridica(generics.ListAPIView):
     queryset=Personas.objects.filter(tipo_persona='J')
     filter_backends=[filters.SearchFilter]
     search_fields=['razon_social','nombre_comercial']
-
-
+    
+class GetPersonaJuridicaByRepresentanteLegal(generics.ListAPIView):
+    serializer_class=GetPersonaJuridicaByRepresentanteLegalSerializer
+    
+    permission_classes=[IsAuthenticated]
+    queryset = Personas.objects.all()
+    
+    def get(self,request):
+        persona= request.user.persona
+        representante_legal=Personas.objects.filter(representante_legal=persona)
+        if representante_legal:
+            persona_serializada = self.serializer_class(representante_legal,many=True)
+            return Response({'detail':persona_serializada.data})
+        return Response({'success':False,'detail':'No está asociado en ninguna empresa como representante legal'},status=status.HTTP_404_NOT_FOUND)
+        
 class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
     http_method_names = ['patch']
     serializer_class = PersonaNaturalInternoUpdateSerializer

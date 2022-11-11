@@ -28,6 +28,7 @@ urlpatterns = [
     path('get-personas-juridicas-by-document/<str:tipodocumento>/<str:numerodocumento>/', views.GetPersonaJuridicaByTipoDocumentoAndNumeroDocumento.as_view(), name='persona-juridica-by-document-and-tipo-documento-get'),
     path('get-personas-naturales/', views.GetPersonaNatural.as_view(), name='persona-natural-get'),
     path('get-personas-juridicas/', views.GetPersonaJuridica.as_view(), name='persona-juridica-get'),
+    path('get-persona-juridica/representante-legal/',views.GetPersonaJuridicaByRepresentanteLegal.as_view(),name='verify-persona-juridica'),
     path('persona-natural/usuario-interno/self/update/', views.UpdatePersonaNaturalInternoBySelf.as_view(), name='persona-natural-interna-update-by-self'),
     path('persona-natural/usuario-externo/self/update/', views.UpdatePersonaNaturalExternoBySelf.as_view(), name='persona-natural-externa-update-by-self'),
     path('persona-natural/user-with-permissions/update/<str:tipodocumento>/<str:numerodocumento>/', views.UpdatePersonaNaturalByUserWithPermissions.as_view(), name='persona-natural-update-by-user-with-permissions'),

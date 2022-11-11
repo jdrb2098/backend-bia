@@ -260,7 +260,33 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
                 'municipio_residencia': {'required': True},
             }
         
-
+class GetPersonaJuridicaByRepresentanteLegalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Personas
+        fields = [
+            'representante_legal',
+            'id_persona', 
+            'tipo_persona', 
+            'tipo_documento', 
+            'numero_documento', 
+            'digito_verificacion', 
+            'nombre_comercial',
+            'razon_social', 
+            'email', 
+            'email_empresarial',
+            'telefono_celular', 
+            'direccion_notificaciones', 
+            'direccion_residencia',
+            'pais_residencia',
+            'municipio_residencia',
+            'cod_municipio_notificacion_nal',
+            'ubicacion_georeferenciada',
+            'telefono_celular_empresa',
+            'telefono_empresa_2',
+            'telefono_empresa',
+        ]
+    
+    
 
 class PersonaNaturalPostByUserSerializer(serializers.ModelSerializer):
     numero_documento = serializers.CharField(max_length=20, min_length=5)
