@@ -11,7 +11,7 @@ class CuadrosClasificacionDocumental(models.Model):
     fecha_puesta_produccion = models.DateTimeField(null=True, blank=True, db_column='T206fechaPuestaProduccion')
     fecha_retiro_produccion = models.DateTimeField(null=True, blank=True, db_column='T206fechaRetiroProduccion')
     justificacion = models.CharField(max_length=255,null=True, blank=True, db_column='T206justificacionNuevaVersion')
-    ruta_soporte = models.CharField(max_length=200,null=True, blank=True, db_column='T206rutaSoporte')
+    ruta_soporte = models.FileField(null=True, blank=True, db_column='T206rutaSoporte')
     actual = models.BooleanField(default=False, db_column='T206actual')
     
     def __str__(self):

@@ -26,6 +26,11 @@ class SubseriesDocSerializer(serializers.ModelSerializer):
         ]
 
 
+class CCDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CuadrosClasificacionDocumental
+        fields = '__all__'
+
 class CCDPostSerializer(serializers.ModelSerializer):
     version = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='La versión del Cuadro de Clasificación Documental debe ser único')])
     nombre = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='El nombre del Cuadro de Clasificación Documental debe ser único')])
@@ -33,8 +38,11 @@ class CCDPostSerializer(serializers.ModelSerializer):
         model = CuadrosClasificacionDocumental
         fields = ['id_organigrama', 'version', 'nombre', 'ruta_soporte']
 
-
-class CCDSerializer(serializers.ModelSerializer):
+class CCDPutSerializer(serializers.ModelSerializer):
+    version = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='La versión del Cuadro de Clasificación Documental debe ser único')])
+    nombre = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='El nombre del Cuadro de Clasificación Documental debe ser único')])
     class Meta:
         model = CuadrosClasificacionDocumental
-        fields = '__all__'
+        fields = ['version', 'nombre', 'ruta_soporte']
+
+

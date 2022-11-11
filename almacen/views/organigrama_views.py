@@ -7,9 +7,11 @@ from seguridad.utils import Util
 from datetime import datetime
 import copy
 from operator import itemgetter
+from almacen.models.ccd_models import CuadrosClasificacionDocumental
 from almacen.serializers.organigrama_serializers import (
     NivelesPostSerializer, 
-    OrganigramaSerializer, 
+    OrganigramaSerializer,
+    OrganigramaPutSerializer, 
     UnidadesPutSerializer, 
     OrganigramaActivateSerializer, 
     NivelesUpdateSerializer, 
@@ -359,10 +361,34 @@ class CreateOrgChart(generics.CreateAPIView):
     queryset = Organigramas.objects.all()
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
+        try:
+            serializer.is_valid(raise_exception=True)
+            pass
+        except:
+            return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
+
+
+class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
+    serializer_class = OrganigramaPutSerializer
+    queryset= Organigramas.objects.all()
+    lookup_field='id_organigrama'
+
+    def patch(self, request, id_organigrama):
+        organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)      
+        ccd = list(CuadrosClasificacionDocumental.objects.filter(id_organigrama=organigrama.id_organigrama).values())
+        if not len(ccd):
+            serializer = self.serializer_class(organigrama, data=request.data)
+            try:
+                serializer.is_valid(raise_exception=True)
+                pass
+            except:
+                return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'})    
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'sucsess': False, 'detail': 'Ya está siendo usado este organigrama'}, status=status.HTTP_403_FORBIDDEN)
 
 class GetOrganigrama(generics.ListAPIView):
     serializer_class = OrganigramaSerializer  

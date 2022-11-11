@@ -12,7 +12,7 @@ class Organigramas(models.Model):
     justificacion_nueva_version = models.CharField(max_length=255, null=True, blank=True, db_column='T017justificacionNuevaVersion')
     version = models.CharField(max_length=10, db_column='T017version')
     actual = models.BooleanField(default=False, db_column='T017actual')
-    ruta_resolucion = models.CharField(max_length=255, null=True, blank=True, db_column='T017rutaResolucion')
+    ruta_resolucion = models.FileField(null=True, blank=True, db_column='T017rutaResolucion')
     
     def __str__(self):
         return str(self.nombre)

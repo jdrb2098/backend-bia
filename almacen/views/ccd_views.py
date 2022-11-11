@@ -28,6 +28,19 @@ class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UpdateCuadroClasificacionDocumental(generics.RetrieveAPIView):
+    serializer_class = CCDPostSerializer
+    queryset = CuadrosClasificacionDocumental.objects.all()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental creado exitosamente'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class GetCuadroClasificacionDocumental(generics.ListAPIView):
     serializer_class = CCDSerializer  
     queryset = CuadrosClasificacionDocumental.objects.all()
