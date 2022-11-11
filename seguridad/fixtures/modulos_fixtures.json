@@ -168,5 +168,68 @@
           "subsistema":"TRSV",
           "descripcion":"Permite administrar los cargos disponibles en el sistema"
         }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 27,
+        "fields": {
+          "id_modulo": 27,
+          "nombre_modulo": "Cuadro de clasificación documental",
+          "subsistema":"GEST",
+          "descripcion":"Permite administrar los Cuadros de Clasificación Documental de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 28,
+        "fields": {
+          "id_modulo": 28,
+          "nombre_modulo": "Cambio de Cuadro de Clasificación Documental Actual",
+          "subsistema":"GEST",
+          "descripcion":"Permite adoptar un nuevo Cuadro de Clasificación Documental de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 29,
+        "fields": {
+          "id_modulo": 29,
+          "nombre_modulo": "Tabla de Retención Documental",
+          "subsistema":"GEST",
+          "descripcion":"Permite administrar las Tablas de Retención Documental de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 30,
+        "fields": {
+          "id_modulo": 30,
+          "nombre_modulo": "Cambio de Tabla de Retención Documental Actual",
+          "subsistema":"GEST",
+          "descripcion":"Permite adoptar una nueva Tabla de Retención Documental de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 31,
+        "fields": {
+          "id_modulo": 31,
+          "nombre_modulo": "Tabla de Control de Acceso",
+          "subsistema":"GEST",
+          "descripcion":"Permite administrar las Tablas de Control de Acceso de la entidad en el sistema"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 32,
+        "fields": {
+          "id_modulo": 32,
+          "nombre_modulo": "Cambio de Tabla de Control de Acceso Actual",
+          "subsistema":"GEST",
+          "descripcion":"Permite adoptar una nueva Tabla de Control de Acceso de la entidad en el sistema"
+        }
       }
+
+
+
   ]

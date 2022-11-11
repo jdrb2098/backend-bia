@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from itertools import groupby
 from seguridad.utils import Util
-from datetime import date
+from datetime import datetime
 import copy
 from operator import itemgetter
 from almacen.serializers.organigrama_serializers import (
@@ -289,8 +289,8 @@ class ActivarOrganigrama(generics.UpdateAPIView):
                 if organigrama_remplazante:
                     organigrama_remplazante.actual=True
                     organigrama_a_remplazar.actual=False
-                    organigrama_remplazante.fecha_puesta_produccion=date.today()
-                    organigrama_a_remplazar.fecha_retiro_produccion=date.today()
+                    organigrama_remplazante.fecha_puesta_produccion=datetime.now()
+                    organigrama_a_remplazar.fecha_retiro_produccion=datetime.now()
                     organigrama_a_remplazar.save()
                     organigrama_remplazante.save()
                     
@@ -331,7 +331,7 @@ class ActivarOrganigrama(generics.UpdateAPIView):
                 #primer organigrama activado
                 if organigrama_remplazante:
                     organigrama_remplazante.actual=True
-                    organigrama_remplazante.fecha_puesta_produccion=date.today()
+                    organigrama_remplazante.fecha_puesta_produccion=datetime.now()
                     organigrama_remplazante.save()
                     
                     user_logeado = request.user.id_usuario
