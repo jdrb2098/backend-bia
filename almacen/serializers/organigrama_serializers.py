@@ -91,6 +91,13 @@ class OrganigramaSerializer(serializers.ModelSerializer):
         fields = ['nombre','fecha_terminado','descripcion', 'fecha_puesta_produccion','fecha_retiro_produccion','justificacion_nueva_version','version','ruta_resolucion']
         read_only_fields = ['actual']
 
+
+class OrganigramaPostSerializer(serializers.ModelSerializer):
+    nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre de organigrama debe ser único')])     
+    class Meta:
+        model = Organigramas
+        fields = ['nombre', 'descripcion', 'version', 'ruta_resolucion']
+
 class OrganigramaActivateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organigramas

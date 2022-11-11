@@ -14,7 +14,8 @@ from almacen.serializers.organigrama_serializers import (
     OrganigramaActivateSerializer, 
     NivelesUpdateSerializer, 
     NivelesGetSerializer,
-    UnidadesGetSerializer
+    UnidadesGetSerializer,
+    OrganigramaPostSerializer
     )
 from almacen.models.organigrama_models import (
     Organigramas,
@@ -354,7 +355,7 @@ class ActivarOrganigrama(generics.UpdateAPIView):
             return Response({'success':False,'detail':'Los parametros enviados son incorrecto'},status=status.HTTP_404_NOT_FOUND)
 
 class CreateOrgChart(generics.CreateAPIView):
-    serializer_class = OrganigramaSerializer
+    serializer_class = OrganigramaPostSerializer
     queryset = Organigramas.objects.all()
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
