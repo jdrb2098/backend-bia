@@ -756,12 +756,12 @@ class Verify(views.APIView):
                     subject = 'Verificación exitosa ' + user.nombre_de_usuario
                     data = {'template': template, 'email_subject': subject, 'to_email': user.email}
                     Util.send_email(data)
-            return redirect(redirect_url+'?verify=True')
+            return redirect(redirect_url)
         except jwt.ExpiredSignatureError as identifier:
-            return redirect(redirect_url+'?verify=False')
+            return redirect(redirect_url)
 
         except jwt.exceptions.DecodeError as identifier:
-            return redirect(redirect_url+'?verify=False')
+            return redirect(redirect_url)
 
 class LoginConsultarApiViews(generics.RetrieveAPIView):
     serializer_class=LoginSerializers
