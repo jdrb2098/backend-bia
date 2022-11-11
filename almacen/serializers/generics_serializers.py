@@ -22,6 +22,11 @@ class SerializerBodegas(serializers.ModelSerializer):
     class Meta:
         model=Bodegas
         fields='__all__'
+
+class SerializerPostBodegas(serializers.ModelSerializer):
+    class Meta:
+        model=Bodegas
+        fields='__all__'
         
 class SerializerMagnitudes(serializers.ModelSerializer):
     nombre = serializers.CharField(validators=[UniqueValidator(queryset=Magnitudes.objects.all())])

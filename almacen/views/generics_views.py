@@ -2,7 +2,7 @@ from almacen.models.generics_models import UnidadesMedida
 from almacen.serializers.generics_serializers import SerializersUnidadesMedida
 from almacen.models.generics_models import Magnitudes
 from almacen.models.generics_models import Bodegas
-from almacen.serializers.generics_serializers import SerializerBodegas,SerializerMagnitudes
+from almacen.serializers.generics_serializers import SerializerBodegas,SerializerMagnitudes, SerializerPostBodegas
 from rest_framework import generics
 from rest_framework.views import APIView
 from almacen.serializers.generics_serializers import SerializersMarca, SerializersEstadosArticulo, SerializerPorcentajesIVA
@@ -47,7 +47,7 @@ class GetEstadosArticuloList(generics.ListAPIView):
 #Bodega
 
 class RegisterBodega(generics.CreateAPIView):
-    serializer_class=SerializerBodegas
+    serializer_class=SerializerPostBodegas
     queryset=Bodegas.objects.all()
     
     def post(self, request):
