@@ -250,7 +250,7 @@ class UpdateUnidades(generics.UpdateAPIView):
                 else:
                     return Response({'success':False, 'detail':'Debe crear por lo menos una unidad'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'success':False, 'detail':'El organigrama ya está terminado, por lo cúal no es posible realizar acciones sobre las unidades'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, 'detail':'El organigrama ya está terminado, por lo cual no es posible realizar acciones sobre las unidades'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'success':False, 'detail':'El organigrama no existe'}, status=status.HTTP_404_NOT_FOUND)
 

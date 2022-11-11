@@ -57,4 +57,51 @@ class GetCuadroClasificacionDocumental(generics.ListAPIView):
         datos_finales = {'Cuadro de Clasificación Documental' : ccd, 'series' : series, 'Subseries' : subseries}
         return Response({'Cuadro de Clasificación Documental' : datos_finales}, status=status.HTTP_200_OK)
 
+class CreateSubseriesDoc(generics.CreateAPIView):
+    serializer_class = SubseriesDocSerializer
+    queryset = SubseriesDoc.objects.all()
+    
+    def post(self, request, id_ccd):
+        data = request.data
+        subseries = SubseriesDoc.objects.filter(id_ccd=id_ccd)
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd).first()
+        if ccd:
+            if not ccd.fecha_terminado:
+                if data:
+                    # ELIMINACION DE UNIDADES
+                    subseries_eliminar = SubseriesDoc.objects.filter(id_ccd=id_ccd)
+                    subseries_eliminar.delete()
+                    
+                    # VALIDAR QUE LOS CODIGOS SEAN UNICOS
+                    codigos_list = [subserie['codigo'] for subserie in data]
+                    if len(codigos_list) != len(set(codigos_list)):
+                        return Response({'success':False, 'detail':'Debe validar que los códigos de las subseries sean únicos'}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # VALIDAR QUE LOS NOMBRES SEAN UNICOS
+                    nombres_list = [subserie['nombre'] for subserie in data]
+                    if len(nombres_list) != len(set(nombres_list)):
+                        return Response({'success':False, 'detail':'Debe validar que los nombres de las subseries sean únicos'}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # VALIDAR QUE EL ID_CCD SEA EL MISMO
+                    ccd_list = [subserie['id_ccd'] for subserie in data]
+                    if len(set(ccd_list)) != 1:
+                        return Response({'success':False, 'detail':'Debe validar que las subseries pertenezcan a un mismo CCD'}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        ccd_existe = CuadrosClasificacionDocumental.objects.filter(id_ccd=ccd_list[0]).first()
+                        if not ccd_existe:
+                            return Response({'success':False, 'detail':'El CCD no existe'}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # CREAR SUBSERIES
+                    serializer = self.serializer_class(data=request.data, many=True)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    
+                    return Response({'success':True, 'detail':'Se ha creado las subseries'}, status=status.HTTP_201_CREATED)
+                else:
+                    subseries.delete()
 
+                    return Response({'success':False, 'detail':'Se han eliminado todas las subseries'})
+            else:
+                return Response({'success':False, 'detail':'El CCD ya está terminado, por lo cual no es posible realizar acciones sobre las subseries'})
+        else:
+            return Response({'success':False, 'detail':'El CCD no existe'})
