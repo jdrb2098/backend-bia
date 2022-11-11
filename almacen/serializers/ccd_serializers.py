@@ -12,3 +12,15 @@ class SubseriesDocSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubseriesDoc
         fields = '__all__'
+        validators = [
+           UniqueTogetherValidator(
+               queryset=SubseriesDoc.objects.all(),
+               fields = ['id_ccd', 'codigo'],
+               message='El id_ccd y el codigo deben ser una pareja única'
+           ),
+           UniqueTogetherValidator(
+               queryset=SubseriesDoc.objects.all(),
+               fields = ['id_ccd', 'nombre'],
+               message='El id_ccd y nombre deben ser una pareja única'
+           )
+        ]

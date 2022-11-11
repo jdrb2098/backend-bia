@@ -29,6 +29,16 @@ class EstadoCivilSerializer(serializers.ModelSerializer):
             'item_ya_usado': {'read_only': True}
         }
 
+class EstadoCivilPostSerializer(serializers.ModelSerializer):
+    cod_estado_civil = serializers.CharField(max_length=1, validators=[UniqueValidator(queryset=EstadoCivil.objects.all(), message='El cod_estado_civil debe ser único')])
+    class Meta:
+        model = EstadoCivil
+        fields = ['cod_estado_civil', 'nombre']
+        extra_kwargs = {
+            'cod_estado_civil': {'required': True},  
+            'nombre': {'required': True}
+        }
+
 class EstadoCivilPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = EstadoCivil
@@ -49,6 +59,16 @@ class TipoDocumentoSerializer(serializers.ModelSerializer):
             'precargado': {'read_only': True},
             'activo': {'read_only': True},
             'item_ya_usado': {'read_only': True}
+        }
+
+class TipoDocumentoPostSerializer(serializers.ModelSerializer):
+    cod_tipo_documento = serializers.CharField(max_length=2, validators=[UniqueValidator(queryset=TipoDocumento.objects.all(), message='El cod_tipo_documento debe ser único')])
+    class Meta:
+        model = TipoDocumento
+        fields = ['cod_tipo_documento', 'nombre']
+        extra_kwargs = {
+            'cod_tipo_documento': {'required': True},
+            'nombre': {'required': True}
         }
 
 

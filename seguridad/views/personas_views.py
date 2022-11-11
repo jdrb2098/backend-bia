@@ -42,8 +42,10 @@ from seguridad.models import (
 from rest_framework import filters
 from seguridad.serializers.personas_serializers import (
     EstadoCivilSerializer,
+    EstadoCivilPostSerializer,
     EstadoCivilPutSerializer,
     TipoDocumentoSerializer,
+    TipoDocumentoPostSerializer,
     TipoDocumentoPutSerializer,
     PersonasSerializer,
     PersonaNaturalSerializer,
@@ -105,7 +107,7 @@ class DeleteEstadoCivil(generics.RetrieveDestroyAPIView):
 
 
 class RegisterEstadoCivil(generics.CreateAPIView):
-    serializer_class = EstadoCivilSerializer
+    serializer_class =  EstadoCivilPostSerializer
     permission_classes = [IsAuthenticated, PermisoCrearEstadoCivil]
     queryset = EstadoCivil.objects.all()   
 
@@ -138,7 +140,7 @@ class UpdateEstadoCivil(generics.RetrieveUpdateAPIView):
 
 class GetTipoDocumento(generics.ListAPIView):
     serializer_class = TipoDocumentoSerializer
-    # permission_classes = [IsAuthenticated, PermisoConsultarTipoDocumento]
+    permission_classes = [IsAuthenticated, PermisoConsultarTipoDocumento]
     queryset = TipoDocumento.objects.filter(activo=True)
 
 
@@ -149,7 +151,7 @@ class GetTipoDocumentoById(generics.RetrieveAPIView):
 
 class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
     serializer_class = TipoDocumentoSerializer
-    # permission_classes = [IsAuthenticated, PermisoBorrarTipoDocumento]
+    permission_classes = [IsAuthenticated, PermisoBorrarTipoDocumento]
     queryset = TipoDocumento.objects.all()
     
     def delete(self, request, pk):
@@ -168,15 +170,15 @@ class DeleteTipoDocumento(generics.RetrieveDestroyAPIView):
 
 
 class RegisterTipoDocumento(generics.CreateAPIView):
-    serializer_class = TipoDocumentoSerializer
-    # permission_classes = [IsAuthenticated, PermisoCrearTipoDocumento]
+    serializer_class = TipoDocumentoPostSerializer
+    permission_classes = [IsAuthenticated, PermisoCrearTipoDocumento]
     queryset = TipoDocumento.objects.all()
 
 
 class UpdateTipoDocumento(generics.RetrieveUpdateAPIView):
     serializer_class = TipoDocumentoPutSerializer
     queryset = TipoDocumento.objects.all()
-    # permission_classes = [IsAuthenticated, PermisoActualizarTipoDocumento]
+    permission_classes = [IsAuthenticated, PermisoActualizarTipoDocumento]
 
     def put(self, request, pk):
         tipo_documento = TipoDocumento.objects.filter(cod_tipo_documento=pk).first()
@@ -921,7 +923,7 @@ class RegisterPersonaJuridica(generics.CreateAPIView):
 
 class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
     serializer_class = PersonaNaturalPostByUserSerializer
-    # permission_classes = [IsAuthenticated, PermisoCrearPersona]
+    permission_classes = [IsAuthenticated, PermisoCrearPersona]
     
     def post(self, request):
         persona = request.data

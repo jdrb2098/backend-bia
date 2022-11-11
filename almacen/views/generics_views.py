@@ -1,11 +1,25 @@
 from almacen.models.generics_models import UnidadesMedida
-from almacen.serializers.generics_serializers import SerializersUnidadesMedida
 from almacen.models.generics_models import Magnitudes
 from almacen.models.generics_models import Bodegas
-from almacen.serializers.generics_serializers import SerializerBodegas,SerializerMagnitudes, SerializerPostBodegas
 from rest_framework import generics
 from rest_framework.views import APIView
-from almacen.serializers.generics_serializers import SerializersMarca, SerializersEstadosArticulo, SerializerPorcentajesIVA
+from almacen.serializers.generics_serializers import (
+    SerializersMarca,
+    SerializersPostMarca,
+    SerializersPutMarca,
+    SerializerPorcentajesIVA,
+    SerializerPostPorcentajesIVA,
+    SerializerPutPorcentajesIVA,
+    SerializersUnidadesMedida,
+    SerializersPostUnidadesMedida,
+    SerializersPutUnidadesMedida,
+    SerializerBodegas,
+    SerializerPostBodegas,
+    SerializerPutBodegas,
+    
+    SerializerMagnitudes,
+    SerializersEstadosArticulo
+    )   
 from almacen.models.generics_models import Marcas, EstadosArticulo, PorcentajesIVA
 from almacen.choices.estados_articulo_choices import estados_articulo_CHOICES
 from almacen.choices.magnitudes_choices import magnitudes_CHOICES
@@ -15,11 +29,11 @@ from rest_framework.exceptions import ValidationError
 
 #_______Marca
 class RegisterMarca(generics.CreateAPIView):
-    serializer_class=SerializersMarca
+    serializer_class=SerializersPostMarca
     queryset=Marcas.objects.all()
     
 class UpdateMarca(generics.UpdateAPIView):
-    serializer_class=SerializersMarca
+    serializer_class=SerializersPutMarca
     queryset=Marcas.objects.all()
     
 class DeleteMarca(generics.DestroyAPIView):
@@ -66,7 +80,7 @@ class RegisterBodega(generics.CreateAPIView):
             return Response({'success': True, 'data':serializer.data})
     
 class UpdateBodega(generics.UpdateAPIView):
-    serializer_class=SerializerPostBodegas
+    serializer_class=SerializerPutBodegas
     queryset=Bodegas.objects.all()
     
     def put(self, request, pk):
@@ -112,11 +126,11 @@ class GetMagnitudesList(generics.ListAPIView):
 
 #Porcentajes IVA
 class RegisterPorcentaje(generics.CreateAPIView):
-    serializer_class=SerializerPorcentajesIVA
+    serializer_class=SerializerPostPorcentajesIVA
     queryset=PorcentajesIVA.objects.all()
     
 class UpdatePorcentaje(generics.UpdateAPIView):
-    serializer_class=SerializerPorcentajesIVA
+    serializer_class=SerializerPutPorcentajesIVA
     queryset=PorcentajesIVA.objects.all()
     
     def put(self, request, pk):
@@ -158,11 +172,11 @@ class GetPorcentajeList(generics.ListAPIView):
     
 #UnidadesMedida
 class RegisterUnidadMedida(generics.CreateAPIView):
-    serializer_class=SerializersUnidadesMedida
+    serializer_class=SerializersPostUnidadesMedida
     queryset=UnidadesMedida.objects.all()
     
 class UpdateUnidadMedida(generics.UpdateAPIView):
-    serializer_class=SerializersUnidadesMedida
+    serializer_class=SerializersPutUnidadesMedida
     queryset=UnidadesMedida.objects.all()
     
     def put(self,request,pk):

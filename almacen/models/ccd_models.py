@@ -36,6 +36,8 @@ class SubseriesDoc(models.Model):
         db_table = 'T204SubseriesDoc_CDD'
         verbose_name = 'Subserie'
         verbose_name_plural = 'Subseries'
+        unique_together = ['id_ccd', 'nombre']
+        unique_together = ['id_ccd', 'codigo']
     
 
 class SeriesDoc(models.Model):
