@@ -439,5 +439,140 @@
         "id_modulo": 17,
         "cod_permiso": "BO"
       }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 86,
+      "fields": {
+        "id_permisos_modulo":86,
+        "id_modulo": 27,
+        "cod_permiso": "CR"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 87,
+      "fields": {
+        "id_permisos_modulo":87,
+        "id_modulo": 27,
+        "cod_permiso": "AC"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 88,
+      "fields": {
+        "id_permisos_modulo":88,
+        "id_modulo": 27,
+        "cod_permiso": "CO"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 89,
+      "fields": {
+        "id_permisos_modulo":89,
+        "id_modulo": 28,
+        "cod_permiso": "EJ"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 90,
+      "fields": {
+        "id_permisos_modulo":90,
+        "id_modulo": 28,
+        "cod_permiso": "CO"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 91,
+      "fields": {
+        "id_permisos_modulo":91,
+        "id_modulo": 29,
+        "cod_permiso": "CR"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 92,
+      "fields": {
+        "id_permisos_modulo":92,
+        "id_modulo": 29,
+        "cod_permiso": "AC"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 93,
+      "fields": {
+        "id_permisos_modulo":93,
+        "id_modulo": 29,
+        "cod_permiso": "CO"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 94,
+      "fields": {
+        "id_permisos_modulo":94,
+        "id_modulo": 30,
+        "cod_permiso": "EJ"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 95,
+      "fields": {
+        "id_permisos_modulo":95,
+        "id_modulo": 30,
+        "cod_permiso": "CO"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 96,
+      "fields": {
+        "id_permisos_modulo":96,
+        "id_modulo": 31,
+        "cod_permiso": "CR"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 97,
+      "fields": {
+        "id_permisos_modulo":97,
+        "id_modulo": 31,
+        "cod_permiso": "AC"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 98,
+      "fields": {
+        "id_permisos_modulo":98,
+        "id_modulo": 31,
+        "cod_permiso": "CO"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 99,
+      "fields": {
+        "id_permisos_modulo":99,
+        "id_modulo": 32,
+        "cod_permiso": "EJ"
+      }
+    },
+    {
+      "model": "seguridad.PermisosModulo",
+      "pk": 100,
+      "fields": {
+        "id_permisos_modulo":100,
+        "id_modulo": 32,
+        "cod_permiso": "CO"
+      }
     }
   ]
