@@ -85,24 +85,7 @@ class UnidadesGetSerializer(serializers.ModelSerializer):
 
 
 class OrganigramaSerializer(serializers.ModelSerializer):
-    nombre=serializers.CharField(max_length=50)
-    descripcion=serializers.CharField(max_length=255)
-    
-    def validate_nombre(self,value):
-        if value==value:
-            raise serializers.ValidationError('Error, este nombre de usuario ya existe',400)
-        return value
-    # def validate_descripcion(self,value)
-    #     if value==value:
-    #         raise serializers.ValidationError('Error, esta descripcion de usuario ya existe')
-    #     return value
-    
-    # def validate(self,data):
-    #     if data['nombre'] == data['nombre']:
-    #         if data['descripcion']== data['descripcion']:
-    #             raise serializers.ValidationError('Error, este nombre y descripcion ya existen')
-    #     return data
-        
+    nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre de organigrama debe ser único')])     
     class Meta:
         model = Organigramas
         fields = ['nombre','fecha_terminado','descripcion', 'fecha_puesta_produccion','fecha_retiro_produccion','justificacion_nueva_version','version','ruta_resolucion']

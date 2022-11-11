@@ -288,7 +288,7 @@ class GetPersonaJuridicaByRepresentanteLegal(generics.ListAPIView):
         representante_legal=Personas.objects.filter(representante_legal=persona)
         if representante_legal:
             persona_serializada = self.serializer_class(representante_legal,many=True)
-            return Response({'detail':persona_serializada.data})
+            return Response({'detail':persona_serializada.data},status=status.HTTP_200_OK)
         return Response({'success':False,'detail':'No está asociado en ninguna empresa como representante legal'},status=status.HTTP_404_NOT_FOUND)
         
 class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
