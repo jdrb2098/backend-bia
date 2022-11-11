@@ -207,7 +207,7 @@ def getPersonaByEmail(request, pk):
     try:
         persona = Personas.objects.get(email=pk)
         serializer = PersonasSerializer(persona, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'success': True, 'data': serializer.data,},  status=status.HTTP_200_OK)
     except:
         return Response({'success': False ,"message": "No existe una persona con este email"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -290,6 +290,18 @@ class UpdatePersonaNaturalInternoBySelf(generics.RetrieveUpdateAPIView):
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
             persona_serializada.is_valid(raise_exception=True)
+
+            #Marcar estado civil como item ya usado
+            estado_civil = persona_serializada.validated_data.get('estado_civil')
+            if estado_civil:
+                try:
+                    estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
+                    if estado_civil_instance.item_ya_usado == False:
+                        estado_civil_instance.item_ya_usado = True
+                        estado_civil_instance.save()
+                        pass
+                except:
+                    return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'}, status=status.HTTP_400_BAD_REQUEST)
             
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
@@ -361,7 +373,19 @@ class UpdatePersonaNaturalExternoBySelf(generics.RetrieveUpdateAPIView):
         previous_persona = copy.copy(persona_por_actualizar)
         if persona_por_actualizar:
             persona_serializada = self.serializer_class(persona_por_actualizar, data=request.data, many=False)
-            persona_serializada.is_valid(raise_exception=True) 
+            persona_serializada.is_valid(raise_exception=True)
+
+            #Marcar estado civil como item ya usado
+            estado_civil = persona_serializada.validated_data.get('estado_civil')
+            if estado_civil:
+                try:
+                    estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
+                    if estado_civil_instance.item_ya_usado == False:
+                        estado_civil_instance.item_ya_usado = True
+                        estado_civil_instance.save()
+                        pass
+                except:
+                    return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'}, status=status.HTTP_400_BAD_REQUEST) 
 
             email_principal = persona_serializada.validated_data.get('email')
             email_secundario = persona_serializada.validated_data.get('email_empresarial')
@@ -433,6 +457,18 @@ class UpdatePersonaNaturalByUserWithPermissions(generics.RetrieveUpdateAPIView):
             try:    
                 persona_serializada.is_valid(raise_exception=True)
                 try:
+                    #Marcar estado civil como item ya usado
+                    estado_civil = persona_serializada.validated_data.get('estado_civil')
+                    if estado_civil:
+                        try:
+                            estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
+                            if estado_civil_instance.item_ya_usado == False:
+                                estado_civil_instance.item_ya_usado = True
+                                estado_civil_instance.save()
+                                pass
+                        except:
+                            return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'}, status=status.HTTP_400_BAD_REQUEST) 
+
                     email_principal = persona_serializada.validated_data.get('email')
                     email_secundario = persona_serializada.validated_data.get('email_empresarial')
 
@@ -718,17 +754,6 @@ class RegisterPersonaNatural(generics.CreateAPIView):
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
 
-        #Marcar estado civil como item ya usado
-        estado_civil = serializer.validated_data.get('estado_civil')
-        try:
-            estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
-            if estado_civil_instance.item_ya_usado == False:
-                estado_civil_instance.item_ya_usado = True
-                estado_civil_instance.save()
-                pass
-        except:
-            return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'})
-
         #Marcar tipo de documento como item ya usado
         tipo_documento_usado = serializer.validated_data.get('tipo_documento')
         try:
@@ -888,19 +913,6 @@ class RegisterPersonaNaturalByUserInterno(generics.CreateAPIView):
         persona = request.data
         serializer = self.serializer_class(data=persona)
         serializer.is_valid(raise_exception=True)
-
-
-        #Marcar estado civil como item ya usado
-        estado_civil = serializer.validated_data.get('estado_civil')
-        print(estado_civil.cod_estado_civil)
-        try:
-            estado_civil_instance = EstadoCivil.objects.get(cod_estado_civil=estado_civil.cod_estado_civil)
-            if estado_civil_instance.item_ya_usado == False:
-                estado_civil_instance.item_ya_usado = True
-                estado_civil_instance.save()
-                pass
-        except:
-            return Response({'success': False, 'detail': 'No existe el estado civil que está ingresando'}, status=status.HTTP_400_BAD_REQUEST)
 
         #Marcar tipo de documento como item ya usado
         tipo_documento_usado = serializer.validated_data.get('tipo_documento')

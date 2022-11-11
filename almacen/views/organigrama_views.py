@@ -216,7 +216,7 @@ class UpdateUnidades(generics.UpdateAPIView):
                             unidad_padre = list(filter(lambda unidad: unidad['codigo'] == unidades_sub[0]['cod_unidad_org_padre'], data))
                             if unidad_padre:
                                 if unidad_padre[0]['cod_agrupacion_documental'] == None or unidad_padre[0]['cod_agrupacion_documental'] == '':
-                                    return Response({'success':False, 'detail':'Debe marcar las unidades padre como subsecciones'})     
+                                    return Response({'success':False, 'detail':'Debe marcar las unidades padre como subsecciones'}, status=status.HTTP_400_BAD_REQUEST)
                 
                 # CREACION DE UNIDADES
                 for nivel, unidades in groupby(nivel_unidades, itemgetter('id_nivel_organigrama')):
@@ -267,7 +267,7 @@ class GetUnidades(generics.ListAPIView):
             id_niveles = unidades_vector['id_nivel_organigrama_id']
             nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama = id_niveles).values()
             unidades_vector['id_nivel_organigrama_id'] = nivel
-            return Response({'Unidades' : unidades_vector})
+            return Response({'Unidades' : unidades_vector}, status=status.HTTP_200_OK)
 
 #VIEWS FOR ORGANIGRAMA
 
