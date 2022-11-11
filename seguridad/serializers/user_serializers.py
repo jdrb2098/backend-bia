@@ -1,4 +1,5 @@
 from django.core import signing
+from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -231,24 +232,25 @@ class SetNewPasswordSerializer(serializers.Serializer):
     class Meta:
         fields = ['password','token','uidb64']
     def validate(self, attrs):
-        try:
             password = attrs.get('password')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
 
             id = int(signing.loads(uidb64)['user'])
             user = User.objects.get(id_usuario=id)
-            
+            print(make_password(password))
+            print(user.password)
+            print(check_password(password,user.password))
             if not PasswordResetTokenGenerator().check_token(user,token):
                 raise AuthenticationFailed('Link de actualización de contraseña invalido',401)
             
+            if check_password(password,user.password):
+                raise serializers.ValidationError('no se puede actualizar la contraseña. el valor proporcionado. el valor es el mismo que se teniene actualmente',401)
             user.set_password(password)
             user.save()
 
             return user
-        except Exception as e:
-            raise AuthenticationFailed('Link de actualización de contraseña invalido',401)
-        return super().validate(attrs)
+       
 
 
 class DesbloquearUserSerializer(serializers.Serializer):
@@ -274,7 +276,6 @@ class SetNewPasswordUnblockUserSerializer(serializers.Serializer):
         fields = ['password', 'token', 'uidb64']
     
     def validate(self, attrs):
-        try:
             password = attrs.get('password')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
@@ -284,12 +285,11 @@ class SetNewPasswordUnblockUserSerializer(serializers.Serializer):
 
             if not PasswordResetTokenGenerator().check_token(user, token):
                 raise AuthenticationFailed('Link de desbloqueo de usuario invalido', 401)
-            
+            if check_password(password,user.password):
+                raise serializers.ValidationError('no se puede actualizar la contraseña. el valor proporcionado',401)
             user.set_password(password)
             user.is_blocked = False
             user.save()
 
             return user
-        except Exception as e:
-            raise AuthenticationFailed('Link de desbloqueo de usuario invalido', 401)
-        return super.validate(attrs)
+        
