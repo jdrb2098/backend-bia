@@ -24,3 +24,11 @@ class SubseriesDocSerializer(serializers.ModelSerializer):
                message='El id_ccd y nombre deben ser una pareja única'
            )
         ]
+
+
+class CCDPostSerializer(serializers.ModelSerializer):
+    version = serializers.CharField(validator=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='La versión del Cuadro de Clasificación Documental debe ser único')])
+    nombre = serializers.CharField(validator=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='El nombre del Cuadro de Clasificación Documental debe ser único')])
+    class Meta:
+        model = CuadrosClasificacionDocumental
+        fields = ['id_organigrama', 'version', 'nombre', 'ruta_soporte']

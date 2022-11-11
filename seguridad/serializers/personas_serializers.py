@@ -237,6 +237,7 @@ class PersonaJuridicaPostSerializer(serializers.ModelSerializer):
     razon_social = serializers.CharField(max_length=200)
     telefono_celular_empresa = serializers.CharField(max_length=15, min_length=10)
     direccion_notificaciones = serializers.CharField(max_length=255, min_length=5)
+    digito_verificacion = serializers.CharField(max_length=1)
 
     class Meta:
         model = Personas

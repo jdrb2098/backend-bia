@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from seguridad.utils import Util
 from almacen.serializers.ccd_serializers import (
     SubseriesDocSerializer,
+    CCDPostSerializer
 )
 from almacen.models.ccd_models import (
     CuadrosClasificacionDocumental,
@@ -12,3 +13,8 @@ from almacen.models.ccd_models import (
     SubseriesDoc,
     SeriesSubseriesUnidadOrg
 )
+
+# class CrearCDD(generics.CreateAPIView):
+#     serializer_class = CCDPostSerializer
+
+
