@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
 from seguridad.utils import Util
+from rest_framework.permissions import IsAuthenticated
 from almacen.serializers.ccd_serializers import (
     SubseriesDocSerializer,
     CCDPostSerializer,
@@ -16,6 +17,7 @@ from almacen.models.ccd_models import (
     SubseriesDoc,
     SeriesSubseriesUnidadOrg
 )
+import copy
 
 class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
     serializer_class = CCDPostSerializer
@@ -36,11 +38,13 @@ class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
 class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDPutSerializer
     queryset = CuadrosClasificacionDocumental.objects.all()
+    permission_classes = [IsAuthenticated]
     #Falta validación si está siendo usado en la TRD
 
     def patch(self, request, pk):
         try:
             ccd = CuadrosClasificacionDocumental.objects.get(id_ccd=pk)
+            previoud_ccd = copy.copy(ccd)
             pass
         except:
             return Response({'success': False, 'detail': 'No existe ningún Cuadro de Clasificación Documental con los parámetros ingresados'}, status=status.HTTP_404_NOT_FOUND)
@@ -52,6 +56,23 @@ class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
         except:
             return Response({'success': False, 'detail': 'Validar data enviada, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        
+        # AUDITORIA DE UPDATE DE CCD
+        user_logeado = request.user.id_usuario
+        dirip = Util.get_client_ip(request)
+        descripcion = {'nombre':str(previoud_ccd.nombre), 'version':str(previoud_ccd.version)}
+        valores_actualizados={'previous':previoud_ccd, 'current':ccd}
+        auditoria_data = {
+            'id_usuario': user_logeado,
+            'id_modulo': 27,
+            'cod_permiso': 'AC',
+            'subsistema': 'GEST',
+            'dirip': dirip,
+            'descripcion': descripcion,
+            'valores_actualizados': valores_actualizados
+        }
+        Util.save_auditoria(auditoria_data)
+        
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
