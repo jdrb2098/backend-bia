@@ -118,3 +118,16 @@ class CreateSubseriesDoc(generics.CreateAPIView):
                 return Response({'success':False, 'detail':'El CCD ya está terminado, por lo cual no es posible realizar acciones sobre las subseries'})
         else:
             return Response({'success':False, 'detail':'El CCD no existe'})
+
+class GetSubseries(generics.ListAPIView):
+    serializer_class = SubseriesDocSerializer
+    queryset = SubseriesDoc.objects.all()
+    
+    def get(self, request, id_ccd):
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd).first()
+        if ccd:
+            subseries = SubseriesDoc.objects.filter(id_ccd=id_ccd)
+            serializer = self.serializer_class(subseries, many=True)
+            return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'Debe consultar por un CCD válido'}, status=status.HTTP_404_NOT_FOUND)

@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from itertools import groupby
 from seguridad.utils import Util
+from django.db.models import Q
 from datetime import datetime
 import copy
 from operator import itemgetter
@@ -416,3 +417,16 @@ class GetOrganigrama(generics.ListAPIView):
             return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)
         datos_finales = {'Organigrama' : organigrama, 'Niveles' : niveles, 'Unidades' : unidades}
         return Response({'Organigrama' : datos_finales}, status=status.HTTP_200_OK)
+
+class GetSeccionSubsecciones(generics.ListAPIView):
+    serializer_class = UnidadesGetSerializer
+    queryset = UnidadesOrganizacionales.objects.all()
+    
+    def get(self, request, id_organigrama):
+        organigrama = Organigramas.objects.filter(id_organigrama=id_organigrama).first()
+        if organigrama:
+            unidades = UnidadesOrganizacionales.objects.filter(Q(id_organigrama=id_organigrama) & ~Q(cod_agrupacion_documental=None))
+            serializer = self.serializer_class(unidades, many=True)
+            return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'Debe consultar por un organigrama válido'}, status=status.HTTP_404_NOT_FOUND)

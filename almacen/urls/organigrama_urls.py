@@ -6,6 +6,7 @@ urlpatterns = [
     path('unidades/update/<str:pk>/',views.UpdateUnidades.as_view(),name='unidades-org-update'),
     path('unidades/create/', views.CreateUnidades.as_view(), name='unidades-org-create'),
     path('unidades/get-list/', views.GetUnidades.as_view(), name='unidades-get-list'),
+    path('unidades/get-sec-sub/<str:id_organigrama>/', views.GetSeccionSubsecciones.as_view(), name='unidades-get-sec-sub'),
 
     # NIVELES
     path('niveles/get-list/', views.GetNiveles.as_view(), name='get-list-niveles'),
