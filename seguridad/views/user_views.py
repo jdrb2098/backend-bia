@@ -792,7 +792,7 @@ class LoginApiView(generics.CreateAPIView):
         for rol in rol_id_list:
             permisos = PermisosModuloRol.objects.filter(id_rol=rol).values()
             permisos_list.append(permisos)
-        print([*set(permisos_list)])
+       
         
         ip = Util.get_client_ip(request)
         device = Util.get_client_device(request)
