@@ -22,6 +22,7 @@ import copy
 class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
     serializer_class = CCDPostSerializer
     queryset = CuadrosClasificacionDocumental.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -31,7 +32,22 @@ class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
         except:
             return Response({'success': False, 'detail': 'Valide la información ingresada, el id organigrama es requerido, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer.save()
+        serializador = serializer.save()
+
+        #Auditoria Crear Cuadro de Clasificación Documental
+        usuario = request.user.id_usuario
+        descripcion = {"Nombre": str(serializador.nombre), "Versión": str(serializador.version)}
+        direccion=Util.get_client_ip(request)
+        auditoria_data = {
+            "id_usuario" : usuario,
+            "id_modulo" : 27,
+            "cod_permiso": "CR",
+            "subsistema": 'GEST',
+            "dirip": direccion,
+            "descripcion": descripcion, 
+        }
+        Util.save_auditoria(auditoria_data)
+        
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental creado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
