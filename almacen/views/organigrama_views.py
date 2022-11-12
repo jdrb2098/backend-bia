@@ -7,6 +7,7 @@ from seguridad.utils import Util
 from django.db.models import Q
 from datetime import datetime
 import copy
+from django.db.models import Q
 from operator import itemgetter
 from almacen.models.ccd_models import CuadrosClasificacionDocumental
 from almacen.serializers.organigrama_serializers import (
@@ -274,7 +275,7 @@ class GetUnidades(generics.ListAPIView):
             id_niveles = unidades_vector['id_nivel_organigrama_id']
             nivel = NivelesOrganigrama.objects.filter(id_nivel_organigrama = id_niveles).values()
             unidades_vector['id_nivel_organigrama_id'] = nivel
-            return Response({'Unidades' : unidades_vector}, status=status.HTTP_200_OK)
+            return Response({'success': True, 'Unidades' : unidades_vector}, status=status.HTTP_200_OK)
 
 #VIEWS FOR ORGANIGRAMA
 
@@ -385,7 +386,7 @@ class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
                 serializer.is_valid(raise_exception=True)
                 pass
             except:
-                return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'})    
+                return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'},status=status.HTTP_400_BAD_REQUEST)    
             serializer.save()
             return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
         else:
@@ -430,3 +431,6 @@ class GetSeccionSubsecciones(generics.ListAPIView):
             return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'Debe consultar por un organigrama válido'}, status=status.HTTP_404_NOT_FOUND)
+class GetOrganigramasTerminados(generics.ListAPIView):
+    serializer_class = OrganigramaSerializer
+    queryset = Organigramas.objects.filter(~Q(fecha_terminado=None))  

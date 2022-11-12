@@ -37,6 +37,11 @@ class CCDPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
         fields = ['id_organigrama', 'version', 'nombre', 'ruta_soporte']
+        extra_kwargs = {
+            'id_organigrama': {'required': True},
+            'version': {'required': True},
+            'nombre': {'required': True}
+        }
 
 class CCDPutSerializer(serializers.ModelSerializer):
     version = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='La versión del Cuadro de Clasificación Documental debe ser único')])
@@ -44,5 +49,9 @@ class CCDPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
         fields = ['version', 'nombre', 'ruta_soporte']
+        extra_kwargs = {
+            'version': {'required': True},
+            'nombre': {'required': True}
+        }
 
 
