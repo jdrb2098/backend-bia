@@ -25,7 +25,6 @@ class SubseriesDocSerializer(serializers.ModelSerializer):
            )
         ]
 
-
 class CCDSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
@@ -37,6 +36,11 @@ class CCDPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
         fields = ['id_organigrama', 'version', 'nombre', 'ruta_soporte']
+        extra_kwargs = {
+            'id_organigrama': {'required': True},
+            'version': {'required': True},
+            'nombre': {'required': True}
+        }
 
 class CCDPutSerializer(serializers.ModelSerializer):
     version = serializers.CharField(validators=[UniqueValidator(queryset=CuadrosClasificacionDocumental.objects.all(), message='La versión del Cuadro de Clasificación Documental debe ser único')])
@@ -44,5 +48,30 @@ class CCDPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
         fields = ['version', 'nombre', 'ruta_soporte']
+        extra_kwargs = {
+            'version': {'required': True},
+            'nombre': {'required': True}
+        }
 
 
+    
+class SeriesDocPostSerializer(serializers.ModelSerializer):
+    nombre = serializers.CharField(validators=[UniqueValidator(queryset=SeriesDoc.objects.all(), message='La serie documental debe ser unica')])
+    codigo = serializers.IntegerField(validators=[UniqueValidator(queryset=SeriesDoc.objects.all(), message='El códiggo debe de ser único')])
+  
+    class Meta:
+        model = SeriesDoc
+        fields = '__all__'
+
+class SeriesDocSerializer(serializers.ModelSerializer):
+    id_ccd = CCDSerializer(read_only=True)
+    
+    class Meta:
+        model = SeriesDoc
+        fields = '__all__'
+
+class SeriesSubseriesUnidadOrgSerializer(serializers.ModelSerializer):
+    #id_unidad_organizacional = serializers.IntegerField()
+    class Meta:
+        model = SeriesSubseriesUnidadOrg
+        fields = '__all__'        
