@@ -94,22 +94,6 @@ class CreateSeriesDoc(generics.CreateAPIView):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class GetSeriesDoc(generics.ListAPIView):
-    serializer_class = SeriesDocSerializer
-    
-    def get(self, request):
-        dato_buscado = request.query_params.get('pk')
-        if dato_buscado == None:
-            series_doc = SeriesDoc.objects.all().values()
-            if len(series_doc) == 0:
-                return Response({'Error' : 'Aún no hay series documentales registradas'}, status=status.HTTP_404_NOT_FOUND)
-            return Response({'Series documentales' : series_doc}, status=status.HTTP_200_OK) 
-        series_doc = SeriesDoc.objects.filter(id_ccd=int(dato_buscado)).values()
-        if len(series_doc) == 0:
-            return Response({'Error' : 'No se encontró la serie documental ingresada'}, status=status.HTTP_404_NOT_FOUND)
-        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = dato_buscado).values()
-        datos_finales = {"CCD" : ccd, "Series documentales" : series_doc}
-        return Response(datos_finales, status=status.HTTP_200_OK)
 
 class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDPutSerializer
@@ -184,6 +168,24 @@ class GetCuadroClasificacionDocumental(generics.ListAPIView):
 class GetCCDTerminado(generics.ListAPIView):
     serializer_class = CCDSerializer  
     queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None))
+
+
+class GetSeriesDoc(generics.ListAPIView):
+    serializer_class = SeriesDocSerializer
+    
+    def get(self, request):
+        dato_buscado = request.query_params.get('pk')
+        if dato_buscado == None:
+            series_doc = SeriesDoc.objects.all().values()
+            if len(series_doc) == 0:
+                return Response({'Error' : 'Aún no hay series documentales registradas'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Series documentales' : series_doc}, status=status.HTTP_200_OK) 
+        series_doc = SeriesDoc.objects.filter(id_ccd=int(dato_buscado)).values()
+        if len(series_doc) == 0:
+            return Response({'Error' : 'No se encontró la serie documental ingresada'}, status=status.HTTP_404_NOT_FOUND)
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = dato_buscado).values()
+        datos_finales = {"CCD" : ccd, "Series documentales" : series_doc}
+        return Response(datos_finales, status=status.HTTP_200_OK)
 
 
 class CreateSubseriesDoc(generics.CreateAPIView):

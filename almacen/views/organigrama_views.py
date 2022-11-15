@@ -28,25 +28,6 @@ from almacen.models.organigrama_models import (
     )
 
 # VIEWS FOR NIVELES ORGANIGRAMA
-class CreateNiveles(generics.CreateAPIView):
-    serializer_class = NivelesPostSerializer
-    queryset = NivelesOrganigrama.objects.all()
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data, many=True)
-        try:
-            serializer.is_valid(raise_exception=True)
-            pass
-        except:
-            return Response({'success': False, 'detail': 'Valide los datos ingresados, el nombre y el orden del nivel deben ser únicos.'}, status=status.HTTP_400_BAD_REQUEST)  
-        try:
-            serializer.save()
-            pass
-        except:
-            return Response({'success': False, 'detail': 'No se pudo guardar este nivel'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
-
-
 class UpdateNiveles(generics.UpdateAPIView):
     serializer_class = NivelesUpdateSerializer
     queryset = NivelesOrganigrama.objects.all()
@@ -108,25 +89,6 @@ class GetNiveles(generics.ListAPIView):
 
 
 #VIEWS FOR UNIDADES ORGANIZACIONALES 
-    
-class CreateUnidades(generics.CreateAPIView):
-    serializer_class = UnidadesPutSerializer
-    queryset = UnidadesOrganizacionales.objects.all()
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data, many=True)
-        try:
-            serializer.is_valid(raise_exception=True)
-            pass
-        except:
-            return Response({'success': False, 'detail': 'Valide los datos ingresados'}, status=status.HTTP_400_BAD_REQUEST)  
-        try:
-            serializer.save()
-            pass
-        except:
-            return Response({'success': False, 'detail': 'No se pudo guardar las unidades'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
-    
 class UpdateUnidades(generics.UpdateAPIView):
     serializer_class=UnidadesPutSerializer
     queryset=UnidadesOrganizacionales.objects.all()
