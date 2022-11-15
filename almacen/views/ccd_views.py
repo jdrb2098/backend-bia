@@ -292,10 +292,25 @@ class CreateSubseriesDoc(generics.CreateAPIView):
                     lista_subseries_id = [subserie['id_subserie_doc'] for subserie in subseries_update]
                     lista_subseries_id.extend(subseries_id_create)
                     subseries_eliminar = SubseriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_subserie_doc__in=lista_subseries_id)
+                    
+                    # VALIDAR QUE NO SE ESTÉN USANDO LAS SUBSERIES A ELIMINAR
+                    subseries_eliminar_id = [subserie.id_subserie_doc for subserie in subseries_eliminar]
+                    serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_sub_serie_doc__in=subseries_eliminar_id)
+                    print(serie_subserie_unidad)
+                    if serie_subserie_unidad:
+                        return Response({'success':False, 'detail':'Una o varias subseries a eliminar ya están asociadas al CCD, por favor eliminar asociaciones primero'})
+                    
                     subseries_eliminar.delete()
                     
                     return Response({'success':True, 'detail':'Se ha realizado cambios con las subseries'}, status=status.HTTP_201_CREATED)
                 else:
+                    # VALIDAR QUE NO SE ESTÉN USANDO LAS SUBSERIES A ELIMINAR
+                    subseries_eliminar = SubseriesDoc.objects.filter(id_ccd=id_ccd)
+                    subseries_eliminar_id = [subserie.id_subserie_doc for subserie in subseries_eliminar]
+                    serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_sub_serie_doc__in=subseries_eliminar_id)
+                    if serie_subserie_unidad:
+                        return Response({'success':False, 'detail':'Una o varias subseries a eliminar ya están asociadas al CCD, por favor eliminar asociaciones primero'})
+                    
                     subseries.delete()
 
                     return Response({'success':True, 'detail':'Se han eliminado todas las subseries'}, status=status.HTTP_204_NO_CONTENT)
