@@ -137,7 +137,7 @@ class ClasificacionSeriesSubDoc(models.Model):
 
 class PermisosGD(models.Model):
     permisos_GD=models.AutoField(primary_key=True, editable=False,db_column='T213IdPermisosGD')
-    tipo_permiso=models.CharField(db_column='T213tipoPermiso')
+    tipo_permiso=models.CharField(max_length=20,db_column='T213tipoPermiso')
     
     def __str__(self):
         return str(self.permisos_GD)
@@ -151,8 +151,8 @@ class CCD_Clasif_Cargos_UndCargo_Permisos(models.Model):
     id_serie_sub_serie_cargo_permiso_GD=models.AutoField(primary_key=True, editable=False, db_column='T215IdSerieSubserieCargoPermisoGD')
     id_serie_sub_serie_Doc=models.ForeignKey(SeriesSubseriesUnidadOrg,on_delete=models.CASCADE,db_column='T215Id_SerieSubserieDoc')
     cod_class_serie_Doc=models.ForeignKey(ClasificacionSeriesSubDoc,on_delete=models.CASCADE,db_column='T215Cod_ClasSerieDoc')
-    id_cargo_persona=models.CharField(db_column='T215Id_CargoPersona')
-    id_unidad_org_cargo=models.CharField('db_columnT215Id_UnidadOrgCargo') 
+    id_cargo_persona=models.CharField(max_length=10,db_column='T215Id_CargoPersona')
+    id_unidad_org_cargo=models.CharField(max_length=10,db_column='T215Id_UnidadOrgCargo') 
     id_permiso_GD=models.ForeignKey(PermisosGD,on_delete=models.CASCADE,db_column='T215Id_PermisoGD')
     id_TCA=models.ForeignKey(TablasControAcceso,on_delete=models.CASCADE,db_column='T215Id_TCA')       
     
