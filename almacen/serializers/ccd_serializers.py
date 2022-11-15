@@ -53,6 +53,13 @@ class CCDPutSerializer(serializers.ModelSerializer):
             'nombre': {'required': True}
         }
 
+class CCDActivarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CuadrosClasificacionDocumental
+        fields = ['fecha_terminado']
+        extra_kwargs = {
+            'fecha_terminado': {'read_only': True}
+        }
 
     
 class SeriesDocPostSerializer(serializers.ModelSerializer):

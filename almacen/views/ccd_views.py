@@ -4,11 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
 from seguridad.utils import Util
+from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from almacen.serializers.ccd_serializers import (
     SubseriesDocSerializer,
     CCDPostSerializer,
     CCDPutSerializer,
+    CCDActivarSerializer,
     CCDSerializer,
     SeriesDocPostSerializer,
     SeriesDocSerializer,
@@ -78,6 +80,9 @@ class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
         except:
             return Response({'success': False, 'detail': 'No existe ningún Cuadro de Clasificación Documental con los parámetros ingresados'}, status=status.HTTP_404_NOT_FOUND)
 
+        if ccd.fecha_terminado:
+            return Response({'success': False,'detail': 'No se puede actualizar un CCD terminado'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = self.serializer_class(ccd, data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -104,6 +109,48 @@ class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
         
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+
+class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
+    serializer_class = CCDActivarSerializer
+    queryset = CuadrosClasificacionDocumental
+
+    def put(self, request, pk):
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=pk).first()
+        if ccd:
+            if ccd.fecha_terminado == None:
+                unidades = UnidadesOrganizacionales.objects.filter(Q(id_organigrama=ccd.id_organigrama) & ~Q(cod_agrupacion_documental=None))
+                unidades_list = [unidad.id_unidad_organizacional for unidad in unidades]
+                
+                series = SeriesDoc.objects.filter(id_ccd=pk)
+                series_list = [serie.id_serie_doc for serie in series]
+
+                subseries = SubseriesDoc.objects.filter(id_ccd=pk)
+                subseries_list = [subserie.id_subserie_doc for subserie in subseries]
+
+
+                serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_list)
+                unidades_asignacion_list = [serie.id_unidad_organizacional.id_unidad_organizacional for serie in serie_subserie_unidad]
+                series_asignacion_list = [serie.id_serie_doc.id_serie_doc for serie in serie_subserie_unidad]
+                subseries_asignacion_list = [subserie.id_sub_serie_doc.id_subserie_doc for subserie in serie_subserie_unidad]
+
+                if not set(unidades_list).issubset(unidades_asignacion_list):
+                    return Response({'success': False, 'detail': 'Debe asociar todas las unidades'}, status=status.HTTP_400_BAD_REQUEST)
+
+                if not set(series_list).issubset(series_asignacion_list):
+                    return Response({'success': False, 'detail': 'Debe asociar todas las series'}, status=status.HTTP_400_BAD_REQUEST)
+
+                if not set(subseries_list).issubset(subseries_asignacion_list):
+                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries'}, status=status.HTTP_400_BAD_REQUEST)
+
+                ccd.fecha_terminado = datetime.today()
+                ccd.save()
+            else:
+                return Response({'success': False, 'detail': 'Ya se encuentra finalizado este CCD'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'success': False, 'detail': 'No se encontró ningún CCD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
+        
+        
 
 class GetCuadroClasificacionDocumental(generics.ListAPIView):
     serializer_class = CCDSerializer  

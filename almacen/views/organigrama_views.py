@@ -60,7 +60,6 @@ class UpdateNiveles(generics.UpdateAPIView):
         #CREACION DE NIVELES Y VALIDACION DEL ORDEN DE NIVEL
         contador = 1
         for nivel in data:
-            # id_nivel = nivel.get('id_nivel_organigrama')
             orden_nivel = nivel.get('orden_nivel')
             
             if orden_nivel == contador:
