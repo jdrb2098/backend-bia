@@ -198,10 +198,15 @@ class CreateSubseriesDoc(generics.CreateAPIView):
         if ccd:
             if not ccd.fecha_terminado:
                 if data:
-                    # ELIMINACION DE UNIDADES
-                    subseries_eliminar = SubseriesDoc.objects.filter(id_ccd=id_ccd)
-                    subseries_eliminar.delete()
-                    
+                    # VALIDAR QUE EL ID_CCD SEA EL MISMO
+                    ccd_list = [subserie['id_ccd'] for subserie in data]
+                    if len(set(ccd_list)) != 1:
+                        return Response({'success':False, 'detail':'Debe validar que las subseries pertenezcan a un mismo CCD'}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        print(ccd_list[0])
+                        if ccd_list[0] != int(id_ccd):
+                            return Response({'success':False, 'detail':'El id ccd de la petición debe ser igual al enviado en url'}, status=status.HTTP_400_BAD_REQUEST)
+                                     
                     # VALIDAR QUE LOS CODIGOS SEAN UNICOS
                     codigos_list = [subserie['codigo'] for subserie in data]
                     if len(codigos_list) != len(set(codigos_list)):
@@ -212,21 +217,32 @@ class CreateSubseriesDoc(generics.CreateAPIView):
                     if len(nombres_list) != len(set(nombres_list)):
                         return Response({'success':False, 'detail':'Debe validar que los nombres de las subseries sean únicos'}, status=status.HTTP_400_BAD_REQUEST)
                     
-                    # VALIDAR QUE EL ID_CCD SEA EL MISMO
-                    ccd_list = [subserie['id_ccd'] for subserie in data]
-                    if len(set(ccd_list)) != 1:
-                        return Response({'success':False, 'detail':'Debe validar que las subseries pertenezcan a un mismo CCD'}, status=status.HTTP_400_BAD_REQUEST)
-                    else:
-                        ccd_existe = CuadrosClasificacionDocumental.objects.filter(id_ccd=ccd_list[0]).first()
-                        if not ccd_existe:
-                            return Response({'success':False, 'detail':'El CCD no existe'}, status=status.HTTP_400_BAD_REQUEST)
-                    
                     # CREAR SUBSERIES
-                    serializer = self.serializer_class(data=request.data, many=True)
-                    serializer.is_valid(raise_exception=True)
-                    serializer.save()
+                    subseries_create = list(filter(lambda subserie: subserie['id_subserie_doc'] == None, data))
+                    subseries_id_create = []
+                    if subseries_create:
+                        serializer = self.serializer_class(data=subseries_create, many=True)
+                        serializer.is_valid(raise_exception=True)
+                        serializador = serializer.save()
+                        subseries_id_create.extend([subserie.id_subserie_doc for subserie in serializador])
+
+                    # ACTUALIZAR SUBSERIES
+                    subseries_update = list(filter(lambda subserie: subserie['id_subserie_doc'] != None, data))
+                    if subseries_update:
+                        for subserie in subseries_update:
+                            subserie_existe = SubseriesDoc.objects.filter(id_subserie_doc=subserie['id_subserie_doc']).first()
+                            if subserie_existe:
+                                serializer = self.serializer_class(subserie_existe, data=subserie)
+                                serializer.is_valid(raise_exception=True)
+                                serializer.save()
+
+                    # ELIMINAR SUBSERIES
+                    lista_subseries_id = [subserie['id_subserie_doc'] for subserie in subseries_update]
+                    lista_subseries_id.extend(subseries_id_create)
+                    subseries_eliminar = SubseriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_subserie_doc__in=lista_subseries_id)
+                    subseries_eliminar.delete()
                     
-                    return Response({'success':True, 'detail':'Se ha creado las subseries'}, status=status.HTTP_201_CREATED)
+                    return Response({'success':True, 'detail':'Se ha realizado cambios con las subseries'}, status=status.HTTP_201_CREATED)
                 else:
                     subseries.delete()
 
