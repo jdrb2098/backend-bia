@@ -63,37 +63,6 @@ class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
         
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental creado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
-#Crear Series documentales
-class CreateSeriesDoc(generics.CreateAPIView):
-    serializer_class = SeriesDocPostSerializer
-    queryset = SeriesDoc.objects.all()
-    
-    def post(self, request):
-        if request.data == []:
-            return Response({"Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        
-        usuario = request.user.id_usuario
-        user = User.objects.get(id_usuario = usuario)
-        modulo = Modulos.objects.get(id_modulo = 5)
-        permiso = Permisos.objects.get(cod_permiso = 'BO')
-        direccion_ip = Util.get_client_ip(request)
-        descripcion =  {"Series ingresadas" : request.data}
-        auditoria_data = {
-            'id_usuario': request.user.id_usuario,
-            'id_modulo': 5,
-            'cod_permiso': 'CR',
-            'subsistema': 'SEGU',
-            'dirip': direccion_ip,
-            'descripcion': descripcion
-        }
-            
-        Util.save_auditoria(auditoria_data)
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDPutSerializer
@@ -169,6 +138,36 @@ class GetCCDTerminado(generics.ListAPIView):
     serializer_class = CCDSerializer  
     queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None))
 
+#Crear Series documentales
+class CreateSeriesDoc(generics.CreateAPIView):
+    serializer_class = SeriesDocPostSerializer
+    queryset = SeriesDoc.objects.all()
+    
+    def post(self, request):
+        if request.data == []:
+            return Response({"Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        usuario = request.user.id_usuario
+        user = User.objects.get(id_usuario = usuario)
+        modulo = Modulos.objects.get(id_modulo = 5)
+        permiso = Permisos.objects.get(cod_permiso = 'BO')
+        direccion_ip = Util.get_client_ip(request)
+        descripcion =  {"Series ingresadas" : request.data}
+        auditoria_data = {
+            'id_usuario': request.user.id_usuario,
+            'id_modulo': 5,
+            'cod_permiso': 'CR',
+            'subsistema': 'SEGU',
+            'dirip': direccion_ip,
+            'descripcion': descripcion
+        }
+            
+        Util.save_auditoria(auditoria_data)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class GetSeriesDoc(generics.ListAPIView):
     serializer_class = SeriesDocSerializer

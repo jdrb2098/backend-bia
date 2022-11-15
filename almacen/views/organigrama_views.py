@@ -49,14 +49,10 @@ class UpdateNiveles(generics.UpdateAPIView):
         if organigrama.fecha_terminado != None:
             return Response({'success': False, 'detail': 'El organigrama ya está terminado, por lo cúal no es posible realizar acciones sobre los niveles'}, status=status.HTTP_403_FORBIDDEN)
 
-        #ELIMINACION DE TODOS LOS NIVELES
-        niveles = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama)
-        niveles.delete()
-
         #CREACION DE NIVELES Y VALIDACION DEL ORDEN DE NIVEL
         contador = 1
         for nivel in data:
-            id_nivel = nivel.get('id_nivel_organigrama')
+            # id_nivel = nivel.get('id_nivel_organigrama')
             orden_nivel = nivel.get('orden_nivel')
             
             if orden_nivel == contador:
@@ -64,11 +60,32 @@ class UpdateNiveles(generics.UpdateAPIView):
                 pass
             else:
                 return Response({'success': False, 'detail': 'No coincide el orden de los niveles'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            nivel_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=id_nivel).first()
-            nivel_serializer = self.serializer_class(nivel_instance, data=nivel)
-            nivel_serializer.is_valid(raise_exception=True)
-            nivel_serializer.save()
+        
+        #Creación de niveles
+        niveles_create = list(filter(lambda nivel: nivel['id_nivel_organigrama'] == None, data))
+        niveles_id_create = []
+        if niveles_create:
+            serializer = self.serializer_class(data=niveles_create, many=True)
+            serializer.is_valid(raise_exception=True)
+            serializador = serializer.save()
+            niveles_id_create_dos = [nivel.id_nivel_organigrama for nivel in serializador]
+            niveles_id_create.extend(niveles_id_create_dos)
+
+
+        niveles_update = list(filter(lambda nivel: nivel['id_nivel_organigrama'] != None, data))
+        if niveles_update:
+            for nivel in niveles_update:
+                nivel_existe = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel['id_nivel_organigrama']).first()
+                if nivel_existe:
+                    serializer = self.serializer_class(nivel_existe, data=nivel)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+
+        
+        lista_niveles_id = [nivel['id_nivel_organigrama'] for nivel in niveles_update]
+        lista_niveles_id.extend(niveles_id_create)
+        niveles_total = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama).exclude(id_nivel_organigrama__in=lista_niveles_id)
+        niveles_total.delete()
 
         return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)
 
