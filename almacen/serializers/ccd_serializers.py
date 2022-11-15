@@ -25,7 +25,6 @@ class SubseriesDocSerializer(serializers.ModelSerializer):
            )
         ]
 
-
 class CCDSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuadrosClasificacionDocumental
@@ -55,3 +54,24 @@ class CCDPutSerializer(serializers.ModelSerializer):
         }
 
 
+    
+class SeriesDocPostSerializer(serializers.ModelSerializer):
+    nombre = serializers.CharField(validators=[UniqueValidator(queryset=SeriesDoc.objects.all(), message='La serie documental debe ser unica')])
+    codigo = serializers.IntegerField(validators=[UniqueValidator(queryset=SeriesDoc.objects.all(), message='El códiggo debe de ser único')])
+  
+    class Meta:
+        model = SeriesDoc
+        fields = '__all__'
+
+class SeriesDocSerializer(serializers.ModelSerializer):
+    id_ccd = CCDSerializer(read_only=True)
+    
+    class Meta:
+        model = SeriesDoc
+        fields = '__all__'
+
+class SeriesSubseriesUnidadOrgSerializer(serializers.ModelSerializer):
+    #id_unidad_organizacional = serializers.IntegerField()
+    class Meta:
+        model = SeriesSubseriesUnidadOrg
+        fields = '__all__'        
