@@ -13,28 +13,6 @@ class NivelesGetSerializer(serializers.ModelSerializer):
         model = NivelesOrganigrama
         fields = '__all__'
 
-class NivelesPostSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = NivelesOrganigrama
-        fields = [
-            'id_organigrama',
-            'orden_nivel',
-            'nombre'
-        ]
-        validators = [
-           UniqueTogetherValidator(
-               queryset=NivelesOrganigrama.objects.all(),
-               fields = ['id_organigrama', 'orden_nivel']
-           )
-        ]
-        validators = [
-           UniqueTogetherValidator(
-               queryset=NivelesOrganigrama.objects.all(),
-               fields = ['id_organigrama', 'nombre']
-           )
-        ]
-
 
 class NivelesUpdateSerializer(serializers.ModelSerializer):
     
