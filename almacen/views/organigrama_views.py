@@ -34,16 +34,24 @@ class UpdateNiveles(generics.UpdateAPIView):
     def put(self, request, id_organigrama):
         data = request.data
 
-        #VALIDA SI NO HA CREADO NINGÚN NIVEL
-        if not data:
-            return Response({'success': False, 'detail': 'No se puede guardar sin crear al menos un nivel'}, status=status.HTTP_400_BAD_REQUEST)
-        
         #VALIDACION DE ORGANIGRAMA
         try:
             organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)
             pass
         except:
             return Response({'success': False, 'detail': 'No se pudo encontrar un organigrama con el parámetro ingresado'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #VALIDA SI NO HA CREADO NINGÚN NIVEL
+        if not data:
+            return Response({'success': False, 'detail': 'No se puede guardar sin crear al menos un nivel'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #VALIDACIÓN QUE ID_ORGANIGRAMA SEA EL MISMO
+        niveles_list_id = [nivel['id_organigrama'] for nivel in data]
+        if len(set(niveles_list_id)) != 1:
+             return Response({'success':False, 'detail':'Debe validar que los niveles pertenezcan a un mismo Organigrama'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if niveles_list_id[0] != int(id_organigrama):
+                return Response({'success':False, 'detail':'El id organigrama de la petición debe ser igual al enviado en url'}, status=status.HTTP_400_BAD_REQUEST)
 
         #VALIDACION DE FECHA DE TERMINADO
         if organigrama.fecha_terminado != None:
@@ -71,7 +79,7 @@ class UpdateNiveles(generics.UpdateAPIView):
             niveles_id_create_dos = [nivel.id_nivel_organigrama for nivel in serializador]
             niveles_id_create.extend(niveles_id_create_dos)
 
-
+        #Update de niveles
         niveles_update = list(filter(lambda nivel: nivel['id_nivel_organigrama'] != None, data))
         if niveles_update:
             for nivel in niveles_update:
@@ -80,8 +88,8 @@ class UpdateNiveles(generics.UpdateAPIView):
                     serializer = self.serializer_class(nivel_existe, data=nivel)
                     serializer.is_valid(raise_exception=True)
                     serializer.save()
-
         
+        #Delete de niveles
         lista_niveles_id = [nivel['id_nivel_organigrama'] for nivel in niveles_update]
         lista_niveles_id.extend(niveles_id_create)
         niveles_total = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama).exclude(id_nivel_organigrama__in=lista_niveles_id)
