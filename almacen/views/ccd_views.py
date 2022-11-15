@@ -130,9 +130,12 @@ class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
 
 
                 serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_list)
+                print(serie_subserie_unidad)
                 unidades_asignacion_list = [serie.id_unidad_organizacional.id_unidad_organizacional for serie in serie_subserie_unidad]
                 series_asignacion_list = [serie.id_serie_doc.id_serie_doc for serie in serie_subserie_unidad]
-                subseries_asignacion_list = [subserie.id_sub_serie_doc.id_subserie_doc for subserie in serie_subserie_unidad]
+
+                subseries_asignacion_list = [subserie.id_sub_serie_doc.id_subserie_doc for subserie in serie_subserie_unidad if subserie.id_sub_serie_doc]
+                print(subseries_asignacion_list)
 
                 if not set(unidades_list).issubset(unidades_asignacion_list):
                     return Response({'success': False, 'detail': 'Debe asociar todas las unidades'}, status=status.HTTP_400_BAD_REQUEST)
@@ -140,10 +143,11 @@ class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
                 if not set(series_list).issubset(series_asignacion_list):
                     return Response({'success': False, 'detail': 'Debe asociar todas las series'}, status=status.HTTP_400_BAD_REQUEST)
 
-                if not set(subseries_list).issubset(subseries_asignacion_list):
+                #Agregar validación para cuando una lista viene vacia
+                if not set(subseries_list).issubset(set(subseries_asignacion_list)):
                     return Response({'success': False, 'detail': 'Debe asociar todas las subseries'}, status=status.HTTP_400_BAD_REQUEST)
 
-                ccd.fecha_terminado = datetime.today()
+                ccd.fecha_terminado = datetime.now()
                 ccd.save()
                 return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
             else:
