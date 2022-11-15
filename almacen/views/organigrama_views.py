@@ -92,6 +92,11 @@ class UpdateNiveles(generics.UpdateAPIView):
         lista_niveles_id = [nivel['id_nivel_organigrama'] for nivel in niveles_update]
         lista_niveles_id.extend(niveles_id_create)
         niveles_total = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama).exclude(id_nivel_organigrama__in=lista_niveles_id)
+        
+        #
+        niveles_eliminar_list = [nivel.id_nivel_organigrama for nivel in niveles_total]
+        if UnidadesOrganizacionales.objects.filter(id_nivel_organigrama__in=niveles_eliminar_list).exists():
+            return Response({'success': False, 'detail': 'El nivel que intenta eliminar ya se encuentra relacionado con una unidad organizacional'}, status=status.HTTP_400_BAD_REQUEST)
         niveles_total.delete()
 
         return Response({'success':True,'detail': 'Actualizacion exitosa de los niveles'}, status=status.HTTP_201_CREATED)

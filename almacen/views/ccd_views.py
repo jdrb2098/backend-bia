@@ -117,6 +117,7 @@ class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
     def put(self, request, pk):
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=pk).first()
         if ccd:
+            #Validacion existencia del ccd a finalizar
             if ccd.fecha_terminado == None:
                 unidades = UnidadesOrganizacionales.objects.filter(Q(id_organigrama=ccd.id_organigrama) & ~Q(cod_agrupacion_documental=None))
                 unidades_list = [unidad.id_unidad_organizacional for unidad in unidades]
@@ -144,9 +145,9 @@ class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
 
                 ccd.fecha_terminado = datetime.today()
                 ccd.save()
+                return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
             else:
                 return Response({'success': False, 'detail': 'Ya se encuentra finalizado este CCD'}, status=status.HTTP_404_NOT_FOUND)
-            return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'success': False, 'detail': 'No se encontró ningún CCD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
         
