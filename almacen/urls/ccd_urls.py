@@ -7,6 +7,7 @@ urlpatterns = [
     path('get-list/', views.GetCuadroClasificacionDocumental.as_view(),name='get-list-ccd'),
     path('get-terminados/', views.GetCCDTerminado.as_view(),name='get-terminados-ccd'),
     path('finish/<str:pk>/', views.FinalizarCuadroClasificacionDocumental.as_view(),name='finish-ccd'),
+    path('resume/<str:pk>/', views.ReanudarCuadroClasificacionDocumental.as_view(),name='resume-ccd'),
 
     # SUBSERIES
     path('subseries/create/<str:id_ccd>/', views.CreateSubseriesDoc.as_view(), name='create-subseries-ccd'),

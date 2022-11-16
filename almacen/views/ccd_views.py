@@ -31,6 +31,9 @@ from almacen.models.ccd_models import (
 from almacen.models.organigrama_models import (
     UnidadesOrganizacionales
 )
+from gestion_documental.models.trd_models import (
+    TablaRetencionDocumental
+)
 
 import copy
 
@@ -469,3 +472,23 @@ class GetAsignaciones(generics.ListAPIView):
             cont = 0
             
         return Response({"Series y subseries asignadas a unidades organizacioneales en la CCD" + str(dato_consultado) : lista_serie_en_asignaciones}, status=status.HTTP_201_CREATED)
+
+class ReanudarCuadroClasificacionDocumental(generics.UpdateAPIView):
+    serializer_class = CCDActivarSerializer
+    queryset = CuadrosClasificacionDocumental
+
+    def put(self, request, pk):
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=pk).first()
+        if ccd:
+            if ccd.fecha_terminado:
+                trd = TablaRetencionDocumental.objects.filter(id_ccd=pk).exists()
+                if not trd:
+                    ccd.fecha_terminado = None
+                    ccd.save()
+                    return Response({'success': True, 'detail': 'Se reanudó el CCD'}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({'success': False, 'detail': 'No puede reanudar el CCD porque se encuentra en un TRD'}, status=status.HTTP_403_FORBIDDEN)
+            else:
+                return Response({'success': False, 'detail': 'No puede reanudar un CCD no terminado'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'success': False, 'detail': 'No se encontró ningún CCD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
