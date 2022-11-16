@@ -27,8 +27,8 @@ class TablaRetencionDocumental(models.Model):
 
 
 class TiposSoportesDocumentos(models.Model):
-    id_tipo_soporte_doc = models.CharField(max_length=1,primary_key=True, editable=False, db_column='T209Cod_TipoSoporteDoc')
-    nombre = models.CharField(max_length=11, choices=tipos_soportes_doc_CHOICES, db_column='T209nombre')
+    id_tipo_soporte_doc = models.CharField(max_length=1, primary_key=True, editable=False, db_column='T209Cod_TipoSoporteDoc')
+    nombre = models.CharField(max_length=11, db_column='T209nombre')
 
     def __str__(self):
         return str(self.nombre)
@@ -69,7 +69,7 @@ class TipologiasDocumentales(models.Model):
     id_tipologia_documental = models.AutoField(editable=False, primary_key=True, db_column='T208TipologiasDocumentales')
     nombre = models.CharField(max_length=10, db_column='T208nombre')
     codigo = models.PositiveSmallIntegerField(db_column='T208codigo')
-    cod_tipo_soporte_doc = models.ForeignKey(TiposSoportesDocumentos, on_delete=models.CASCADE, db_column='T208Cod_TipoSoporteDoc')
+    cod_tipo_soporte_doc = models.CharField(max_length=1, choices=tipos_soportes_doc_CHOICES, db_column='T208Cod_TipoSoporteDoc')
     id_trd = models.ForeignKey(TablaRetencionDocumental, on_delete=models.CASCADE, db_column='T208Id_TRD')
 
     def __str__(self):

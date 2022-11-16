@@ -273,7 +273,6 @@ class CreateSubseriesDoc(generics.CreateAPIView):
     
     def post(self, request, id_ccd):
         data = request.data
-        subseries = SubseriesDoc.objects.filter(id_ccd=id_ccd)
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd).first()
         if ccd:
             if not ccd.fecha_terminado:
@@ -339,7 +338,7 @@ class CreateSubseriesDoc(generics.CreateAPIView):
                     if serie_subserie_unidad:
                         return Response({'success':False, 'detail':'Una o varias subseries a eliminar ya están asociadas al CCD, por favor eliminar asociaciones primero'})
                     
-                    subseries.delete()
+                    subseries_eliminar.delete()
 
                     return Response({'success':True, 'detail':'Se han eliminado todas las subseries'}, status=status.HTTP_204_NO_CONTENT)
             else:

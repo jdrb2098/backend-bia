@@ -275,22 +275,25 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
     def put(self,request,pk):
         organigrama_a_finalizar=Organigramas.objects.filter(id_organigrama=pk).first()
         if organigrama_a_finalizar:
-            niveles=NivelesOrganigrama.objects.filter(id_organigrama=pk) 
-            unidades=UnidadesOrganizacionales.objects.filter(id_organigrama=pk) 
-            nivel_list= [nivel.id_nivel_organigrama for nivel in niveles] 
-            nivel_unidad_list=[unidad.id_nivel_organigrama.id_nivel_organigrama for unidad in unidades]
-            if not niveles:
-                return Response({'success':False,'detail':'No se puede finalizar organigrama si no cuenta con minimo un nivel'}, status=status.HTTP_403_FORBIDDEN)
-            if not unidades:
-                return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe contener por lo menos un nivel'}, status=status.HTTP_403_FORBIDDEN)
-            if nivel_list and not nivel_unidad_list:
-                return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
-            if not set(nivel_list).issubset(nivel_unidad_list):
-                return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
-            
-            organigrama_a_finalizar.fecha_terminado=datetime.now()
-            organigrama_a_finalizar.save()
-            return Response({'success':True,'detail':'Se Finalizo el organigrama correctamente'},status=status.HTTP_200_OK)
+            if not organigrama_a_finalizar.fecha_terminado:
+                niveles=NivelesOrganigrama.objects.filter(id_organigrama=pk) 
+                unidades=UnidadesOrganizacionales.objects.filter(id_organigrama=pk) 
+                nivel_list= [nivel.id_nivel_organigrama for nivel in niveles] 
+                nivel_unidad_list=[unidad.id_nivel_organigrama.id_nivel_organigrama for unidad in unidades]
+                if not niveles:
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama si no cuenta con minimo un nivel'}, status=status.HTTP_403_FORBIDDEN)
+                if not unidades:
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe contener por lo menos una unidad'}, status=status.HTTP_403_FORBIDDEN)
+                if nivel_list and not nivel_unidad_list:
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
+                if not set(nivel_list).issubset(nivel_unidad_list):
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
+                
+                organigrama_a_finalizar.fecha_terminado=datetime.now()
+                organigrama_a_finalizar.save()
+                return Response({'success':True,'detail':'Se Finalizo el organigrama correctamente'},status=status.HTTP_200_OK)
+            else:
+                return Response({'success':False, 'detail':'Ya se encuentra finalizado este Organigrama'})
         return Response({'success':False,'detail':'No existe organigrama'},status=status.HTTP_403_FORBIDDEN)
     
 class ActivarOrganigrama(generics.UpdateAPIView):

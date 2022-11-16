@@ -19,8 +19,6 @@ class CreateTipologiasDocumentales(generics.CreateAPIView):
     
     def post(self, request, id_trd):
         data = request.data
-        tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd)
-        print("TIPOLOGIAS: ", tipologias)
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
         if trd:
             if not trd.fecha_terminado:
@@ -92,3 +90,17 @@ class CreateTipologiasDocumentales(generics.CreateAPIView):
                 return Response({'success':False, 'detail':'El TRD ya está terminado, por lo cual no es posible realizar acciones sobre las tipologias'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success':False, 'detail':'El TRD no existe'}, status=status.HTTP_404_NOT_FOUND)
+
+class GetTipologiasDocumentales(generics.ListAPIView):
+    serializer_class = TipologiasDocumentalesSerializer
+    queryset = TipologiasDocumentales.objects.all()
+    
+    def get(self, request, id_trd):
+        trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
+        if trd:
+            tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd)
+            serializer = self.serializer_class(tipologias, many=True)
+            return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'Debe consultar por un TRD válido'}, status=status.HTTP_404_NOT_FOUND)
+        

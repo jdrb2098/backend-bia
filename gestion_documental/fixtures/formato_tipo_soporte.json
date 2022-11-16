@@ -4,7 +4,7 @@
         "pk" : 1,
         "fields": {
             "id_formato_tipo_soporte":1,
-            "nombre":"ARC_IA (Páginas web)",
+            "nombre":"ARC_IA",
             "id_tipo_soporte_doc":"E"
         }
     },
@@ -13,7 +13,7 @@
         "pk" : 2,
         "fields": {
             "id_formato_tipo_soporte":2,
-            "nombre":"BWF (Contenido audio)",
+            "nombre":"BWF",
             "id_tipo_soporte_doc":"E"
         }
     },
@@ -22,7 +22,7 @@
         "pk" : 3,
         "fields": {
             "id_formato_tipo_soporte":3,
-            "nombre":"CGM (Contenido imagen)",
+            "nombre":"CGM",
             "id_tipo_soporte_doc":"E"
         }
     },
