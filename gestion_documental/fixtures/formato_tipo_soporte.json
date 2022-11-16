@@ -1,0 +1,515 @@
+[
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 1,
+        "fields": {
+            "id_formato_tipo_soporte":1,
+            "nombre":"ARC_IA (Páginas web)",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 2,
+        "fields": {
+            "id_formato_tipo_soporte":2,
+            "nombre":"BWF (Contenido audio)",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 3,
+        "fields": {
+            "id_formato_tipo_soporte":3,
+            "nombre":"CGM (Contenido imagen)",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 4,
+        "fields": {
+            "id_formato_tipo_soporte":4,
+            "nombre":"dBase",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 5,
+        "fields": {
+            "id_formato_tipo_soporte":5,
+            "nombre":"DWG",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 6,
+        "fields": {
+            "id_formato_tipo_soporte":6,
+            "nombre":"DXF",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 7,
+        "fields": {
+            "id_formato_tipo_soporte":7,
+            "nombre":"EML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 8,
+        "fields": {
+            "id_formato_tipo_soporte":8,
+            "nombre":"ESRI Shapefile",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 9,
+        "fields": {
+            "id_formato_tipo_soporte":9,
+            "nombre":"XLSX",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 10,
+        "fields": {
+            "id_formato_tipo_soporte":10,
+            "nombre":"Formulario electrónico",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 11,
+        "fields": {
+            "id_formato_tipo_soporte":11,
+            "nombre":"GML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 12,
+        "fields": {
+            "id_formato_tipo_soporte":12,
+            "nombre":"CGM",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 13,
+        "fields": {
+            "id_formato_tipo_soporte":13,
+            "nombre":"GZIP",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 14,
+        "fields": {
+            "id_formato_tipo_soporte":14,
+            "nombre":"HTML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 15,
+        "fields": {
+            "id_formato_tipo_soporte":15,
+            "nombre":"JPEG 2000-Motion",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 16,
+        "fields": {
+            "id_formato_tipo_soporte":16,
+            "nombre":"JPEG/Exif",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 17,
+        "fields": {
+            "id_formato_tipo_soporte":17,
+            "nombre":"JPEG2000",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 18,
+        "fields": {
+            "id_formato_tipo_soporte":18,
+            "nombre":"JPG/JFIF",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 19,
+        "fields": {
+            "id_formato_tipo_soporte":19,
+            "nombre":"JSON",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 20,
+        "fields": {
+            "id_formato_tipo_soporte":20,
+            "nombre":"Maildir",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 21,
+        "fields": {
+            "id_formato_tipo_soporte":21,
+            "nombre":"Matroska",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 22,
+        "fields": {
+            "id_formato_tipo_soporte":22,
+            "nombre":"MBOX",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 23,
+        "fields": {
+            "id_formato_tipo_soporte":23,
+            "nombre":"MNG",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 24,
+        "fields": {
+            "id_formato_tipo_soporte":24    ,
+            "nombre":"MP3",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 25,
+        "fields": {
+            "id_formato_tipo_soporte":25,
+            "nombre":"MPEG-1",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 26,
+        "fields": {
+            "id_formato_tipo_soporte":26,
+            "nombre":"MPEG-2",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 27,
+        "fields": {
+            "id_formato_tipo_soporte":27,
+            "nombre":"MPEG-4",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 28,
+        "fields": {
+            "id_formato_tipo_soporte":28,
+            "nombre":"MXD",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 29,
+        "fields": {
+            "id_formato_tipo_soporte":29,
+            "nombre":"MXF",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 30,
+        "fields": {
+            "id_formato_tipo_soporte":30,
+            "nombre":"Office OpenXML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 31,
+        "fields": {
+            "id_formato_tipo_soporte":31,
+            "nombre":"OGM",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 32,
+        "fields": {
+            "id_formato_tipo_soporte":32,
+            "nombre":"OOXML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 33,
+        "fields": {
+            "id_formato_tipo_soporte":33,
+            "nombre":"Open Document",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 34,
+        "fields": {
+            "id_formato_tipo_soporte":34,
+            "nombre":"OpenDocument",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 35,
+        "fields": {
+            "id_formato_tipo_soporte":35,
+            "nombre":"PDF",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 36,
+        "fields": {
+            "id_formato_tipo_soporte":36,
+            "nombre":"PDF/ A-2",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 37,
+        "fields": {
+            "id_formato_tipo_soporte":37,
+            "nombre":"PDF/ A-3",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 38,
+        "fields": {
+            "id_formato_tipo_soporte":38,
+            "nombre":"PDF/A-1",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 39,
+        "fields": {
+            "id_formato_tipo_soporte":39,
+            "nombre":"PDFA",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 40,
+        "fields": {
+            "id_formato_tipo_soporte":40,
+            "nombre":"PNG",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 41,
+        "fields": {
+            "id_formato_tipo_soporte":41,
+            "nombre":"SHP",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 42,
+        "fields": {
+            "id_formato_tipo_soporte":42,
+            "nombre":"SIARD",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 43,
+        "fields": {
+            "id_formato_tipo_soporte":43,
+            "nombre":"SQL",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 44,
+        "fields": {
+            "id_formato_tipo_soporte":44,
+            "nombre":"SVG",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 45,
+        "fields": {
+            "id_formato_tipo_soporte":45,
+            "nombre":"TXT",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 46,
+        "fields": {
+            "id_formato_tipo_soporte":46,
+            "nombre":"TIFF",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 47,
+        "fields": {
+            "id_formato_tipo_soporte":47,
+            "nombre":"WAVE",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 48,
+        "fields": {
+            "id_formato_tipo_soporte":48,
+            "nombre":"Web Archive",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 49,
+        "fields": {
+            "id_formato_tipo_soporte":49,
+            "nombre":"WebMovie",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 50,
+        "fields": {
+            "id_formato_tipo_soporte":50,
+            "nombre":"WFS",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 51,
+        "fields": {
+            "id_formato_tipo_soporte":51,
+            "nombre":"WMS",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 52,
+        "fields": {
+            "id_formato_tipo_soporte":52,
+            "nombre":"DOCX",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 53,
+        "fields": {
+            "id_formato_tipo_soporte":53,
+            "nombre":"XML",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 54,
+        "fields": {
+            "id_formato_tipo_soporte":54,
+            "nombre":"XPDL",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 55,
+        "fields": {
+            "id_formato_tipo_soporte":55,
+            "nombre":"XPM",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 56,
+        "fields": {
+            "id_formato_tipo_soporte":56,
+            "nombre":"XPM Pixmap Graphic",
+            "id_tipo_soporte_doc":"E"
+        }
+    },
+    {
+        "model": "gestion_documental.FormatosTipoSoporte",
+        "pk" : 57,
+        "fields": {
+            "id_formato_tipo_soporte":57,
+            "nombre":"ZIP",
+            "id_tipo_soporte_doc":"E"
+        }
+    }
+]  

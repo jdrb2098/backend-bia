@@ -27,8 +27,8 @@ class TablaRetencionDocumental(models.Model):
 
 
 class TiposSoportesDocumentos(models.Model):
-    id_tipo_soporte_doc = models.AutoField(primary_key=True, editable=False, db_column='T209Cod_TipoSoporteDoc')
-    nombre = models.CharField(max_length=10, choices=tipos_soportes_doc_CHOICES, db_column='T209nombre')
+    id_tipo_soporte_doc = models.CharField(max_length=1,primary_key=True, editable=False, db_column='T209Cod_TipoSoporteDoc')
+    nombre = models.CharField(max_length=11, choices=tipos_soportes_doc_CHOICES, db_column='T209nombre')
 
     def __str__(self):
         return str(self.nombre)
@@ -41,7 +41,7 @@ class TiposSoportesDocumentos(models.Model):
 
 class FormatosTipoSoporte(models.Model):
     id_formato_tipo_soporte = models.AutoField(primary_key=True, editable=False, db_column='T210IdFormatoTipoSoporte')
-    nombre = models.CharField(max_length=10, unique=True, db_column='T210nombre')
+    nombre = models.CharField(max_length=30, unique=True, db_column='T210nombre')
     id_tipo_soporte_doc=models.ForeignKey(TiposSoportesDocumentos, on_delete=models.CASCADE, db_column='T210Cod_TipoSoporteDoc')
 
     def __str__(self):
