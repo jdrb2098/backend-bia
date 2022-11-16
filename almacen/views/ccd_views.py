@@ -191,41 +191,69 @@ class GetCCDTerminado(generics.ListAPIView):
     queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None))
 
 #Crear Series documentales
-class CreateSeriesDoc(generics.CreateAPIView):
+class CreateSeriesDoc(generics.UpdateAPIView):
     serializer_class = SeriesDocPostSerializer
     queryset = SeriesDoc.objects.all()
     
-    def post(self, request):
+    def put(self, request, id_ccd):
+        id_ccd_ingresada = id_ccd
+        data_ingresada = request.data
+        
+        # VALIDACIONES
+        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresada).values().first())['fecha_terminado']
+        if fecha_ccd != None:
+            return Response({'success':False, "Error" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+        ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = id_ccd_ingresada).first()
+        if ccd == None:
+            return Response({'success': False, "Error" : "No se encontró esa ccd"}, status=status.HTTP_400_BAD_REQUEST)
         if request.data == []:
-            return Response({"Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data,list))
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+            return Response({'success': False, "Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
         
-        usuario = request.user.id_usuario
-        user = User.objects.get(id_usuario = usuario)
-        modulo = Modulos.objects.get(id_modulo = 5)
-        permiso = Permisos.objects.get(cod_permiso = 'BO')
-        direccion_ip = Util.get_client_ip(request)
-        descripcion =  {"Series ingresadas" : request.data}
-        auditoria_data = {
-            'id_usuario': request.user.id_usuario,
-            'id_modulo': 5,
-            'cod_permiso': 'CR',
-            'subsistema': 'SEGU',
-            'dirip': direccion_ip,
-            'descripcion': descripcion
-        }
+        ccd_list = [subserie['id_ccd'] for subserie in data_ingresada]
+
+        if len(set(ccd_list)) != 1:
+            return Response({'success':False, 'detail':'Debe validar que las subseries pertenezcan a un mismo CCD'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if ccd_list[0] != int(id_ccd):
+                return Response({'success':False, 'detail':'El id ccd de la petición debe ser igual al enviado en url'}, status=status.HTTP_400_BAD_REQUEST)
+                            
+                                     
+        # SE OBTIENEN LOS DATOS A ACTUALIZAR Y A CREAR
+        series_update = list(filter(lambda serie: serie['id_serie_doc'] != None, data_ingresada))
+        series_create = list(filter(lambda serie: serie['id_serie_doc'] == None, data_ingresada))           
+        
+        # CREATE
+        series_id_create = []
+        if series_create:
+            serializer = self.serializer_class(data=series_create, many=True)
+            serializer.is_valid(raise_exception=True)
+            serializador = serializer.save()
+            series_id_create.extend([serie.id_serie_doc for serie in serializador])
+            print(series_id_create)
+        
+        # UPDATE SERIES
+        if series_update:
+            for i in series_update:
+                instancia = SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).first()
+                if instancia:
+                    serializer = self.serializer_class(instancia, data=i, many=False)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                
+        # ELIMINAR SUBSERIES
+            lista_series_id = [serie['id_serie_doc'] for serie in series_update]
+            lista_series_id.extend(series_id_create)
+            subseries_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
+            subseries_eliminar.delete()
             
-        Util.save_auditoria(auditoria_data)
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        return Response({'success': True, "Mensaje" : "Datos guardados con éxito"}, status=status.HTTP_201_CREATED)
 
 class GetSeriesDoc(generics.ListAPIView):
     serializer_class = SeriesDocSerializer
     
-    def get(self, request):
-        dato_buscado = request.query_params.get('pk')
+    def get(self, request, id_ccd):
+        dato_buscado = id_ccd
         if dato_buscado == None:
             series_doc = SeriesDoc.objects.all().values()
             if len(series_doc) == 0:
@@ -331,71 +359,65 @@ class GetSubseries(generics.ListAPIView):
             return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'Debe consultar por un CCD válido'}, status=status.HTTP_404_NOT_FOUND)
+        
 class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
     serializer_class = SeriesSubseriesUnidadOrgSerializer
     
-    def put(self, request):
+    def put(self, request, id_ccd):
+        id_ccd_ingresado = id_ccd
         datos_ingresados = request.data
         if datos_ingresados == []:
             return Response({"Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
-        if not isinstance(datos_ingresados['id_unidad_organizacional'], int):
-             return Response({"Error" : "Unidad organizacional debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
-        if not isinstance(datos_ingresados['id_serie_doc'], int):
-             return Response({"Error" : "La serie documental debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
-        unidad_organizacional = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional=datos_ingresados['id_unidad_organizacional']).first()
-        if unidad_organizacional == None:
-            return Response({"Error" : "No existe esa unidad organizacional"}, status=status.HTTP_400_BAD_REQUEST)
-        serie = SeriesDoc.objects.filter(id_serie_doc=datos_ingresados['id_serie_doc']).first()
-        if serie == None:
-            return Response({"Error" : "No existe esa serie documental"}, status=status.HTTP_400_BAD_REQUEST)
-        subseries = datos_ingresados['subseries']
-        datos = []
-        for i in subseries:
-            subserie = SubseriesDoc.objects.filter(id_subserie_doc=i).first()
-            if not isinstance(i, int):
-                return Response({"Error" : "Las subseries documentales deben ser un número entero", "Subserie erronea" : i}, status=status.HTTP_400_BAD_REQUEST)
-            if subserie == None:
-                return Response({"Error" : "Una de las series documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
-            datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : subserie.id_subserie_doc})
-        instance = SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)
-        aux = (SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)).values()
-        borrados=[]
-        if instance != None:
-            for i in aux:
-                borrados.append(i['id_sub_serie_doc_id'])
-                print(i['id_sub_serie_doc_id'])
-            for i in instance:
-                i.delete()
-            
-        datos_borrados = {"Unidad organizacional" : str(datos_ingresados['id_unidad_organizacional']), "Serie documental" : str(datos_ingresados['id_serie_doc']), "Subseries documentales" : str(borrados)}
-        serializer = self.get_serializer(data=datos, many=isinstance(datos,list))
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        
-        usuario = request.user.id_usuario
-        user = User.objects.get(id_usuario = usuario)
-        modulo = Modulos.objects.get(id_modulo = 5)
-        permiso = Permisos.objects.get(cod_permiso = 'BO')
-        direccion_ip = Util.get_client_ip(request)
-        descripcion =  {"Datos insertados" : {"Unidad organizacional" : str(datos_ingresados['id_unidad_organizacional']), "Serie documental" : str(datos_ingresados['id_serie_doc']), "Subseries documentales" : str(datos_ingresados['subseries'])}, "Datos borrados" : datos_borrados}
-        auditoria_data = {
-            'id_usuario': request.user.id_usuario,
-            'id_modulo': 5,
-            'cod_permiso': 'CR',
-            'subsistema': 'SEGU',
-            'dirip': direccion_ip,
-            'descripcion': descripcion
-        }
-            
-        Util.save_auditoria(auditoria_data)
+        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresado).values().first())['fecha_terminado']
+        if fecha_ccd != None:
+            return Response({'success':False, "Error" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+        for i in datos_ingresados:
+            if not isinstance(i['id_unidad_organizacional'], int):
+                return Response({"Error" : "Unidad organizacional debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
+            if not isinstance(i['id_serie_doc'], int):
+                return Response({"Error" : "Debe ingresar una serie documental válida"}, status=status.HTTP_400_BAD_REQUEST)
+            unidad_organizacional = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional=i['id_unidad_organizacional']).first()
+            if unidad_organizacional == None:
+                return Response({"Error" : "No existe esa unidad organizacional"}, status=status.HTTP_400_BAD_REQUEST)
+            serie = SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).first()
+            if serie == None:
+                return Response({"Error" : "No existe esa serie documental"}, status=status.HTTP_400_BAD_REQUEST)
+            if id_ccd_ingresado != (((SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).values())[0])['id_serie_doc']):
+                return Response({'success':False, "Error" : "Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
+            subseries = i['subseries']
+            datos = []
+            for i in subseries:
+                if i == None:
+                    datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : None})
+                else:
+                    subserie = SubseriesDoc.objects.filter(id_subserie_doc=i).first()
+                    if subserie == None:
+                            return Response({"Error" : "Una de las series documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
+                    if (isinstance(i, int)) or (i == None):
+                        pass
+                    else:
+                        return Response({"Error" : "Las subseries documentales deben ser un número entero", "Subserie erronea" : i}, status=status.HTTP_400_BAD_REQUEST)
+                    datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : subserie.id_subserie_doc})
+            instance = SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)
+            aux = (SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)).values()
+            borrados=[]
+            if instance != None:
+                for i in aux:
+                    borrados.append(i['id_sub_serie_doc_id'])
+                for i in instance:
+                    i.delete()
+                    
+                serializer = self.get_serializer(data=datos, many=isinstance(datos,list))
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
             
         return Response({"Mensaje" : "Datos guardados con éxito", "Datos" : serializer.data}, status=status.HTTP_201_CREATED)
     
 class GetAsignaciones(generics.ListAPIView):
     serializer_class = SeriesSubseriesUnidadOrgSerializer
     
-    def get(self, request):
-        dato_consultado = request.query_params.get('ccd')
+    def get(self, request, id_ccd):
+        dato_consultado = id_ccd
         if dato_consultado == None:
             return Response({"Error" : "Debe ingresar algún valor"}, status=status.HTTP_400_BAD_REQUEST)
         try: 
