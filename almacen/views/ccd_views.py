@@ -243,8 +243,9 @@ class CreateSeriesDoc(generics.UpdateAPIView):
         # ELIMINAR SUBSERIES
             lista_series_id = [serie['id_serie_doc'] for serie in series_update]
             lista_series_id.extend(series_id_create)
-            subseries_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
-            subseries_eliminar.delete()
+            series_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
+            print(series_eliminar)
+            series_eliminar.delete()
             
             
         return Response({'success': True, "Mensaje" : "Datos guardados con éxito"}, status=status.HTTP_201_CREATED)
@@ -381,7 +382,7 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
             serie = SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).first()
             if serie == None:
                 return Response({"Error" : "No existe esa serie documental"}, status=status.HTTP_400_BAD_REQUEST)
-            if id_ccd_ingresado != (((SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).values())[0])['id_serie_doc']):
+            if str(id_ccd_ingresado) != str((((SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).values())[0])['id_ccd_id'])):
                 return Response({'success':False, "Error" : "Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
             subseries = i['subseries']
             datos = []
