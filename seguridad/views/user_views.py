@@ -792,13 +792,13 @@ class LoginApiView(generics.CreateAPIView):
         for rol in rol_id_list:
             permisos = PermisosModuloRol.objects.filter(id_rol=rol).values()
             permisos_list.append(permisos)
-       
-        
         ip = Util.get_client_ip(request)
         device = Util.get_client_device(request)
         if user:
             if user.is_active:
+
                 try:
+                    
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).last()
                     serializer = self.serializer_class(data=request.data)
                     serializer.is_valid(raise_exception=True)
@@ -814,8 +814,13 @@ class LoginApiView(generics.CreateAPIView):
                     if login_error:
                         login_error.contador = 0
                         login_error.save()
-
-                    return Response({'userinfo':serializer.data,'permisos':permisos_list[0]}, status=status.HTTP_200_OK)
+                        
+                
+                    
+                    representante_legal=Personas.objects.filter(representante_legal=user.persona.id_persona).values()
+                    representante_legal_list=[ {'id_persona':representante['id_persona'],'razon social':representante['razon_social'],'NUIP':representante['numero_documento'],} for representante in representante_legal]
+                    user_info={'userinfo':serializer.data,'permisos':permisos_list[0],'representante_legal':representante_legal_list}
+                    return Response({'userinfo':user_info}, status=status.HTTP_200_OK)
 
                 except:
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).first()

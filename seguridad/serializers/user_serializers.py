@@ -160,10 +160,11 @@ class LoginSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(read_only=True, default=False)
     id_usuario = serializers.IntegerField(read_only=True)
     permisos = serializers.DictField(read_only=True)
+    representante_legal =serializers.DictField(read_only=True)
     
     class Meta:
         model=Login
-        fields= ['email', 'password', 'nombre_de_usuario', 'tokens', 'is_superuser', 'id_usuario', 'permisos']
+        fields= ['email', 'password', 'nombre_de_usuario', 'tokens', 'is_superuser', 'id_usuario', 'permisos', 'representante_legal']
     
     def validate(self, attrs):
         email = attrs.get('email', '')
