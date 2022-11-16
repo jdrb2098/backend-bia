@@ -81,7 +81,7 @@ class TipologiasDocumentales(models.Model):
         verbose_name_plural = 'Tipologias Documentales'
         unique_together = ['id_trd', 'nombre']
         unique_together = ['id_trd', 'codigo']
-
+        ordering = ['nombre']
 
 class SeriesSubSeriesUnidadesTipologias(models.Model):
     id_serie_subserie_tipologia = models.AutoField(primary_key=True, editable=False, db_column='T211IdSerieSubserieTipologia')

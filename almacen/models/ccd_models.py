@@ -38,6 +38,7 @@ class SubseriesDoc(models.Model):
         verbose_name_plural = 'Subseries'
         unique_together = ['id_ccd', 'nombre']
         unique_together = ['id_ccd', 'codigo']
+        ordering = ['nombre']
     
 
 class SeriesDoc(models.Model):
@@ -53,6 +54,7 @@ class SeriesDoc(models.Model):
         db_table = 'T203SeriesDoc_CCD'
         verbose_name = 'Serie'
         verbose_name_plural = 'Series'
+        ordering = ['nombre']
     
 class SeriesSubseriesUnidadOrg(models.Model):
     id_serie_subserie_doc = models.AutoField(primary_key=True, editable=False, db_column='T205SerieSubserieDoc')
