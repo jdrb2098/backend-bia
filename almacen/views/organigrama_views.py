@@ -93,7 +93,7 @@ class UpdateNiveles(generics.UpdateAPIView):
         lista_niveles_id.extend(niveles_id_create)
         niveles_total = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama).exclude(id_nivel_organigrama__in=lista_niveles_id)
         
-        #
+        #Validacion NO PODER ELIMINAR eliminar un nivel que ya está siendo usado
         niveles_eliminar_list = [nivel.id_nivel_organigrama for nivel in niveles_total]
         if UnidadesOrganizacionales.objects.filter(id_nivel_organigrama__in=niveles_eliminar_list).exists():
             return Response({'success': False, 'detail': 'El nivel que intenta eliminar ya se encuentra relacionado con una unidad organizacional'}, status=status.HTTP_400_BAD_REQUEST)
@@ -448,6 +448,7 @@ class GetSeccionSubsecciones(generics.ListAPIView):
             return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'Debe consultar por un organigrama válido'}, status=status.HTTP_404_NOT_FOUND)
+            
 class GetOrganigramasTerminados(generics.ListAPIView):
     serializer_class = OrganigramaSerializer
     queryset = Organigramas.objects.filter(~Q(fecha_terminado=None))  
