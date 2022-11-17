@@ -55,4 +55,13 @@ class TRDPutSerializer(serializers.ModelSerializer):
             'version': {'required': True},
             'nombre': {'required': True}
         }
+
+
+class TRDActivarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TablaRetencionDocumental
+        fields = ['fecha_terminado']
+        extra_kwargs = {
+            'fecha_terminado': {'read_only': True}
+        }
             

@@ -103,7 +103,7 @@
         "pk" : 12,
         "fields": {
             "id_formato_tipo_soporte":12,
-            "nombre":"CGM",
+            "nombre":"GMLJP2",
             "id_tipo_soporte_doc":"E"
         }
     },

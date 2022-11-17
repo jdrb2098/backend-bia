@@ -1,6 +1,7 @@
 from rest_framework import status
 from django.db.models import Q
 import copy
+from datetime import datetime
 from rest_framework import generics
 from rest_framework.response import Response
 from seguridad.utils import Util
@@ -9,10 +10,13 @@ from gestion_documental.serializers.trd_serializers import (
     TipologiasDocumentalesSerializer,
     TRDSerializer,
     TRDPostSerializer,
-    TRDPutSerializer
+    TRDPutSerializer,
+    TRDActivarSerializer
 )
 from almacen.models.ccd_models import (
-    SeriesSubseriesUnidadOrg
+    SeriesSubseriesUnidadOrg,
+    CuadrosClasificacionDocumental,
+    SeriesDoc
 )
 from gestion_documental.models.trd_models import (
     TablaRetencionDocumental,
@@ -195,3 +199,49 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
         
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+class FinalizarTabla(generics.RetrieveUpdateAPIView):
+    serializer_class = TRDActivarSerializer
+    queryset = TablaRetencionDocumental
+
+    def put(self, request, id_trd):
+        trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
+        if trd:
+            if trd.fecha_terminado == None:
+                #Obtiene el id de las tipologias existentes relacionadas a la TRD
+                tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd)
+                tipologias_list = [tipologia.id_tipologia_documental for tipologia in tipologias]
+                print(tipologias_list)
+
+                #Obtiene el id de la seriesubserieunidad existentes relacionadas con el ccd asociado a la TRD
+                ccd_trd = CuadrosClasificacionDocumental.objects.get(id_ccd=trd.id_ccd.id_ccd)
+                series_ccd_trd = SeriesDoc.objects.filter(id_ccd=ccd_trd.id_ccd)
+                series_ccd_trd_list = [serie.id_serie_doc for serie in series_ccd_trd]
+                serie_subserie_unidadorg = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_ccd_trd_list)
+                serie_subserie_unidadorg_list = [serie.id_serie_subserie_doc for serie in serie_subserie_unidadorg]
+
+
+                # Busqueda mediante la tipologia, valor clave que contiene la trd directa
+                serie_subserie_tipologia_list = SeriesSubSeriesUnidadesTipologias.objects.filter(id_tipologia_documental__in=tipologias_list)
+
+                #Id de conexiones de ccd conectadas en TRD
+                series_unidades_asignacion_list = [serie.id_serie_subserie_doc.id_serie_subserie_doc for serie in serie_subserie_tipologia_list]
+
+                #Id de tipologias relacionadas conectadas
+                tipologias_asignacion_list = [serie.id_tipologia_documental.id_tipologia_documental for serie in serie_subserie_tipologia_list]
+
+                #Valida que lo existente asociado a esa trd esté asociado en la tabla intermedia
+                if not set(tipologias_list).issubset(tipologias_asignacion_list):
+                    return Response({'success': False, 'detail': 'Debe asociar todas las tipologias de esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
+
+                if not set(serie_subserie_unidadorg_list).issubset(series_unidades_asignacion_list):
+                    return Response({'success': False, 'detail': 'Debe asociar todas las series subseries unidades del CCD asociado a esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
+
+                #Poner Fecha Terminado
+                trd.fecha_terminado = datetime.now()
+                trd.save()
+                return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'success': False, 'detail': 'Ya se encuentra finalizado esta TRD'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'success': False, 'detail': 'No se encontró ninguna TRD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
+        

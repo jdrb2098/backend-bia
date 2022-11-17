@@ -11,5 +11,6 @@ urlpatterns = [
     path('get-list/', views.GetTablaRetencionDocumental.as_view(), name='trd-get-list'),
     path('create/', views.PostTablaRetencionDocumental.as_view(), name='trd-create'),
     path('update/<str:pk>/', views.UpdateTablaRetencionDocumental.as_view(), name='trd-update'),
+    path('finish/<str:id_trd>/', views.FinalizarTabla.as_view(), name='trd-finish'),
 
 ]

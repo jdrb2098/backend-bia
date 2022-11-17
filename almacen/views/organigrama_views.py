@@ -395,7 +395,9 @@ class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
     lookup_field='id_organigrama'
 
     def patch(self, request, id_organigrama):
-        organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)      
+        organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)   
+        if organigrama.fecha_terminado:
+            return Response({'success': False, 'detail': 'No se puede actualizar un organigrama que ya está terminado'})   
         ccd = list(CuadrosClasificacionDocumental.objects.filter(id_organigrama=organigrama.id_organigrama).values())
         if not len(ccd):
             serializer = self.serializer_class(organigrama, data=request.data)
@@ -417,11 +419,11 @@ class GetOrganigrama(generics.ListAPIView):
         if consulta == None:
             organigramas = Organigramas.objects.all().values()
             if len(organigramas) == 0:
-                return Response({'Error' : 'Aún no hay organigramas registrados'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'success':False, 'detail' : 'Aún no hay organigramas registrados'}, status=status.HTTP_404_NOT_FOUND)
             return Response({'Organigramas' : organigramas}, status=status.HTTP_200_OK) 
         organigrama = Organigramas.objects.filter(id_organigrama=int(consulta)).values()
         if len(organigrama) == 0:
-            return Response({'Error' : 'No se encontró el organigrama ingresado'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': False, 'detail' : 'No se encontró el organigrama ingresado'}, status=status.HTTP_404_NOT_FOUND)
         niveles = NivelesOrganigrama.objects.filter(id_organigrama=int(consulta)).values()
         if len(niveles) == 0:
             niveles = 'No hay niveles registrados'

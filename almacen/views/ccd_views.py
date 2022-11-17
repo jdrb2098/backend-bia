@@ -113,7 +113,7 @@ class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
         return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
-class FinalizarCuadroClasificacionDocumental(generics.UpdateAPIView):
+class FinalizarCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDActivarSerializer
     queryset = CuadrosClasificacionDocumental
 
