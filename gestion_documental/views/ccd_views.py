@@ -151,13 +151,20 @@ class FinalizarCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
                     return Response({'success': False, 'detail': 'Debe asociar todas las unidades'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if not set(series_list).issubset(series_asignacion_list):
-                    return Response({'success': False, 'detail': 'Debe asociar todas las series'}, status=status.HTTP_400_BAD_REQUEST)
+                    #Mostrar las series sin asignar
+                    series_difference_list = [serie for serie in series_list if serie not in series_asignacion_list]
+                    series_difference_instance = SeriesDoc.objects.filter(id_serie_doc__in=series_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las series', 'Series sin asignar': series_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
                 #Agregar validación para cuando una lista viene vacia
                 if subseries_list and not subseries_asignacion_list:
-                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas'}, status=status.HTTP_400_BAD_REQUEST)
+                    subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                    subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas, no hay ninguna asignada', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
                 if not set(subseries_list).issubset(set(subseries_asignacion_list)):
-                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas'}, status=status.HTTP_400_BAD_REQUEST)
+                    subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                    subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
                 ccd.fecha_terminado = datetime.now()
                 ccd.save()
