@@ -6,7 +6,9 @@ from gestion_documental.models.trd_models import (
     DisposicionFinalSeries,
     TipologiasDocumentales,
     SeriesSubSeriesUnidadesTipologias,
-    TablasControAcceso,
+)
+from gestion_documental.models.tca_models import (
+    TablasControlAcceso,
     ClasificacionSeriesSubDoc,
     PermisosGD,
     CCD_Clasif_Cargos_UndCargo_Permisos
@@ -18,7 +20,7 @@ admin.site.register(FormatosTipoSoporte),
 admin.site.register(DisposicionFinalSeries),
 admin.site.register(TipologiasDocumentales),
 admin.site.register(SeriesSubSeriesUnidadesTipologias),
-admin.site.register(TablasControAcceso),
+admin.site.register(TablasControlAcceso),
 admin.site.register(ClasificacionSeriesSubDoc),
 admin.site.register(PermisosGD),
 admin.site.register(CCD_Clasif_Cargos_UndCargo_Permisos),
