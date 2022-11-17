@@ -57,7 +57,7 @@ class TRDPutSerializer(serializers.ModelSerializer):
         }
 
 
-class TRDActivarSerializer(serializers.ModelSerializer):
+class TRDFinalizarSerializer(serializers.ModelSerializer):
     class Meta:
         model = TablaRetencionDocumental
         fields = ['fecha_terminado']

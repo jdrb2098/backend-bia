@@ -16,6 +16,7 @@ from gestion_documental.serializers.ccd_serializers import (
     SeriesDocSerializer,
     SeriesSubseriesUnidadOrgSerializer
 )
+from almacen.models.organigrama_models import Organigramas
 from operator import itemgetter
 from seguridad.models import (
     User,
@@ -50,24 +51,32 @@ class CreateCuadroClasificacionDocumental(generics.CreateAPIView):
         except:
             return Response({'success': False, 'detail': 'Valide la información ingresada, el id organigrama es requerido, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializador = serializer.save()
+        #Validación de seleccionar solo trd terminados
+        organigrama = serializer.validated_data.get('id_organigrama')
+        organigrama_instance = Organigramas.objects.filter(id_organigrama=organigrama.id_organigrama).first()
+        if organigrama_instance:
+            print(organigrama_instance)
+            if organigrama_instance.fecha_terminado == None:
+                return Response({'success': False, 'detail': 'No se pueden seleccionar organigramas que no estén terminados'}, status=status.HTTP_403_FORBIDDEN)
+            serializador = serializer.save()
 
-        #Auditoria Crear Cuadro de Clasificación Documental
-        usuario = request.user.id_usuario
-        descripcion = {"Nombre": str(serializador.nombre), "Versión": str(serializador.version)}
-        direccion=Util.get_client_ip(request)
-        auditoria_data = {
-            "id_usuario" : usuario,
-            "id_modulo" : 27,
-            "cod_permiso": "CR",
-            "subsistema": 'GEST',
-            "dirip": direccion,
-            "descripcion": descripcion, 
-        }
-        Util.save_auditoria(auditoria_data)
-        
-        return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental creado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
+            #Auditoria Crear Cuadro de Clasificación Documental
+            usuario = request.user.id_usuario
+            descripcion = {"Nombre": str(serializador.nombre), "Versión": str(serializador.version)}
+            direccion=Util.get_client_ip(request)
+            auditoria_data = {
+                "id_usuario" : usuario,
+                "id_modulo" : 27,
+                "cod_permiso": "CR",
+                "subsistema": 'GEST',
+                "dirip": direccion,
+                "descripcion": descripcion, 
+            }
+            Util.save_auditoria(auditoria_data)
+            
+            return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental creado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'success': False, 'detail': 'No existe un organigrama con el id_organigrama enviado'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDPutSerializer

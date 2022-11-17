@@ -11,7 +11,7 @@ from gestion_documental.serializers.trd_serializers import (
     TRDSerializer,
     TRDPostSerializer,
     TRDPutSerializer,
-    TRDActivarSerializer
+    TRDFinalizarSerializer
 )
 from gestion_documental.models.ccd_models import (
     SeriesSubseriesUnidadOrg,
@@ -80,7 +80,7 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     tipologias_eliminar_id = [tipologia.id_tipologia_documental for tipologia in tipologias_eliminar]
                     serie_subserie_unidad_tipologia = SeriesSubSeriesUnidadesTipologias.objects.filter(id_tipologia_documental__in=tipologias_eliminar_id)
                     if serie_subserie_unidad_tipologia:
-                        return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'})
+                        return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'}, status=status.HTTP_403_FORBIDDEN)
                     
                     tipologias_eliminar.delete()
                     
@@ -91,7 +91,7 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     tipologias_eliminar_id = [tipologia.id_tipologia_documental for tipologia in tipologias_eliminar]
                     serie_subserie_unidad_tipologia = SeriesSubSeriesUnidadesTipologias.objects.filter(id_tipologia_documental__in=tipologias_eliminar_id)
                     if serie_subserie_unidad_tipologia:
-                        return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'})
+                        return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'}, status=status.HTTP_403_FORBIDDEN)
                     
                     tipologias_eliminar.delete()
 
@@ -137,24 +137,33 @@ class PostTablaRetencionDocumental(generics.CreateAPIView):
             pass
         except:
             return Response({'success': False, 'detail': 'Valide la información ingresada, el id_ccd es requerido, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
-        serializado = serializer.save()
+        
+        #Validación de seleccionar solo ccd terminados
+        ccd = serializer.validated_data.get('id_ccd')
+        ccd_instance = CuadrosClasificacionDocumental.objects.filter(id_ccd=ccd.id_ccd).first()
+        if ccd_instance:
+            if ccd_instance.fecha_terminado == None:
+                return Response({'success': False, 'detail': 'No se pueden seleccionar Cuadros de Clasificación Documental que no estén terminados'}, status=status.HTTP_403_FORBIDDEN)
+        
+            serializado = serializer.save()
 
-        #Auditoria Crear Tabla de Retención Documental
-        usuario = request.user.id_usuario
-        descripcion = {"Nombre": str(serializado.nombre), "Versión": str(serializado.version)}
-        direccion=Util.get_client_ip(request)
-        auditoria_data = {
-            "id_usuario" : usuario,
-            "id_modulo" : 29,
-            "cod_permiso": "CR",
-            "subsistema": 'GEST',
-            "dirip": direccion,
-            "descripcion": descripcion, 
-        }
-        Util.save_auditoria(auditoria_data)
+            #Auditoria Crear Tabla de Retención Documental
+            usuario = request.user.id_usuario
+            descripcion = {"Nombre": str(serializado.nombre), "Versión": str(serializado.version)}
+            direccion=Util.get_client_ip(request)
+            auditoria_data = {
+                "id_usuario" : usuario,
+                "id_modulo" : 29,
+                "cod_permiso": "CR",
+                "subsistema": 'GEST',
+                "dirip": direccion,
+                "descripcion": descripcion, 
+            }
+            Util.save_auditoria(auditoria_data)
 
-        return Response({'success': True, 'detail': 'TRD creada exitosamente'}, status=status.HTTP_201_CREATED)
-
+            return Response({'success': True, 'detail': 'TRD creada exitosamente'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'success': False, 'detail': 'No existe un Cuadro de Clasificación Documental con el id_ccd enviado'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = TRDPutSerializer
@@ -199,8 +208,8 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
         
         return Response({'success': True, 'detail': 'Tabla de Retención Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
-class FinalizarTabla(generics.RetrieveUpdateAPIView):
-    serializer_class = TRDActivarSerializer
+class FinalizarTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
+    serializer_class = TRDFinalizarSerializer
     queryset = TablaRetencionDocumental
 
     def put(self, request, id_trd):
@@ -210,7 +219,6 @@ class FinalizarTabla(generics.RetrieveUpdateAPIView):
                 #Obtiene el id de las tipologias existentes relacionadas a la TRD
                 tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd)
                 tipologias_list = [tipologia.id_tipologia_documental for tipologia in tipologias]
-                print(tipologias_list)
 
                 #Obtiene el id de la seriesubserieunidad existentes relacionadas con el ccd asociado a la TRD
                 ccd_trd = CuadrosClasificacionDocumental.objects.get(id_ccd=trd.id_ccd.id_ccd)
@@ -232,7 +240,7 @@ class FinalizarTabla(generics.RetrieveUpdateAPIView):
                 #Valida que lo existente asociado a esa trd esté asociado en la tabla intermedia
                 if not set(tipologias_list).issubset(tipologias_asignacion_list):
                     return Response({'success': False, 'detail': 'Debe asociar todas las tipologias de esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
-
+                
                 if not set(serie_subserie_unidadorg_list).issubset(series_unidades_asignacion_list):
                     return Response({'success': False, 'detail': 'Debe asociar todas las series subseries unidades del CCD asociado a esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
 
