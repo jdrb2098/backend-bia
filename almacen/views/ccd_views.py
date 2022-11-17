@@ -374,6 +374,11 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
         fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresado).values().first())['fecha_terminado']
         if fecha_ccd != None:
             return Response({'success':False, "Error" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+        series = SeriesDoc.objects.filter(id_ccd=id_ccd_ingresado).values()
+        for i in series:
+            instancia = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc=i['id_serie_doc'])
+            instancia.delete()
+            
         for i in datos_ingresados:
             if not isinstance(i['id_unidad_organizacional'], int):
                 return Response({"Error" : "Unidad organizacional debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
@@ -391,29 +396,22 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
             datos = []
             for i in subseries:
                 if i == None:
+                    
                     datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : None})
                 else:
                     subserie = SubseriesDoc.objects.filter(id_subserie_doc=i).first()
                     if subserie == None:
-                            return Response({"Error" : "Una de las series documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({"Error" : "Una de las subseries documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
                     if (isinstance(i, int)) or (i == None):
                         pass
                     else:
                         return Response({"Error" : "Las subseries documentales deben ser un número entero", "Subserie erronea" : i}, status=status.HTTP_400_BAD_REQUEST)
                     datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : subserie.id_subserie_doc})
-            instance = SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)
-            aux = (SeriesSubseriesUnidadOrg.objects.filter(id_unidad_organizacional=unidad_organizacional.id_unidad_organizacional).filter(id_serie_doc=serie.id_serie_doc)).values()
-            borrados=[]
-            if instance != None:
-                for i in aux:
-                    borrados.append(i['id_sub_serie_doc_id'])
-                for i in instance:
-                    i.delete()
                     
-                serializer = self.get_serializer(data=datos, many=isinstance(datos,list))
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-            
+            serializer = self.get_serializer(data=datos, many=isinstance(datos,list))
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
         return Response({"Mensaje" : "Datos guardados con éxito", "Datos" : serializer.data}, status=status.HTTP_201_CREATED)
     
 class GetAsignaciones(generics.ListAPIView):
