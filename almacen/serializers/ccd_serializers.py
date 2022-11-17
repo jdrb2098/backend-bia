@@ -92,3 +92,10 @@ class SeriesSubseriesUnidadOrgSerializer(serializers.ModelSerializer):
     class Meta:
         model = SeriesSubseriesUnidadOrg
         fields = '__all__'      
+        validators = [
+            UniqueTogetherValidator(
+                queryset=SeriesSubseriesUnidadOrg.objects.all(),
+                fields = ['id_serie_doc', 'id_unidad_organizacional'],
+                message='La combinación serie documental y unidad organizacional debe ser única'
+            )
+            ]  

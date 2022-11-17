@@ -205,13 +205,22 @@ class CreateSeriesDoc(generics.UpdateAPIView):
         # VALIDACIONES
         fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresada).values().first())['fecha_terminado']
         if fecha_ccd != None:
-            return Response({'success':False, "Error" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success':False, "detail" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = id_ccd_ingresada).first()
         if ccd == None:
-            return Response({'success': False, "Error" : "No se encontró esa ccd"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, "detail" : "No se encontró esa ccd"}, status=status.HTTP_400_BAD_REQUEST)
         if request.data == []:
-            return Response({'success': False, "Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            series_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd)
+            series_eliminar_id = [serie.id_serie_doc for serie in series_eliminar]
+            
+            serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_eliminar_id)
+            if serie_subserie_unidad:
+                return Response({'success':False, 'detail':'Una o varias series a eliminar ya están asociadas al CCD, por favor eliminar asociaciones primero'})
+            
+            series_eliminar.delete()
+
+            return Response({'success':True, 'detail':'Se han eliminado todas las series'}, status=status.HTTP_204_NO_CONTENT)
+           
         ccd_list = [subserie['id_ccd'] for subserie in data_ingresada]
 
         if len(set(ccd_list)) != 1:
@@ -242,13 +251,19 @@ class CreateSeriesDoc(generics.UpdateAPIView):
                     serializer = self.serializer_class(instancia, data=i, many=False)
                     serializer.is_valid(raise_exception=True)
                     serializer.save()
-                
-        # ELIMINAR SUBSERIES
-            lista_series_id = [serie['id_serie_doc'] for serie in series_update]
-            lista_series_id.extend(series_id_create)
-            series_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
-            print(series_eliminar)
-            series_eliminar.delete()
+        
+        # ELIMINAR SERIES
+        lista_series_id = [serie['id_serie_doc'] for serie in series_update]
+        lista_series_id.extend(series_id_create)
+        series_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
+        
+        series_eliminar_id = [serie.id_subserie_doc for serie in series_eliminar]
+        serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_eliminar_id)
+        
+        if serie_subserie_unidad:
+            return Response({'success':False, 'detail':'Una o varias series a eliminar ya están asociadas al CCD, por favor eliminar asociaciones primero'})
+        
+        series_eliminar.delete()
             
             
         return Response({'success': True, "Mensaje" : "Datos guardados con éxito"}, status=status.HTTP_201_CREATED)
@@ -271,7 +286,7 @@ class GetSeriesDoc(generics.ListAPIView):
         return Response(datos_finales, status=status.HTTP_200_OK)
 
 
-class CreateSubseriesDoc(generics.CreateAPIView):
+class CreateSubseriesDoc(generics.UpdateAPIView):
     serializer_class = SubseriesDocSerializer
     queryset = SubseriesDoc.objects.all()
     
@@ -370,28 +385,46 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
         id_ccd_ingresado = id_ccd
         datos_ingresados = request.data
         if datos_ingresados == []:
-            return Response({"Error" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
-        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresado).values().first())['fecha_terminado']
-        if fecha_ccd != None:
-            return Response({'success':False, "Error" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+            series = SeriesDoc.objects.filter(id_ccd=id_ccd_ingresado).values()
+            for i in series:
+                instancia = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc=i['id_serie_doc'])
+                instancia.delete()
+            return Response({'success':False, "detail" : "Ingresó una lista vacía"}, status=status.HTTP_400_BAD_REQUEST)
+        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresado).values().first())
+        
+        if fecha_ccd:
+            if fecha_ccd['fecha_terminado'] != None:
+                return Response({'success':False, "detail" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+        
         series = SeriesDoc.objects.filter(id_ccd=id_ccd_ingresado).values()
-        for i in series:
-            instancia = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc=i['id_serie_doc'])
-            instancia.delete()
-            
+        
+        # Validaciones antes de borrar
+        series_id = set([i['id_serie_doc'] for i in datos_ingresados])
+        filtrados = SeriesDoc.objects.filter(id_ccd=id_ccd_ingresado).filter(id_serie_doc__in=series_id).values()
+        series_id_filtrados = set([i['id_serie_doc'] for i in filtrados])
+        if len(series_id) != len(series_id_filtrados):
+             return Response({'success':False, "Error" : "1. Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Borrar asignaciones
+            for i in series:
+                instancia = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc=i['id_serie_doc'])
+                instancia.delete()
+        
+        # Guardar y actualizar asignaciones
+        total_datos_guardados = []
         for i in datos_ingresados:
             if not isinstance(i['id_unidad_organizacional'], int):
-                return Response({"Error" : "Unidad organizacional debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, "detail" : "Unidad organizacional debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
             if not isinstance(i['id_serie_doc'], int):
-                return Response({"Error" : "Debe ingresar una serie documental válida"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, "detail" : "Debe ingresar una serie documental válida"}, status=status.HTTP_400_BAD_REQUEST)
             unidad_organizacional = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional=i['id_unidad_organizacional']).first()
             if unidad_organizacional == None:
-                return Response({"Error" : "No existe esa unidad organizacional"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, "detail" : "No existe esa unidad organizacional"}, status=status.HTTP_400_BAD_REQUEST)
             serie = SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).first()
             if serie == None:
-                return Response({"Error" : "No existe esa serie documental"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, "detail" : "No existe esa serie documental"}, status=status.HTTP_400_BAD_REQUEST)
             if str(id_ccd_ingresado) != str((((SeriesDoc.objects.filter(id_serie_doc=i['id_serie_doc']).values())[0])['id_ccd_id'])):
-                return Response({'success':False, "Error" : "Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success':False, "detail" : "Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
             subseries = i['subseries']
             datos = []
             for i in subseries:
@@ -401,18 +434,19 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
                 else:
                     subserie = SubseriesDoc.objects.filter(id_subserie_doc=i).first()
                     if subserie == None:
-                            return Response({"Error" : "Una de las subseries documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({'success':False, "detail" : "Una de las subseries documentales no existe", "Serie documental inexistente" : i}, status=status.HTTP_400_BAD_REQUEST)
                     if (isinstance(i, int)) or (i == None):
                         pass
                     else:
-                        return Response({"Error" : "Las subseries documentales deben ser un número entero", "Subserie erronea" : i}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'success':False, "detail" : "Las subseries documentales deben ser un número entero", "Subserie erronea" : i}, status=status.HTTP_400_BAD_REQUEST)
                     datos.append({"id_unidad_organizacional" : unidad_organizacional.id_unidad_organizacional, "id_serie_doc" : serie.id_serie_doc, "id_sub_serie_doc" : subserie.id_subserie_doc})
                     
             serializer = self.get_serializer(data=datos, many=isinstance(datos,list))
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            total_datos_guardados.append(serializer.data)
 
-        return Response({"Mensaje" : "Datos guardados con éxito", "Datos" : serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'success':True, "detail" : "Datos guardados con éxito", "Datos" : total_datos_guardados}, status=status.HTTP_201_CREATED)
     
 class GetAsignaciones(generics.ListAPIView):
     serializer_class = SeriesSubseriesUnidadOrgSerializer

@@ -10,11 +10,11 @@ urlpatterns = [
     path('resume/<str:pk>/', views.ReanudarCuadroClasificacionDocumental.as_view(),name='resume-ccd'),
 
     # SUBSERIES
-    path('subseries/create/<str:id_ccd>/', views.CreateSubseriesDoc.as_view(), name='create-subseries-ccd'),
+    path('subseries/update/<str:id_ccd>/', views.CreateSubseriesDoc.as_view(), name='create-subseries-ccd'),
     path('subseries/get-by-id/<str:id_ccd>/', views.GetSubseries.as_view(),name='id-get-subseries-ccd'),
 
     # Series
-    path('series/create/<str:id_ccd>/',views.CreateSeriesDoc.as_view(),name='crear-series-documentales'),
+    path('series/update/<str:id_ccd>/',views.CreateSeriesDoc.as_view(),name='crear-series-documentales'),
     path('series/get/<str:id_ccd>/',views.GetSeriesDoc.as_view(),name='get-series-documentales'),
     
     # Asignaciones
