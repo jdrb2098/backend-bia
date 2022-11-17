@@ -203,9 +203,10 @@ class CreateSeriesDoc(generics.UpdateAPIView):
         data_ingresada = request.data
         
         # VALIDACIONES
-        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresada).values().first())['fecha_terminado']
-        if fecha_ccd != None:
-            return Response({'success':False, "detail" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)
+        fecha_ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd_ingresada).values().first())
+        if fecha_ccd:
+            if fecha_ccd['fecha_terminado'] != None:
+                return Response({'success':False, "detail" : "No se pueden realizar modificaciones sobre esta CCD, ya está terminado"}, status=status.HTTP_400_BAD_REQUEST)    
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = id_ccd_ingresada).first()
         if ccd == None:
             return Response({'success': False, "detail" : "No se encontró esa ccd"}, status=status.HTTP_400_BAD_REQUEST)
@@ -257,7 +258,7 @@ class CreateSeriesDoc(generics.UpdateAPIView):
         lista_series_id.extend(series_id_create)
         series_eliminar = SeriesDoc.objects.filter(id_ccd=id_ccd).exclude(id_serie_doc__in=lista_series_id)
         
-        series_eliminar_id = [serie.id_subserie_doc for serie in series_eliminar]
+        series_eliminar_id = [serie.id_serie_doc for serie in series_eliminar]
         serie_subserie_unidad = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_eliminar_id)
         
         if serie_subserie_unidad:
