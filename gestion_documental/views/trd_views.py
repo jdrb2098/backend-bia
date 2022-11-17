@@ -20,11 +20,11 @@ from gestion_documental.models.trd_models import (
     TipologiasDocumentales
 )
 
-class CreateTipologiasDocumentales(generics.CreateAPIView):
+class UpdateTipologiasDocumentales(generics.UpdateAPIView):
     serializer_class = TipologiasDocumentalesSerializer
     queryset = TipologiasDocumentales.objects.all()
     
-    def post(self, request, id_trd):
+    def put(self, request, id_trd):
         data = request.data
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
         if trd:
@@ -32,7 +32,6 @@ class CreateTipologiasDocumentales(generics.CreateAPIView):
                 if data:
                     # VALIDAR QUE EL ID_TRD SEA EL MISMO
                     trd_list = [tipologia['id_trd'] for tipologia in data]
-                    print("TRD_LIST: ", trd_list)
                     if len(set(trd_list)) != 1:
                         return Response({'success':False, 'detail':'Debe validar que las tipologias pertenezcan a un mismo TRD'}, status=status.HTTP_400_BAD_REQUEST)
                     else:

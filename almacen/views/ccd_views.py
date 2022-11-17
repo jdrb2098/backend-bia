@@ -286,11 +286,11 @@ class GetSeriesDoc(generics.ListAPIView):
         return Response(datos_finales, status=status.HTTP_200_OK)
 
 
-class CreateSubseriesDoc(generics.UpdateAPIView):
+class UpdateSubseriesDoc(generics.UpdateAPIView):
     serializer_class = SubseriesDocSerializer
     queryset = SubseriesDoc.objects.all()
     
-    def post(self, request, id_ccd):
+    def put(self, request, id_ccd):
         data = request.data
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=id_ccd).first()
         if ccd:
