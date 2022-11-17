@@ -265,7 +265,7 @@ class Activar(generics.UpdateAPIView):
             trd_a_remplazar=TablaRetencionDocumental.objects.filter(actual=True).first()
             trd_remplazante=TablaRetencionDocumental.objects.filter(id_trd=pk).first()
             ccd_a_remplazar=CuadrosClasificacionDocumental.objects.filter(actual=True).first()
-            ccd_remplazante=CuadrosClasificacionDocumental.objects.filter(id_ccd=trd_remplazante.id_trd).first()
+            ccd_remplazante=CuadrosClasificacionDocumental.objects.filter(id_ccd=trd_remplazante.id_ccd.id_ccd).first()
             organigrama_a_remplazar=Organigramas.objects.filter(actual=True).first()
             organigrama_remplazante=Organigramas.objects.filter(id_organigrama=trd_remplazante.id_ccd.id_organigrama.id_organigrama).first()
             # organigrama_a_remplazar=Organigramas.objects.filter(actual=True).first()
