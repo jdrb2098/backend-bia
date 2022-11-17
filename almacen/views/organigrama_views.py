@@ -285,9 +285,13 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
                 if not unidades:
                     return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe contener por lo menos una unidad'}, status=status.HTTP_403_FORBIDDEN)
                 if nivel_list and not nivel_unidad_list:
-                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
+                    nivel_difference_list = [nivel for nivel in nivel_list if nivel not in nivel_unidad_list]
+                    nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=nivel_difference_list).values()
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles', 'Niveles sin asignar': nivel_difference_instance}, status=status.HTTP_403_FORBIDDEN)
                 if not set(nivel_list).issubset(nivel_unidad_list):
-                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles'}, status=status.HTTP_403_FORBIDDEN)
+                    nivel_difference_list = [nivel for nivel in nivel_list if nivel not in nivel_unidad_list]
+                    nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=nivel_difference_list).values()
+                    return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles', 'Niveles sin asignar': nivel_difference_instance}, status=status.HTTP_403_FORBIDDEN)
                 
                 organigrama_a_finalizar.fecha_terminado=datetime.now()
                 organigrama_a_finalizar.save()
