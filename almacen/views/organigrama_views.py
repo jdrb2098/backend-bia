@@ -9,7 +9,7 @@ from datetime import datetime
 import copy
 from django.db.models import Q
 from operator import itemgetter
-from almacen.models.ccd_models import CuadrosClasificacionDocumental
+from gestion_documental.models.ccd_models import CuadrosClasificacionDocumental
 from almacen.serializers.organigrama_serializers import ( 
     OrganigramaSerializer,
     OrganigramaPutSerializer, 

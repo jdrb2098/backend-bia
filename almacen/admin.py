@@ -5,7 +5,7 @@ from almacen.models.organigrama_models import (
     UnidadesOrganizacionales,
     Cargos
 )
-from almacen.models.ccd_models import (
+from gestion_documental.models.ccd_models import (
     CuadrosClasificacionDocumental,
     SubseriesDoc,
     SeriesDoc,

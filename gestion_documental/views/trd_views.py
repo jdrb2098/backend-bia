@@ -13,7 +13,7 @@ from gestion_documental.serializers.trd_serializers import (
     TRDPutSerializer,
     TRDActivarSerializer
 )
-from almacen.models.ccd_models import (
+from gestion_documental.models.ccd_models import (
     SeriesSubseriesUnidadOrg,
     CuadrosClasificacionDocumental,
     SeriesDoc

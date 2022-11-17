@@ -1,5 +1,5 @@
 from django.db import models
-from almacen.models.ccd_models import SeriesSubseriesUnidadOrg, CuadrosClasificacionDocumental
+from gestion_documental.models.ccd_models import SeriesSubseriesUnidadOrg, CuadrosClasificacionDocumental
 from gestion_documental.choices.disposicion_final_series_choices import disposicion_final_series_CHOICES
 from gestion_documental.choices.tipo_clasificacion_choices import tipo_clasificacion_CHOICES
 from gestion_documental.choices.tipos_soportes_doc_choices import tipos_soportes_doc_CHOICES
