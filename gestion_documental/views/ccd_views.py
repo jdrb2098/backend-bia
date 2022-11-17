@@ -267,7 +267,7 @@ class CreateSeriesDoc(generics.UpdateAPIView):
         series_eliminar.delete()
             
             
-        return Response({'success': True, "Mensaje" : "Datos guardados con éxito"}, status=status.HTTP_201_CREATED)
+        return Response({'success': True, "detail" : "Datos guardados con éxito"}, status=status.HTTP_201_CREATED)
 
 class GetSeriesDoc(generics.ListAPIView):
     serializer_class = SeriesDocSerializer
@@ -277,14 +277,14 @@ class GetSeriesDoc(generics.ListAPIView):
         if dato_buscado == None:
             series_doc = SeriesDoc.objects.all().values()
             if len(series_doc) == 0:
-                return Response({'Error' : 'Aún no hay series documentales registradas'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'success': False, "detail" : 'Aún no hay series documentales registradas'}, status=status.HTTP_404_NOT_FOUND)
             return Response({'Series documentales' : series_doc}, status=status.HTTP_200_OK) 
         series_doc = SeriesDoc.objects.filter(id_ccd=int(dato_buscado)).values()
         if len(series_doc) == 0:
-            return Response({'Error' : 'No se encontró la serie documental ingresada'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': False, "detail" : 'No se encontró la serie documental ingresada'}, status=status.HTTP_404_NOT_FOUND)
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = dato_buscado).values()
         datos_finales = {"CCD" : ccd, "Series documentales" : series_doc}
-        return Response(datos_finales, status=status.HTTP_200_OK)
+        return Response({'success': True, "detail" : 'OK'}, datos_finales, status=status.HTTP_200_OK)
 
 
 class UpdateSubseriesDoc(generics.UpdateAPIView):
@@ -404,7 +404,7 @@ class AsignarSeriesYSubseriesAUnidades(generics.UpdateAPIView):
         filtrados = SeriesDoc.objects.filter(id_ccd=id_ccd_ingresado).filter(id_serie_doc__in=series_id).values()
         series_id_filtrados = set([i['id_serie_doc'] for i in filtrados])
         if len(series_id) != len(series_id_filtrados):
-             return Response({'success':False, "Error" : "1. Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
+             return Response({'success':False, "detail" : "1. Ingresó una serie documental que no corresponde a la ccd sobre la que se está trabajando"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Borrar asignaciones
             for i in series:
@@ -455,15 +455,15 @@ class GetAsignaciones(generics.ListAPIView):
     def get(self, request, id_ccd):
         dato_consultado = id_ccd
         if dato_consultado == None:
-            return Response({"Error" : "Debe ingresar algún valor"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success' : False, "detail" : "Debe ingresar algún valor"}, status=status.HTTP_400_BAD_REQUEST)
         try: 
             int(dato_consultado)
             pass
         except:
-            return Response({"Error" : "El id de la ccd debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success':False, "detail" : "El id de la ccd debe ser un número entero"}, status=status.HTTP_400_BAD_REQUEST)
         ccd = (CuadrosClasificacionDocumental.objects.filter(id_ccd=dato_consultado).values())
         if len(ccd) == 0:
-            return Response({"Mensaje Error" : "Esta CCD no existe"})
+            return Response({'success':False, "detail" : "Esta CCD no existe"})
         else:
             ccd = ccd[0]
         series_doc = (SeriesDoc.objects.filter(id_ccd=ccd['id_ccd']).values())
@@ -504,7 +504,7 @@ class GetAsignaciones(generics.ListAPIView):
             nuevo = []    
             cont = 0
             
-        return Response({"Series y subseries asignadas a unidades organizacioneales en la CCD" + str(dato_consultado) : lista_serie_en_asignaciones}, status=status.HTTP_201_CREATED)
+        return Response({'success':True, "detail": lista_serie_en_asignaciones}, status=status.HTTP_201_CREATED)
 
 class ReanudarCuadroClasificacionDocumental(generics.UpdateAPIView):
     serializer_class = CCDActivarSerializer
