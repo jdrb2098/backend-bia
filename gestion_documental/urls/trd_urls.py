@@ -12,5 +12,6 @@ urlpatterns = [
     path('create/', views.PostTablaRetencionDocumental.as_view(), name='trd-create'),
     path('update/<str:pk>/', views.UpdateTablaRetencionDocumental.as_view(), name='trd-update'),
     path('finish/<str:id_trd>/', views.FinalizarTablaRetencionDocumental.as_view(), name='trd-finish'),
+    path('activar/<str:pk>/',views.Activar.as_view(),name='activar')
 
 ]

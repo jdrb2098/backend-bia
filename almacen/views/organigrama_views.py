@@ -300,85 +300,6 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
                 return Response({'success':False, 'detail':'Ya se encuentra finalizado este Organigrama'})
         return Response({'success':False,'detail':'No existe organigrama'},status=status.HTTP_403_FORBIDDEN)
     
-class ActivarOrganigrama(generics.UpdateAPIView):
-    serializer_class =OrganigramaSerializer
-    queryset=Organigramas.objects.all()
-    
-    def put(self,request,pk):    
-
-        try:
-            organigrama_a_remplazar=Organigramas.objects.filter(actual=True).first()
-            organigrama_remplazante=Organigramas.objects.filter(id_organigrama=pk).first()
-            previous_remplazante=copy.copy(organigrama_remplazante)
-            previous_a_remplazar=copy.copy(organigrama_a_remplazar)
-            if organigrama_a_remplazar:
-                if organigrama_remplazante:
-                    organigrama_remplazante.actual=True
-                    organigrama_a_remplazar.actual=False
-                    organigrama_remplazante.fecha_puesta_produccion=datetime.now()
-                    organigrama_a_remplazar.fecha_retiro_produccion=datetime.now()
-                    organigrama_a_remplazar.save()
-                    organigrama_remplazante.save()
-                    
-                    #auditoria de organigrama activado
-                    user_logeado = request.user.id_usuario
-                    dirip = Util.get_client_ip(request)
-                    descripcion = {"nombre":str(organigrama_remplazante.nombre)}
-                    valores_actualizados={'previous':previous_remplazante, 'current':organigrama_remplazante}
-                    auditoria_data = {
-                        'id_usuario': user_logeado,
-                        'id_modulo': 16,
-                        'cod_permiso': 'AC',
-                        'subsistema': 'TRSV',
-                        'dirip': dirip,
-                        'descripcion': descripcion,
-                        'valores_actualizados': valores_actualizados
-                    }
-                    Util.save_auditoria(auditoria_data)
-                    
-                    #auditoria de organigrama desactivado
-                
-                    descripcion = {"nombre":str(organigrama_a_remplazar.nombre)}
-                    valores_actualizados={'previous':previous_a_remplazar, 'current':organigrama_a_remplazar}
-                    auditoria_data = {
-                        'id_usuario': user_logeado,
-                        'id_modulo': 16,
-                        'cod_permiso': 'AC',
-                        'subsistema': 'TRSV',
-                        'dirip': dirip,
-                        'descripcion': descripcion,
-                        'valores_actualizados': valores_actualizados
-                    }
-                    Util.save_auditoria(auditoria_data)
-                    
-                    return Response({'success':True,'detail': 'Organigrama activado'}, status=status.HTTP_200_OK)
-                return Response({'success':False,'detail': 'No existe ningún organigrama con este ID'}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                #primer organigrama activado
-                if organigrama_remplazante:
-                    organigrama_remplazante.actual=True
-                    organigrama_remplazante.fecha_puesta_produccion=datetime.now()
-                    organigrama_remplazante.save()
-                    
-                    user_logeado = request.user.id_usuario
-                    dirip = Util.get_client_ip(request)
-                    descripcion = {"nombre":str(organigrama_remplazante.nombre)}
-                    valores_actualizados={'previous':previous_remplazante, 'current':organigrama_remplazante}
-                    auditoria_data = {
-                        'id_usuario': user_logeado,
-                        'id_modulo': 16,
-                        'cod_permiso': 'AC',
-                        'subsistema': 'TRSV',
-                        'dirip': dirip,
-                        'descripcion': descripcion,
-                        'valores_actualizados': valores_actualizados
-                    }
-                    Util.save_auditoria(auditoria_data)
-                    return Response({'success':True,'detail': 'Primer organigrama activado'}, status=status.HTTP_200_OK)
-                return Response({'success':False,'detail': 'No existe ningún organigrama con este ID'}, status=status.HTTP_404_NOT_FOUND)
-        except:
-            return Response({'success':False,'detail':'Los parametros enviados son incorrecto'},status=status.HTTP_404_NOT_FOUND)
-
 class CreateOrgChart(generics.CreateAPIView):
     serializer_class = OrganigramaPostSerializer
     queryset = Organigramas.objects.all()
@@ -391,7 +312,6 @@ class CreateOrgChart(generics.CreateAPIView):
             return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
-
 
 class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
     serializer_class = OrganigramaPutSerializer
