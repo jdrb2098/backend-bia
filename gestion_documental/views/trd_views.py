@@ -197,7 +197,7 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
         }
         Util.save_auditoria(auditoria_data)
         
-        return Response({'success': True, 'detail': 'Cuadro de Clasificación Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'success': True, 'detail': 'Tabla de Retención Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 class FinalizarTabla(generics.RetrieveUpdateAPIView):
     serializer_class = TRDActivarSerializer
