@@ -297,12 +297,16 @@ class Activar(generics.UpdateAPIView):
                             organigrama_remplazante.actual=True
                             
                             trd_remplazante.fecha_puesta_produccion=datetime.now()
+                            trd_remplazante.fecha_retiro_produccion=None
                             trd_a_remplazar.fecha_retiro_produccion=datetime.now()
+                            trd_a_remplazar.fecha_puesta_produccion=None
                             
                             if ccd_remplazante.id_ccd != ccd_a_remplazar.id_ccd:
                                 ccd_a_remplazar.actual=False
                                 ccd_a_remplazar.fecha_retiro_produccion=datetime.now()
+                                ccd_a_remplazar.fecha_puesta_produccion=None
                                 ccd_remplazante.fecha_puesta_produccion=datetime.now()
+                                ccd_remplazante.fecha_retiro_produccion=None
                                 
                                 #auditoria de CCD  activado
                                 descripcion = {"nombre":str(ccd_remplazante.nombre),"versión":str(ccd_remplazante.version)}
@@ -335,7 +339,9 @@ class Activar(generics.UpdateAPIView):
                             if organigrama_remplazante.id_organigrama != organigrama_a_remplazar.id_organigrama:
                                 organigrama_a_remplazar.actual=False
                                 organigrama_a_remplazar.fecha_retiro_produccion=datetime.now()
+                                organigrama_a_remplazar.fecha_puesta_produccion=None
                                 organigrama_remplazante.fecha_puesta_produccion=datetime.now()
+                                organigrama_remplazante.fecha_retiro_produccion=None
                                 
                                 #auditoria de organigrama activado
                                 descripcion = {"nombre":str(organigrama_remplazante.nombre),"versión":str(organigrama_remplazante.version)}
