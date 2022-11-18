@@ -4,7 +4,7 @@
       "pk": 1,
       "fields": {
         "cod_tipo_documento": "CC",
-        "nombre": "Cédula de Ciudadania",
+        "nombre": "Cédula de ciudadanía",
         "precargado": true,
         "activo" : true,
         "item_ya_usado" : false
@@ -15,7 +15,7 @@
       "pk": 2,
       "fields": {
         "cod_tipo_documento": "TI",
-        "nombre": "Tarjeta de Identidad",
+        "nombre": "Tarjeta de identidad",
         "precargado": true,
         "activo" : true,
         "item_ya_usado" : false
@@ -26,7 +26,7 @@
       "pk": 3,
       "fields": {
         "cod_tipo_documento": "RC",
-        "nombre": "Registro Civil",
+        "nombre": "Registro civil",
         "precargado": true,
         "activo" : true,
         "item_ya_usado" : false
@@ -48,7 +48,7 @@
       "pk": 5,
       "fields": {
         "cod_tipo_documento": "CE",
-        "nombre": "Cédula Extranjeria",
+        "nombre": "Cédula extranjeria",
         "precargado": true,
         "activo" : true,
         "item_ya_usado" : false
@@ -70,7 +70,7 @@
       "pk": 7,
       "fields": {
         "cod_tipo_documento": "PE",
-        "nombre": "Permiso Especial de Permanencia",
+        "nombre": "Permiso especial de permanencia",
         "precargado": true,
         "activo" : true,
         "item_ya_usado" : false
