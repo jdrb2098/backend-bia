@@ -1,9 +1,9 @@
 tipo_documento_CHOICES = (
-    ('CC', 'Cédula de Ciudadania'),
-    ('CE', 'Cédula Extranjería'),
-    ('TI', 'Tarjeta de Identidad'),
-    ('RC', 'Registro Civil'),
+    ('CC', 'Cédula de ciudadanía'),
+    ('CE', 'Cédula extranjería'),
+    ('TI', 'Tarjeta de identidad'),
+    ('RC', 'Registro civil'),
     ('NU', 'NUIP'),
     ('PA', 'Pasaporte'),
-    ('PE', 'Permiso Especial de Permanencia')
+    ('PE', 'Permiso especial de permanencia')
 )
