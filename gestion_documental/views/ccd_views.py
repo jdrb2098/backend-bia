@@ -148,7 +148,9 @@ class FinalizarCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
                 subseries_asignacion_list = [subserie.id_sub_serie_doc.id_subserie_doc for subserie in serie_subserie_unidad if subserie.id_sub_serie_doc]
 
                 if not set(unidades_list).issubset(unidades_asignacion_list):
-                    return Response({'success': False, 'detail': 'Debe asociar todas las unidades'}, status=status.HTTP_400_BAD_REQUEST)
+                    unidades_difference_list = [unidad for unidad in unidades_list if unidad not in unidades_asignacion_list]
+                    unidades_difference_instance = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional__in=unidades_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las unidades', 'Unidades sin asignar': unidades_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
                 if not set(series_list).issubset(series_asignacion_list):
                     #Mostrar las series sin asignar
@@ -300,7 +302,7 @@ class GetSeriesDoc(generics.ListAPIView):
             return Response({'success': False, "detail" : 'No se encontró la serie documental ingresada'}, status=status.HTTP_404_NOT_FOUND)
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd = dato_buscado).values()
         datos_finales = {"CCD" : ccd, "Series documentales" : series_doc}
-        return Response({'success': True, "detail" : 'OK'}, datos_finales, status=status.HTTP_200_OK)
+        return Response({'success': True, "detail" : datos_finales}, status=status.HTTP_200_OK)
 
 
 class UpdateSubseriesDoc(generics.UpdateAPIView):

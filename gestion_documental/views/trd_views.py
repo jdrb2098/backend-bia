@@ -242,10 +242,15 @@ class FinalizarTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
 
                 #Valida que lo existente asociado a esa trd esté asociado en la tabla intermedia
                 if not set(tipologias_list).issubset(tipologias_asignacion_list):
-                    return Response({'success': False, 'detail': 'Debe asociar todas las tipologias de esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
+                    tipologias_difference_list = [tipologia for tipologia in tipologias_list if tipologia not in tipologias_asignacion_list]
+                    tipologias_difference_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las tipologias de esta TRD', 'Tipologias sin asignar':tipologias_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                    
                 
                 if not set(serie_subserie_unidadorg_list).issubset(series_unidades_asignacion_list):
-                    return Response({'success': False, 'detail': 'Debe asociar todas las series subseries unidades del CCD asociado a esta TRD'}, status=status.HTTP_400_BAD_REQUEST)
+                    serie_subser_unidad_difference_list = [serie_sub_uni for serie_sub_uni in serie_subserie_unidadorg_list if serie_sub_uni not in series_unidades_asignacion_list]
+                    serie_sub_unidad_difference_instance = SeriesSubseriesUnidadOrg.objects.filter(id_serie_subserie_doc__in=serie_subser_unidad_difference_list).values()
+                    return Response({'success': False, 'detail': 'Debe asociar todas las series subseries unidades del CCD asociado a esta TRD', 'Series Subseries Unidades sin asignar': serie_sub_unidad_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
                 #Poner Fecha Terminado
                 trd.fecha_terminado = datetime.now()
