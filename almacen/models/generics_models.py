@@ -1,5 +1,6 @@
 from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
+from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from seguridad.models import Personas
 
 class EstadosArticulo(models.Model):
@@ -60,7 +61,7 @@ class UnidadesMedida(models.Model):
     id_unidad_medida = models.AutoField(primary_key=True, editable=False, db_column='T055IdUnidadMedida')
     nombre = models.CharField(max_length=50, db_column='T055nombre',unique=True)
     abreviatura = models.CharField(max_length=5, db_column='T055abreviatura',unique=True)
-    id_magnitud = models.ForeignKey(Magnitudes, default=1, on_delete=models.CASCADE, db_column='T055Id_Magnitud')
+    id_magnitud = models.CharField(max_length=1, choices=magnitudes_CHOICES, db_column='T055Id_Magnitud')
     precargado = models.BooleanField(default=False, db_column='T055registroPrecargado')
     activo = models.BooleanField(default=True, db_column='T055activo')
     item_ya_usado = models.BooleanField(default=False, db_column='T055itemYaUsado')
