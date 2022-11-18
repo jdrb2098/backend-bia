@@ -172,7 +172,6 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = TRDPutSerializer
     queryset = TablaRetencionDocumental.objects.all()
     permission_classes = [IsAuthenticated]
-    #Falta validación si está siendo usado en la TCA
 
     def patch(self, request, pk):
         try:
