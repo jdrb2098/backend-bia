@@ -255,13 +255,17 @@ class FinalizarTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
                 return Response({'success': False, 'detail': 'Ya se encuentra finalizado esta TRD'}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({'success': False, 'detail': 'No se encontró ninguna TRD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
+
 class Activar(generics.UpdateAPIView):
     serializer_class =TRDSerializer
     queryset=TablaRetencionDocumental.objects.all()
     permission_classes = [IsAuthenticated]
     
-    def put(self,request,pk):    
-        try: 
+    def put(self,request,pk):
+        try:
+            user_logeado = request.user.id_usuario
+            dirip = Util.get_client_ip(request)
+            
             trd_a_remplazar=TablaRetencionDocumental.objects.filter(actual=True).first()
             trd_remplazante=TablaRetencionDocumental.objects.filter(id_trd=pk).first()
             ccd_a_remplazar=CuadrosClasificacionDocumental.objects.filter(actual=True).first()
@@ -285,25 +289,85 @@ class Activar(generics.UpdateAPIView):
                         trd_remplazante.actual=True
                         trd_a_remplazar.actual=False
                         ccd_remplazante.actual=True
-                        ccd_a_remplazar.actual=False
                         organigrama_remplazante.actual=True
-                        organigrama_a_remplazar.actual=False
+                        
                         trd_remplazante.fecha_puesta_produccion=datetime.now()
                         trd_a_remplazar.fecha_retiro_produccion=datetime.now()
-                        ccd_remplazante.fecha_puesta_produccion=datetime.now()
-                        ccd_a_remplazar.fecha_retiro_produccion=datetime.now()
-                        organigrama_remplazante.fecha_puesta_produccion=datetime.now()
-                        organigrama_a_remplazar.fecha_retiro_produccion=datetime.now()
+                        
+                        if ccd_remplazante.id_ccd != ccd_a_remplazar.id_ccd:
+                            ccd_a_remplazar.actual=False
+                            ccd_a_remplazar.fecha_retiro_produccion=datetime.now()
+                            ccd_remplazante.fecha_puesta_produccion=datetime.now()
+                            
+                            #auditoria de CCD  activado
+                            descripcion = {"nombre":str(ccd_remplazante.nombre),"versión":str(ccd_remplazante.version)}
+                            valores_actualizados={'previous':previous_remplazante_ccd, 'current':ccd_remplazante}
+                            auditoria_data = {
+                                'id_usuario': user_logeado,
+                                'id_modulo': 28,
+                                'cod_permiso': 'AC',
+                                'subsistema': 'GEST',
+                                'dirip': dirip,
+                                'descripcion': descripcion,
+                                'valores_actualizados': valores_actualizados
+                            }
+                            Util.save_auditoria(auditoria_data)
+                            
+                            #auditoria de CCD desactivado
+                            descripcion = {"nombre":str(ccd_a_remplazar.nombre),"versión":str(ccd_a_remplazar.version)}
+                            valores_actualizados={'previous':previous_a_remplazar_ccd, 'current':ccd_a_remplazar}
+                            auditoria_data = {
+                                'id_usuario': user_logeado,
+                                'id_modulo': 28,
+                                'cod_permiso': 'AC',
+                                'subsistema': 'GEST',
+                                'dirip': dirip,
+                                'descripcion': descripcion,
+                                'valores_actualizados': valores_actualizados
+                            }
+                            Util.save_auditoria(auditoria_data)
+                            
+                        if organigrama_remplazante.id_organigrama != organigrama_a_remplazar.id_organigrama:
+                            organigrama_a_remplazar.actual=False
+                            organigrama_a_remplazar.fecha_retiro_produccion=datetime.now()
+                            organigrama_remplazante.fecha_puesta_produccion=datetime.now()
+                            
+                            #auditoria de organigrama activado
+                            descripcion = {"nombre":str(organigrama_remplazante.nombre),"versión":str(organigrama_remplazante.version)}
+                            valores_actualizados={'previous':previous_remplazante_org, 'current':organigrama_remplazante}
+                            auditoria_data = {
+                                'id_usuario': user_logeado,
+                                'id_modulo': 16,
+                                'cod_permiso': 'AC',
+                                'subsistema': 'TRSV',
+                                'dirip': dirip,
+                                'descripcion': descripcion,
+                                'valores_actualizados': valores_actualizados
+                            }
+                            Util.save_auditoria(auditoria_data)
+                            
+                            #auditoria de Organigrama desactivado
+                            descripcion = {"nombre":str(organigrama_a_remplazar.nombre),"versión":str(organigrama_a_remplazar.version)}
+                            valores_actualizados={'previous':previous_a_remplazar_org, 'current':organigrama_a_remplazar}
+                            auditoria_data = {
+                                'id_usuario': user_logeado,
+                                'id_modulo': 16,
+                                'cod_permiso': 'AC',
+                                'subsistema': 'TRSV',
+                                'dirip': dirip,
+                                'descripcion': descripcion,
+                                'valores_actualizados': valores_actualizados
+                            }
+                            Util.save_auditoria(auditoria_data)
+                            
                         trd_a_remplazar.save()
                         trd_remplazante.save()
-                        ccd_remplazante.save()
                         ccd_a_remplazar.save()
+                        ccd_remplazante.save()
                         organigrama_a_remplazar.save()
                         organigrama_remplazante.save()
                         
                         #auditoria de TRD activado
-                        user_logeado = request.user.id_usuario
-                        dirip = Util.get_client_ip(request)
                         descripcion = {"nombre":str(trd_remplazante.nombre),"versión":str(trd_remplazante.version)}
                         valores_actualizados={'previous':previous_remplazante_trd, 'current':trd_remplazante}
                         auditoria_data = {
@@ -316,37 +380,8 @@ class Activar(generics.UpdateAPIView):
                             'valores_actualizados': valores_actualizados
                         }
                         Util.save_auditoria(auditoria_data)
-                        #auditoria de CCD  activado
-                        
-                        descripcion = {"nombre":str(ccd_remplazante.nombre),"versión":str(ccd_remplazante.version)}
-                        valores_actualizados={'previous':previous_remplazante_ccd, 'current':ccd_remplazante}
-                        auditoria_data = {
-                            'id_usuario': user_logeado,
-                            'id_modulo': 28,
-                            'cod_permiso': 'AC',
-                            'subsistema': 'GEST',
-                            'dirip': dirip,
-                            'descripcion': descripcion,
-                            'valores_actualizados': valores_actualizados
-                        }
-                        Util.save_auditoria(auditoria_data)
-                        #auditoria de organigrama activado
-                
-                        descripcion = {"nombre":str(organigrama_remplazante.nombre),"versión":str(organigrama_remplazante.version)}
-                        valores_actualizados={'previous':previous_remplazante_org, 'current':organigrama_remplazante}
-                        auditoria_data = {
-                            'id_usuario': user_logeado,
-                            'id_modulo': 16,
-                            'cod_permiso': 'AC',
-                            'subsistema': 'TRSV',
-                            'dirip': dirip,
-                            'descripcion': descripcion,
-                            'valores_actualizados': valores_actualizados
-                        }
-                        Util.save_auditoria(auditoria_data)
                         
                         #auditoria de TRD desactivado
-                    
                         descripcion = {"nombre":str(trd_a_remplazar.nombre),"versión":str(trd_a_remplazar.version)}
                         valores_actualizados={'previous':previous_a_remplazar_trd, 'current':trd_a_remplazar}
                         auditoria_data = {
@@ -354,34 +389,6 @@ class Activar(generics.UpdateAPIView):
                             'id_modulo': 30,
                             'cod_permiso': 'AC',
                             'subsistema': 'GEST',
-                            'dirip': dirip,
-                            'descripcion': descripcion,
-                            'valores_actualizados': valores_actualizados
-                        }
-                        Util.save_auditoria(auditoria_data)
-                        
-                        #auditoria de CCD desactivado
-                        descripcion = {"nombre":str(ccd_a_remplazar.nombre),"versión":str(ccd_a_remplazar.version)}
-                        valores_actualizados={'previous':previous_a_remplazar_ccd, 'current':ccd_a_remplazar}
-                        auditoria_data = {
-                            'id_usuario': user_logeado,
-                            'id_modulo': 28,
-                            'cod_permiso': 'AC',
-                            'subsistema': 'GEST',
-                            'dirip': dirip,
-                            'descripcion': descripcion,
-                            'valores_actualizados': valores_actualizados
-                        }
-                        Util.save_auditoria(auditoria_data)
-                        
-                        #auditoria de Organigrama desactivado
-                        descripcion = {"nombre":str(organigrama_a_remplazar.nombre),"versión":str(organigrama_a_remplazar.version)}
-                        valores_actualizados={'previous':previous_a_remplazar_org, 'current':organigrama_a_remplazar}
-                        auditoria_data = {
-                            'id_usuario': user_logeado,
-                            'id_modulo': 16,
-                            'cod_permiso': 'AC',
-                            'subsistema': 'TRSV',
                             'dirip': dirip,
                             'descripcion': descripcion,
                             'valores_actualizados': valores_actualizados
@@ -453,4 +460,4 @@ class Activar(generics.UpdateAPIView):
                     return Response({'success':False,'detail': 'No se puede activar la TRD si no se encuentra finalizado'}, status=status.HTTP_403_FORBIDDEN)
                 return Response({'success':False,'detail': 'No existe ningún TRD con este ID'}, status=status.HTTP_404_NOT_FOUND)
         except:
-            return Response({'success':False,'detail':'Los parametro ingresados no son correctos'},status=status.HTTP_403_FORBIDDEN)
+            return Response({'success':False,'detail':'No existe ningún TRD con este ID'},status=status.HTTP_403_FORBIDDEN)
