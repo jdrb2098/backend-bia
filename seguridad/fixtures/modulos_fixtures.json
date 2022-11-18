@@ -171,6 +171,66 @@
       },
       {
         "model": "seguridad.Modulos",
+        "pk": 21,
+        "fields": {
+          "id_modulo": 21,
+          "nombre_modulo": "Programación de Mantenimiento de Computadores",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las programaciones de mantenimiento de computadores"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 22,
+        "fields": {
+          "id_modulo": 22,
+          "nombre_modulo": "Programación de Mantenimiento de Vehículos",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las programaciones de mantenimiento de vehículos"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 23,
+        "fields": {
+          "id_modulo": 23,
+          "nombre_modulo": "Programación de Mantenimiento de Otros activos",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las programaciones de mantenimiento de otros activos"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 24,
+        "fields": {
+          "id_modulo": 24,
+          "nombre_modulo": "Ejecución de Mantenimiento de Computadores",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las ejecuciones de mantenimiento de computadores"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 25,
+        "fields": {
+          "id_modulo": 25,
+          "nombre_modulo": "Ejecución de Mantenimiento de Vehículos",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las ejecuciones de mantenimiento de vehículos"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
+        "pk": 26,
+        "fields": {
+          "id_modulo": 26,
+          "nombre_modulo": "Ejecución de Mantenimiento de Otros activos",
+          "subsistema":"ALMA",
+          "descripcion":"Permite administrar la información de las ejecuciones de mantenimiento de otros activos"
+        }
+      },
+      {
+        "model": "seguridad.Modulos",
         "pk": 27,
         "fields": {
           "id_modulo": 27,

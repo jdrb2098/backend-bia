@@ -46,5 +46,13 @@
         "cod_permiso": "EJ",
         "nombre_permiso": "Ejecutar"
       }
+    },
+    {
+      "model": "seguridad.Permisos",
+      "pk": "AN",
+      "fields": {
+        "cod_permiso": "AN",
+        "nombre_permiso": "Anular"
+      }
     }
   ]
