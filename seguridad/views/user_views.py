@@ -817,9 +817,13 @@ class LoginApiView(generics.CreateAPIView):
                     if login_error:
                         login_error.contador = 0
                         login_error.save()
+                        
+                    representante_legal=Personas.objects.filter(representante_legal=user.persona.id_persona).values()
+                    representante_legal_list=[{'id_persona':representante['id_persona'],'razon_social':representante['razon_social'],'NUIP':representante['numero_documento']}for representante in representante_legal]
+                    user_info={'userinfo':serializer.data,'permisos':permisos_list[0],'representante_legal':representante_legal_list}
+                    return Response({'userinfo':user_info}, status=status.HTTP_200_OK)
 
-                    return Response({'userinfo':serializer.data,'permisos':permisos_list[0]}, status=status.HTTP_200_OK)
-
+                    
                 except:
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).first()
                     if login_error:
