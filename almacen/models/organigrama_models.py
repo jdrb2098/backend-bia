@@ -10,7 +10,7 @@ class Organigramas(models.Model):
     fecha_puesta_produccion = models.DateTimeField(null=True, blank=True, db_column='T017fechaPuestaEnProduccion')
     fecha_retiro_produccion = models.DateTimeField(null=True, blank=True, db_column='T017fechaRetiroDeProduccion')
     justificacion_nueva_version = models.CharField(max_length=255, null=True, blank=True, db_column='T017justificacionNuevaVersion')
-    version = models.CharField(max_length=10, db_column='T017version')
+    version = models.CharField(max_length=10, unique=True, db_column='T017version')
     actual = models.BooleanField(default=False, db_column='T017actual')
     ruta_resolucion = models.FileField(null=True, blank=True, db_column='T017rutaResolucion')
     

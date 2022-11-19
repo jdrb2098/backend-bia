@@ -310,7 +310,22 @@ class CreateOrgChart(generics.CreateAPIView):
             pass
         except:
             return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        serializador = serializer.save()
+
+        #Auditoria Crear Organigrama
+        usuario = request.user.id_usuario
+        descripcion = {"Nombre": str(serializador.nombre), "Versión": str(serializador.version)}
+        direccion=Util.get_client_ip(request)
+        auditoria_data = {
+            "id_usuario" : usuario,
+            "id_modulo" : 15,
+            "cod_permiso": "CR",
+            "subsistema": 'TRSV',
+            "dirip": direccion,
+            "descripcion": descripcion, 
+        }
+        Util.save_auditoria(auditoria_data)
+
         return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
 
 class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
@@ -320,6 +335,7 @@ class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, id_organigrama):
         organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)   
+        previous_organigrama = copy.copy(organigrama)
         if organigrama.fecha_terminado:
             return Response({'success': False, 'detail': 'No se puede actualizar un organigrama que ya está terminado'})   
         ccd = list(CuadrosClasificacionDocumental.objects.filter(id_organigrama=organigrama.id_organigrama).values())
@@ -331,6 +347,22 @@ class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
             except:
                 return Response({'success': False, 'detail': 'Validar la data ingresada, el nombre debe ser único y es requerido, la descripción y la versión son requeridos'},status=status.HTTP_400_BAD_REQUEST)    
             serializer.save()
+
+            # AUDITORIA DE UPDATE DE ORGANIGRAMA
+            user_logeado = request.user.id_usuario
+            dirip = Util.get_client_ip(request)
+            descripcion = {'nombre':str(previous_organigrama.nombre), 'version':str(previous_organigrama.version)}
+            valores_actualizados={'previous':previous_organigrama, 'current':organigrama}
+            auditoria_data = {
+                'id_usuario': user_logeado,
+                'id_modulo': 15,
+                'cod_permiso': 'AC',
+                'subsistema': 'TRSV',
+                'dirip': dirip,
+                'descripcion': descripcion,
+                'valores_actualizados': valores_actualizados
+            }
+            Util.save_auditoria(auditoria_data)
             return Response({'success': True, 'detail': serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({'sucsess': False, 'detail': 'Ya está siendo usado este organigrama'}, status=status.HTTP_403_FORBIDDEN)

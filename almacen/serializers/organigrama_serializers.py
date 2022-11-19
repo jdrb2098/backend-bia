@@ -63,7 +63,8 @@ class UnidadesGetSerializer(serializers.ModelSerializer):
 
 
 class OrganigramaSerializer(serializers.ModelSerializer):
-    nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre de organigrama debe ser único')])     
+    nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre del organigrama debe ser único')])
+    version=serializers.CharField(max_length=10, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='La versión del organigrama debe ser único')])     
     class Meta:
         model = Organigramas
         fields = ['nombre','fecha_terminado','descripcion', 'fecha_puesta_produccion','fecha_retiro_produccion','justificacion_nueva_version','version','ruta_resolucion']
@@ -72,6 +73,8 @@ class OrganigramaSerializer(serializers.ModelSerializer):
 
 class OrganigramaPostSerializer(serializers.ModelSerializer):
     nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre de organigrama debe ser único')])     
+    version=serializers.CharField(max_length=10, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='La versión del organigrama debe ser único')])     
+
     class Meta:
         model = Organigramas
         fields = ['nombre', 'descripcion', 'version', 'ruta_resolucion']
@@ -83,6 +86,8 @@ class OrganigramaPostSerializer(serializers.ModelSerializer):
 
 class OrganigramaPutSerializer(serializers.ModelSerializer):
     nombre=serializers.CharField(max_length=50, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='El nombre de organigrama debe ser único')])     
+    version=serializers.CharField(max_length=10, validators=[UniqueValidator(queryset=Organigramas.objects.all(), message='La versión del organigrama debe ser única')])     
+    
     class Meta:
         model = Organigramas
         fields = ['nombre', 'descripcion', 'version', 'ruta_resolucion']
