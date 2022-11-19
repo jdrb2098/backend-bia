@@ -789,18 +789,17 @@ class LoginApiView(generics.CreateAPIView):
         data = request.data
         print(holidays)
         user = User.objects.filter(email=data['email']).first()
-        roles = UsuariosRol.objects.filter(id_usuario=user.id_usuario).values()
-        rol_id_list = [rol['id_rol_id'] for rol in roles]
-        permisos_list = []
-        for rol in rol_id_list:
-            permisos = PermisosModuloRol.objects.filter(id_rol=rol).values()
-            permisos_list.append(permisos)
-       
         
         ip = Util.get_client_ip(request)
         device = Util.get_client_device(request)
         if user:
             if user.is_active:
+                roles = UsuariosRol.objects.filter(id_usuario=user.id_usuario).values()
+                rol_id_list = [rol['id_rol_id'] for rol in roles]
+                permisos_list = []
+                for rol in rol_id_list:
+                    permisos = PermisosModuloRol.objects.filter(id_rol=rol).values()
+                    permisos_list.append(permisos)
                 try:
                     login_error = LoginErroneo.objects.filter(id_usuario=user.id_usuario).last()
                     serializer = self.serializer_class(data=request.data)
