@@ -1,5 +1,7 @@
 clase_tercero_CHOICES=(
-    ('1','empresa'),
-    ('2','funcionario'),
-    ('3','contratista')   
+    (1,'Empresa'),
+    (2,'Funcionario'),
+    (3,'Contratista'),
+    (4,'Proveedor'),
+    (5,'Aseguradora')
 )

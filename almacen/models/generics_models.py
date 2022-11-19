@@ -4,7 +4,7 @@ from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from seguridad.models import Personas
 
 class EstadosArticulo(models.Model):
-    cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051CodEstado')
+    cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
     nombre = models.CharField(max_length=20, db_column='T051nombre')
 
     def __str__(self):
@@ -46,7 +46,7 @@ class PorcentajesIVA(models.Model):
         verbose_name_plural = 'Porcentajes IVA'
         
 class Magnitudes(models.Model):
-    cod_magnitud = models.AutoField(primary_key=True, editable=False, db_column='T054CodMagnitud')
+    cod_magnitud = models.AutoField(primary_key=True, editable=False, db_column='T054IdMagnitud')
     nombre = models.CharField(max_length=50, db_column='T054nombre',unique=True)
 
     def __str__(self):
@@ -61,7 +61,7 @@ class UnidadesMedida(models.Model):
     id_unidad_medida = models.AutoField(primary_key=True, editable=False, db_column='T055IdUnidadMedida')
     nombre = models.CharField(max_length=50, db_column='T055nombre',unique=True)
     abreviatura = models.CharField(max_length=5, db_column='T055abreviatura',unique=True)
-    id_magnitud = models.CharField(max_length=1, choices=magnitudes_CHOICES, db_column='T055Id_Magnitud')
+    id_magnitud = models.PositiveSmallIntegerField(choices=magnitudes_CHOICES, db_column='T055Id_Magnitud')
     precargado = models.BooleanField(default=False, db_column='T055registroPrecargado')
     activo = models.BooleanField(default=True, db_column='T055activo')
     item_ya_usado = models.BooleanField(default=False, db_column='T055itemYaUsado')
