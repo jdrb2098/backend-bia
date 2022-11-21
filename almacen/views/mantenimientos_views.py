@@ -1,8 +1,98 @@
 from almacen.models.generics_models import Bodegas
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.views import APIView
-from almacen.serializers.generics_serializers import (
-    SerializersMarca
-    )   
+from almacen.serializers.mantenimientos_serializers import (
+    SerializerProgramacionMantenimientos,
+    SerializerRegistroMantenimientos
+    )
+from almacen.models.mantenimientos_models import (
+    ProgramacionMantenimientos,
+    RegistroMantenimientos
+)
+from seguridad.models import (
+    Personas
+)
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from django.db.models import F, Q
+from datetime import datetime
+
+class GetMantenimientosProgramadosById(generics.RetrieveAPIView):
+    serializer_class=SerializerProgramacionMantenimientos
+    queryset=ProgramacionMantenimientos.objects.all()
+    
+    def get(self, request, pk):
+        mantenimiento_programado = ProgramacionMantenimientos.objects.filter(id_programacion_mtto=pk).first()
+        if mantenimiento_programado:
+            serializador = self.serializer_class(mantenimiento_programado)
+            return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'No existe ningún mantenimiento con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+
+class GetMantenimientosProgramadosFiveList(generics.ListAPIView):
+    serializer_class=SerializerProgramacionMantenimientos
+    queryset=ProgramacionMantenimientos.objects.all()
+    
+    def get(self, request):
+        mantenimientos_programados = ProgramacionMantenimientos.objects.filter(ejecutado=False, fecha_anulacion=None).values(id_programacion_mantenimiento=F('id_programacion_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_programada')).order_by('fecha')[:5]
+        mantenimientos_programados = [dict(item, estado='Vencido' if item['fecha'] < datetime.now().date() else 'Programado') for item in mantenimientos_programados]
+        mantenimientos_programados = [dict(item, responsable='NA') for item in mantenimientos_programados]
+        mantenimientos_programados = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_programados]
+        
+        return Response({'status':True, 'detail':mantenimientos_programados}, status=status.HTTP_200_OK)
+
+class GetMantenimientosProgramadosList(generics.ListAPIView):
+    serializer_class=SerializerProgramacionMantenimientos
+    queryset=ProgramacionMantenimientos.objects.all()
+    
+    def get(self, request):
+        mantenimientos_programados = ProgramacionMantenimientos.objects.all().values(id_programacion_mantenimiento=F('id_programacion_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_programada')).order_by('fecha')
+        mantenimientos_programados = [dict(item, estado='Vencido' if item['fecha'] < datetime.now().date() else 'Programado') for item in mantenimientos_programados]
+        mantenimientos_programados = [dict(item, responsable='NA') for item in mantenimientos_programados]
+        mantenimientos_programados = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_programados]
+        
+        return Response({'status':True, 'detail':mantenimientos_programados}, status=status.HTTP_200_OK)
+ 
+class GetMantenimientosEjecutadosFiveList(generics.ListAPIView):
+    serializer_class=SerializerRegistroMantenimientos
+    queryset=RegistroMantenimientos.objects.all()
+    
+    def get(self, request):
+        mantenimientos_completado = RegistroMantenimientos.objects.all().values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')[:5]
+        mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
+        mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
+        
+        for mantenimiento in mantenimientos_completado:
+            persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
+            mantenimiento['fecha'] = mantenimiento['fecha'].date()
+            mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
+        
+        return Response({'status':True, 'detail':mantenimientos_completado}, status=status.HTTP_200_OK)
+
+class GetMantenimientosEjecutadosList(generics.ListAPIView):
+    serializer_class=SerializerRegistroMantenimientos
+    queryset=RegistroMantenimientos.objects.all()
+    
+    def get(self, request):
+        mantenimientos_completado = RegistroMantenimientos.objects.all().values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')
+        mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
+        mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
+        
+        for mantenimiento in mantenimientos_completado:
+            persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
+            mantenimiento['fecha'] = mantenimiento['fecha'].date()
+            mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
+        
+        return Response({'status':True, 'detail':mantenimientos_completado}, status=status.HTTP_200_OK)
+
+class GetMantenimientosEjecutadosById(generics.ListAPIView):
+    serializer_class=SerializerRegistroMantenimientos
+    queryset=RegistroMantenimientos.objects.all()
+    
+    def get(self, request, pk):
+        mantenimiento_completado = RegistroMantenimientos.objects.filter(id_registro_mtto=pk).first()
+        if mantenimiento_completado:
+            serializador = self.serializer_class(mantenimiento_completado)
+            return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'No existe ningún mantenimiento con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)

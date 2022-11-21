@@ -59,6 +59,7 @@ urlpatterns = [
     path('api/almacen/organigrama/', include('almacen.urls.organigrama_urls')),
     path('api/gestor/ccd/', include('gestion_documental.urls.ccd_urls')),
     path('api/almacen/choices/', include('almacen.urls.choices_urls')),
+    path('api/almacen/mantenimientos/', include('almacen.urls.mantenimientos_urls')),
     path('api/gestor/trd/', include('gestion_documental.urls.trd_urls')),
     path('api/gestor/choices/', include('gestion_documental.urls.choices_urls')),
     path('api/almacen/hoja-de-vida/', include('almacen.urls.hoja_de_vida_urls')),
