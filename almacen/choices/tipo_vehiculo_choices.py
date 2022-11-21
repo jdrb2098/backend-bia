@@ -1,4 +1,4 @@
-tipo_unidad_CHOICES = (
+tipo_vehiculo_CHOICES = (
     ('C', 'Carro'),
     ('M', 'Moto')
 )

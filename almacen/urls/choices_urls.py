@@ -9,4 +9,6 @@ urlpatterns = [
     path('magnitudes/', views.MagnitudesChoices.as_view(), name='magnitudes'),
     path('tipo-documento/', views.TipoDocumentoChoices.as_view(), name='tipo-documento'),
     path('tipo-combustible/', views.TipoCombustibleChoices.as_view(), name='tipo-combustible'),
+    path('tipo-mantenimiento/', views.TipoMantenimientoChoices.as_view(), name='tipo-mantenimiento'),
+    path('tipo-vehiculo/', views.TipoVehiculoChoices.as_view(), name='tipo-vehiculo'),
 ]
