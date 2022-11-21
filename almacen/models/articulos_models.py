@@ -1,6 +1,6 @@
 from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
-from almacen.choices.magnitudes_choices import magnitudes_CHOICES
+from almacen.choices.tipos_activo_choices import tipos_activo_CHOICES
 from seguridad.models import Personas
 
 class Articulos(models.Model):
@@ -54,7 +54,7 @@ class TiposDepreciacionActivos(models.Model):
         verbose_name_plural = 'Tipos Depreciacion Activos'
 
 class TiposActivo(models.Model):
-    cod_tipo_activo = models.CharField(primary_key=True, max_length=1, db_column='T060CodTipoActivo')
+    cod_tipo_activo = models.CharField(primary_key=True, choices=tipos_activo_CHOICES, max_length=1, db_column='T060CodTipoActivo')
     nombre = models.CharField(max_length=15, db_column='T060nombre', unique=True)
 
     def __str__(self):

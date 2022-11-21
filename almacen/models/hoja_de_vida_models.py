@@ -1,6 +1,7 @@
 from django.db import models
-from seguridad.choices.municipios_choices import municipios_CHOICES
-from almacen.choices.magnitudes_choices import magnitudes_CHOICES
+from almacen.choices.tipo_documento_choices import tipo_documento_CHOICES
+from almacen.choices.tipo_vehiculo_choices import tipo_unidad_CHOICES
+from almacen.choices.tipo_combustible_choices import tipo_combustible_CHOICES
 from seguridad.models import Personas
 from almacen.models.articulos_models import Articulos
 
@@ -36,12 +37,12 @@ class HojaDeVidaVehiculos(models.Model):
     id_hoja_de_vida = models.AutoField(primary_key=True, db_column='T066IdHojaDeVida')
     id_articulo = models.ForeignKey(Articulos, on_delete=models.SET_NULL, db_column='T066Id_Articulo', blank=True, null=True)
     id_vehiculo_arrendado = models.ForeignKey(VehiculosArrendados, on_delete=models.SET_NULL, db_column='T066Id_VehiculoArrendado', blank=True, null=True)
-    cod_tipo_vehiculo = models.CharField(max_length=1, db_column='T066codTipoVehiculo', blank=True, null=True)
+    cod_tipo_vehiculo = models.CharField(max_length=1, choices=tipo_unidad_CHOICES, db_column='T066codTipoVehiculo', blank=True, null=True)
     tiene_platon = models.BooleanField(db_column='T066tienePlaton', blank=True, null=True)
     capacidad_pasajeros = models.SmallIntegerField(db_column='T066capacidadPasajeros', blank=True, null=True)
     color = models.CharField(max_length=20, db_column='T066color', blank=True, null=True)
     linea = models.CharField(max_length=20, db_column='T066linea', blank=True, null=True)
-    tipo_combustible = models.CharField(max_length=3, db_column='T066tipoCombustible', blank=True, null=True)
+    tipo_combustible = models.CharField(max_length=3, choices=tipo_combustible_CHOICES, db_column='T066tipoCombustible', blank=True, null=True)
     es_arrendado = models.BooleanField(db_column='T066esArrendado', blank=True, null=True)
     ultimo_kilometraje = models.IntegerField(db_column='T066ultimoKilometraje', blank=True, null=True)
     fecha_ultimo_kilometraje = models.DateField(db_column='T066fechaUltimoKilometraje', blank=True, null=True)
@@ -88,7 +89,7 @@ class HojaDeVidaOtrosActivos(models.Model):
 class DocumentosVehiculo(models.Model):
     id_documentos_vehiculos = models.AutoField(primary_key=True, db_column='T068IdDocumentosVehiculos')
     id_articulo = models.ForeignKey(Articulos, on_delete=models.CASCADE, db_column='T068Id_Articulo')
-    cod_tipo_documento = models.CharField(max_length=4, db_column='T068codTipoDocumento')
+    cod_tipo_documento = models.CharField(max_length=4, choices=tipo_documento_CHOICES, db_column='T068codTipoDocumento')
     nro_documento = models.CharField(max_length=20, db_column='T068nroDocumento')
     fecha_inicio_vigencia = models.DateField(db_column='T068fechaInicioVigencia')
     fecha_expiracion = models.DateField(db_column='T068fechaExpiracion')
