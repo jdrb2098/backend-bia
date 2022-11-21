@@ -2,19 +2,7 @@ from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
 from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from seguridad.models import Personas
-
-class EstadosArticulo(models.Model):
-    cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
-    nombre = models.CharField(max_length=20, db_column='T051nombre')
-
-    def __str__(self):
-        return str(self.nombre)
-
-    class Meta:
-        db_table = 'T051EstadosArticulo'
-        verbose_name = 'Estado artículo'
-        verbose_name_plural = 'Estados artículos'
-        
+       
 class Marcas(models.Model):
     id_marca = models.AutoField(primary_key=True, editable=False, db_column='T052IdMarca')
     nombre = models.CharField(max_length=50, db_column='T052nombre',unique=True)
