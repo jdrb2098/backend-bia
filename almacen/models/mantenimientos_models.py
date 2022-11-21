@@ -2,6 +2,7 @@ from django.db import models
 from seguridad.choices.municipios_choices import municipios_CHOICES
 from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from seguridad.models import Personas
+from almacen.models.articulos_models import Articulos, EstadosArticulo
 
 class ProgramacionMantenimientos(models.Model):
     id_programacion_mtto = models.AutoField(db_column='T069IdProgramacionMtto')
@@ -37,7 +38,7 @@ class RegistroMantenimientos(models.Model):
     observaciones = models.CharField(max_length=255, db_column='T070observaciones', blank=True, Null=True)
     cod_estado_anterior = models.ForeignKey(EstadosArticulo, db_column='T070codEstadoAnterior', on_delete=models.SET_NULL, blank=True, Null=True)
     fecha_estado_anterior = models.DateTimeField(db_column='T070fechaEstadoAnterior', blank=True, Null=True)
-    cod_estado_final = models.ForeignKey(Articulo, db_column='T070Cod_EstadoFinal', on_delete=models.CASCADE)
+    cod_estado_final = models.ForeignKey(Articulos, db_column='T070Cod_EstadoFinal', on_delete=models.CASCADE)
     id_programacion_mtto = models.ForeignKey(ProgramacionMantenimientos, on_delete=models.SET_NULL, db_column='T070Id_ProgramacionMtto', blank=True, Null=True)
     valor_mantenimiento = models.IntegerField(db_column='T070valorMantenimiento', blank=True, Null=True)
     contrato_mantenimiento = models.CharField(max_length=20, db_column='T070contratoMantenimiento', blank=True, Null=True)

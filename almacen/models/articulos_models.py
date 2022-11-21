@@ -6,6 +6,9 @@ from seguridad.models import Personas
 class Articulos(models.Model):
     pass
 
+class EstadosArticulo(models.Model):
+    pass
+
 class MetodosValoracionArticulos(models.Model):
     cod_metodo_valoracion = models.Autofield(db_column='T058CodMetodoValoracion')
     nombre = models.CharField(max_length=50, db_column='T058nombre', unique=True)
