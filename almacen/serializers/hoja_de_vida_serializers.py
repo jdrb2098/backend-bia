@@ -6,7 +6,17 @@ from almacen.models.articulos_models import Articulos
 from almacen.models.hoja_de_vida_models import HojaDeVidaComputadores, HojaDeVidaOtrosctivos, HojaDeVidaVehiculos, DocumentosVehiculo
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 
+class SerializersHojaDeVidaComputadores(serializers.ModelSerializer):
+    class Meta:
+        model=HojaDeVidaComputadores
+        fields=('__all__')
+        
 class SerializersHojaDeVidaVehiculos(serializers.ModelSerializer):
     class Meta:
         model=HojaDeVidaVehiculos
+        fields=('__all__')
+
+class SerializersHojaDeVidaOtrosctivos(serializers.ModelSerializer):
+    class Meta:
+        model=HojaDeVidaOtrosctivos
         fields=('__all__')

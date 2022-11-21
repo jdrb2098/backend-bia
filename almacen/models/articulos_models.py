@@ -6,6 +6,7 @@ from seguridad.models import Personas
 class Articulos(models.Model):
     id_articulo = models.AutoField(primary_key=True, db_column='T057Id_Articulo')
     nombre = models.CharField(max_length=20, db_column='T057nombre')
+    cod_estado_final = models.CharField(max_length=20, db_column='T057cod_estado_final')
     
     def __str__(self):
         return str(self.nombre)
