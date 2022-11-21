@@ -4,7 +4,16 @@ from almacen.choices.magnitudes_choices import magnitudes_CHOICES
 from seguridad.models import Personas
 
 class Articulos(models.Model):
-    pass
+    id_articulo = models.AutoField(primary_key=True, db_column='T057Id_Articulo')
+    nombre = models.CharField(max_length=20, db_column='T057nombre')
+    
+    def __str__(self):
+        return str(self.nombre)
+
+    class Meta:
+        db_table = 'T057Articulos'
+        verbose_name = 'Artículo'
+        verbose_name_plural = 'Artículos'
 
 class EstadosArticulo(models.Model):
     cod_estado = models.CharField(max_length=1, primary_key=True, unique=True, db_column='T051Cod_Estado')
