@@ -9,11 +9,15 @@ from almacen.models.mantenimientos_models import (
 )
         
 class SerializerProgramacionMantenimientos(serializers.ModelSerializer):
+    id_persona_solicita = PersonasSerializer(read_only=True)
+    id_persona_anula = PersonasSerializer(read_only=True)
     class Meta:
         model=ProgramacionMantenimientos
         fields=('__all__')
         
 class SerializerRegistroMantenimientos(serializers.ModelSerializer):
+    id_persona_realiza = PersonasSerializer(read_only=True)
+    id_persona_diligencia = PersonasSerializer(read_only=True)
     class Meta:
         model=RegistroMantenimientos
         fields=('__all__')
