@@ -61,6 +61,7 @@ urlpatterns = [
     path('api/almacen/choices/', include('almacen.urls.choices_urls')),
     path('api/gestor/trd/', include('gestion_documental.urls.trd_urls')),
     path('api/gestor/choices/', include('gestion_documental.urls.choices_urls')),
+    path('api/almacen/hoja-de-vida/', include('almacen.urls.hoja_de_vida_urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

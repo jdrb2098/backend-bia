@@ -69,7 +69,7 @@ class HojaDeVidaVehiculos(models.Model):
         verbose_name = 'Hoja de vida vehiculos'
         verbose_name_plural = 'Hojas de vida vehiculos'
 
-class HojaDeVidaOtrosctivos(models.Model):
+class HojaDeVidaOtrosActivos(models.Model):
     id_hoja_de_vida = models.AutoField(primary_key=True, db_column='T067IdHojaDeVida')
     id_articulo = models.ForeignKey(Articulos, on_delete=models.CASCADE, db_column='T067Id_Articulo')
     caracteristicas_fisicas = models.TextField(db_column='T067caracteristicasFisicas', blank=True, null=True)
@@ -80,8 +80,8 @@ class HojaDeVidaOtrosctivos(models.Model):
     def __str__(self):
         return str(self.id_hoja_de_vida)
 
-    class Meta:
-        db_table = 'T065HojaDeVidaOtrosctivos'
+    class Meta: 
+        db_table = 'T065HojaDeVidaOtrosActivos'
         verbose_name = 'Hoja de vida otros activos'
         verbose_name_plural = 'Hojas de vida otros activos'
 

@@ -20,13 +20,14 @@ from almacen.models.generics_models import (
 from almacen.models.articulos_models import (
     MetodosValoracionArticulos,
     TiposDepreciacionActivos,
-    TiposActivo
+    TiposActivo,
+    Articulos
 )
 from almacen.models.hoja_de_vida_models import (
     VehiculosArrendados,
     HojaDeVidaComputadores,
     HojaDeVidaVehiculos,
-    HojaDeVidaOtrosctivos,
+    HojaDeVidaOtrosActivos,
     DocumentosVehiculo
 )
 #from almacen.models.inventario_models import ()
@@ -53,7 +54,8 @@ admin.site.register(TiposActivo)
 admin.site.register(VehiculosArrendados)
 admin.site.register(HojaDeVidaComputadores)
 admin.site.register(HojaDeVidaVehiculos)
-admin.site.register(HojaDeVidaOtrosctivos)
+admin.site.register(HojaDeVidaOtrosActivos)
 admin.site.register(DocumentosVehiculo)
 admin.site.register(ProgramacionMantenimientos)
 admin.site.register(RegistroMantenimientos)
+admin.site.register(Articulos)
