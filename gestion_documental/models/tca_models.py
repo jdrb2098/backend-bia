@@ -46,7 +46,7 @@ class PermisosGD(models.Model):
         verbose_name='Permiso GD'
         verbose_name_plural='Permisos GD'
         
-class CCD_Clasif_Serie_Subserie_TCA(models.model):
+class CCD_Clasif_Serie_Subserie_TCA(models.Model):
     id_serie_subserie_caro_permiso_GDTCA=models.AutoField(primary_key=True, db_column='T215IdSerieSubserieCargoPermisoGDTCA')
     id_TCA=models.ForeignKey(TablasControlAcceso,on_delete=models.CASCADE,db_column='T215Id_TCA')
     id_serie_subserie_doc=models.ForeignKey(SeriesSubseriesUnidadOrg,on_delete=models.CASCADE,db_column='T215Id_SerieSubserieDoc')
