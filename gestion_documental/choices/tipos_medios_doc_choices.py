@@ -1,4 +1,4 @@
-tipos_soportes_doc_CHOICES = (
+tipos_medios_doc_CHOICES = (
     ('E', 'Electrónico'),
     ('F', 'Físico'),
     ('H', 'Híbrido')
