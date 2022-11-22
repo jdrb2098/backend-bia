@@ -3,11 +3,12 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from almacen.serializers.mantenimientos_serializers import (
     SerializerProgramacionMantenimientos,
-    SerializerRegistroMantenimientos
+    SerializerRegistroMantenimientos,
+    AnularMantenimientoProgramadoSerializer
     )
 from almacen.models.mantenimientos_models import (
     ProgramacionMantenimientos,
-    RegistroMantenimientos
+    RegistroMantenimientos,
 )
 from seguridad.models import (
     Personas
@@ -16,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.db.models import F, Q
 from datetime import datetime
+import pytz
 
 class GetMantenimientosProgramadosById(generics.RetrieveAPIView):
     serializer_class=SerializerProgramacionMantenimientos
@@ -56,7 +58,57 @@ class GetMantenimientosProgramadosList(generics.ListAPIView):
             return Response({'status':True, 'detail':mantenimientos_programados}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'No existe ningún mantenimiento programado para este artículo'}, status=status.HTTP_404_NOT_FOUND)
- 
+
+
+class AnularMantenimientoProgramado(generics.RetrieveUpdateAPIView):
+    serializer_class = AnularMantenimientoProgramadoSerializer
+    queryset = ProgramacionMantenimientos.objects.all()
+    lookup_field = 'id_programacion_mtto'
+
+    def patch(self, request, id_programacion_mtto):
+        persona_usuario_logeado = request.user.persona.id_persona
+        persona_instance = Personas.objects.filter(id_persona=persona_usuario_logeado).first()
+        mantenimiento = ProgramacionMantenimientos.objects.filter(id_programacion_mtto=id_programacion_mtto).first()
+        if mantenimiento:
+            if mantenimiento.ejecutado == True:
+                return Response({'success': False, 'detail': 'No puede anular un mantenimiento que ya fue ejecutado'}, status=status.HTTP_403_FORBIDDEN)
+            serializador = self.serializer_class(mantenimiento, data=request.data, many=False)
+            serializador.is_valid(raise_exception=True)
+            mantenimiento.fecha_anulacion = datetime.now()
+            mantenimiento.id_persona_anula = persona_instance
+            serializador.save()
+            mantenimiento.save()
+
+            return Response({'success': True, 'detail': 'Anulación exitosa'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'success': False, 'detail': 'No existe ningún mantenimiento con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+        
+class GetMantenimientosProgramadosByFechas(generics.ListAPIView):
+    serializer_class=SerializerProgramacionMantenimientos
+    queryset=ProgramacionMantenimientos.objects.all()
+    
+    def get(self, request):
+        rango_inicial_fecha = request.query_params.get('rango-inicial-fecha')
+        rango_final_fecha = request.query_params.get('rango-final-fecha')
+        
+        if rango_inicial_fecha==None or rango_final_fecha==None:
+            return Response({'success':False, 'detail':'No se ingresaron parámetros de fecha'})
+        
+        # formateando las variables de tipo fecha
+        start_date=datetime(int(rango_inicial_fecha.split('-')[2]),int(rango_inicial_fecha.split('-')[1]),int(rango_inicial_fecha.split('-')[0]), tzinfo=pytz.timezone('America/Bogota'))
+        end_date=datetime(int(rango_final_fecha.split('-')[2]),int(rango_final_fecha.split('-')[1]),int(rango_final_fecha.split('-')[0]),23,59,59,999, tzinfo=pytz.timezone('America/Bogota'))
+        
+        mantenimientos_programados = ProgramacionMantenimientos.objects.filter(fecha_programada__range=[start_date,end_date], ejecutado=False, fecha_anulacion=None).values(id_programacion_mantenimiento=F('id_programacion_mtto'), articulo=F('id_articulo'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_programada')).order_by('fecha')
+        if mantenimientos_programados:
+            mantenimientos_programados = [dict(item, estado='Vencido' if item['fecha'] < datetime.now().date() else 'Programado') for item in mantenimientos_programados]
+            mantenimientos_programados = [dict(item, responsable='NA') for item in mantenimientos_programados]
+            mantenimientos_programados = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_programados]
+            return Response({'status':True, 'detail':mantenimientos_programados}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'No existe ningún mantenimiento programado entre el rango de fechas ingresado'}, status=status.HTTP_404_NOT_FOUND)
+        
 class GetMantenimientosEjecutadosFiveList(generics.ListAPIView):
     serializer_class=SerializerRegistroMantenimientos
     queryset=RegistroMantenimientos.objects.all()
