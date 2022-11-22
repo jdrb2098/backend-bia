@@ -69,6 +69,8 @@ class AnularMantenimientoProgramado(generics.RetrieveUpdateAPIView):
         persona_instance = Personas.objects.filter(id_persona=persona_usuario_logeado).first()
         mantenimiento = ProgramacionMantenimientos.objects.filter(id_programacion_mtto=id_programacion_mtto).first()
         if mantenimiento:
+            if mantenimiento.ejecutado == True:
+                return Response({'success': False, 'detail': 'No puede anular un mantenimiento que ya fue ejecutado'}, status=status.HTTP_403_FORBIDDEN)
             serializador = self.serializer_class(mantenimiento, data=request.data, many=False)
             serializador.is_valid(raise_exception=True)
             mantenimiento.fecha_anulacion = datetime.now()
