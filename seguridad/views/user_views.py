@@ -785,9 +785,7 @@ class LoginErroneoListApiViews(generics.ListAPIView):
 class LoginApiView(generics.CreateAPIView):
     serializer_class=LoginSerializer
     def post(self, request):
-        holidays = get_colombia_holidays_by_year(2019)
         data = request.data
-        print(holidays)
         user = User.objects.filter(email=data['email']).first()
         
         ip = Util.get_client_ip(request)
@@ -820,6 +818,8 @@ class LoginApiView(generics.CreateAPIView):
                     representante_legal=Personas.objects.filter(representante_legal=user.persona.id_persona).values()
                     representante_legal_list=[{'id_persona':representante['id_persona'],'razon_social':representante['razon_social'],'NUIP':representante['numero_documento']}for representante in representante_legal]
                     user_info={'userinfo':serializer.data,'permisos':permisos_list[0],'representante_legal':representante_legal_list}
+                    sms = "Has iniciado sesion en bia cormacarena"
+                    Util.send_sms(user.persona.telefono_celular, sms)
                     return Response({'userinfo':user_info}, status=status.HTTP_200_OK)
 
                     
