@@ -61,32 +61,38 @@ class GetMantenimientosEjecutadosFiveList(generics.ListAPIView):
     serializer_class=SerializerRegistroMantenimientos
     queryset=RegistroMantenimientos.objects.all()
     
-    def get(self, request):
-        mantenimientos_completado = RegistroMantenimientos.objects.all().values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')[:5]
-        mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
-        mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
-        
-        for mantenimiento in mantenimientos_completado:
-            persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
-            mantenimiento['fecha'] = mantenimiento['fecha'].date()
-            mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
-        
+    def get(self, request, id_articulo):
+        mantenimientos_completado = RegistroMantenimientos.objects.filter(id_articulo=id_articulo).values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')[:5]
+        if mantenimientos_completado:
+            mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
+            mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
+            
+            for mantenimiento in mantenimientos_completado:
+                persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
+                mantenimiento['fecha'] = mantenimiento['fecha'].date()
+                mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
+        else:
+            return Response({'success': False, 'detail': 'No existe ningún mantenimiento registrado para este articulo'}, status=status.HTTP_404_NOT_FOUND)
+
         return Response({'status':True, 'detail':mantenimientos_completado}, status=status.HTTP_200_OK)
 
 class GetMantenimientosEjecutadosList(generics.ListAPIView):
     serializer_class=SerializerRegistroMantenimientos
     queryset=RegistroMantenimientos.objects.all()
     
-    def get(self, request):
-        mantenimientos_completado = RegistroMantenimientos.objects.all().values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')
-        mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
-        mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
-        
-        for mantenimiento in mantenimientos_completado:
-            persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
-            mantenimiento['fecha'] = mantenimiento['fecha'].date()
-            mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
-        
+    def get(self, request, id_articulo):
+        mantenimientos_completado = RegistroMantenimientos.objects.filter(id_articulo=id_articulo).values(id_registro_mantenimiento=F('id_registro_mtto'), tipo=F('cod_tipo_mantenimiento'), fecha=F('fecha_ejecutado'), responsable=F('id_persona_realiza')).order_by('-fecha')
+        if mantenimientos_completado: 
+            mantenimientos_completado = [dict(item, estado='Completado') for item in mantenimientos_completado]
+            mantenimientos_completado = [dict(item, tipo_descripcion='Correctivo' if item['tipo']=='C' else 'Preventivo') for item in mantenimientos_completado]
+            
+            for mantenimiento in mantenimientos_completado:
+                persona = Personas.objects.filter(id_persona=mantenimiento['responsable']).first()
+                mantenimiento['fecha'] = mantenimiento['fecha'].date()
+                mantenimiento['responsable'] = persona.primer_nombre + ' ' + persona.primer_apellido if persona.tipo_persona=='N' else persona.razon_social
+        else:
+            return Response({'success': False, 'detail': 'No existe ningún mantenimiento registrado para este articulo'}, status=status.HTTP_404_NOT_FOUND)
+
         return Response({'status':True, 'detail':mantenimientos_completado}, status=status.HTTP_200_OK)
 
 class GetMantenimientosEjecutadosById(generics.ListAPIView):
