@@ -46,19 +46,20 @@ class PermisosGD(models.Model):
         verbose_name='Permiso GD'
         verbose_name_plural='Permisos GD'
         
-class CCD_Clasif_Cargos_UndCargo_Permisos(models.Model):
-    id_serie_sub_serie_cargo_permiso_GD=models.AutoField(primary_key=True, editable=False, db_column='T215IdSerieSubserieCargoPermisoGD')
-    id_serie_sub_serie_Doc=models.ForeignKey(SeriesSubseriesUnidadOrg,on_delete=models.CASCADE,db_column='T215Id_SerieSubserieDoc')
-    cod_class_serie_Doc=models.ForeignKey(ClasificacionSeriesSubDoc,on_delete=models.CASCADE,db_column='T215Cod_ClasSerieDoc')
-    id_cargo_persona=models.CharField(max_length=10,db_column='T215Id_CargoPersona')
-    id_unidad_org_cargo=models.CharField(max_length=10,db_column='T215Id_UnidadOrgCargo') 
-    id_permiso_GD=models.ForeignKey(PermisosGD,on_delete=models.CASCADE,db_column='T215Id_PermisoGD')
-    id_TCA=models.ForeignKey(TablasControlAcceso,on_delete=models.CASCADE,db_column='T215Id_TCA')       
+class CCD_Clasif_Serie_Subserie_TCA(models.model):
+    id_serie_subserie_caro_permiso_GDTCA=models.AutoField(primary_key=True, db_column='T215IdSerieSubserieCargoPermisoGDTCA')
+    id_TCA=models.ForeignKey(TablasControlAcceso,on_delete=models.CASCADE,db_column='T215Id_TCA')
+    id_serie_subserie_doc=models.ForeignKey(SeriesSubseriesUnidadOrg,on_delete=models.CASCADE,db_column='T215Id_SerieSubserieDoc')
+    id_permiso_GD=models.ForeignKey(PermisosGD,on_delete=models.CASCADE,db_column='T215Id_PermisoGd')
+    fecha_registro=models.DateTimeField(db_column='T215fechaRegistro')
+    ruta_archivo=models.TextField(db_column='T215rutaArchivo',blank=True,null=True)
+    justificacion=models.CharField(max_length=255,db_column='T215justificacion',blank=True,null=True)
     
     def __str__(self):
-        return str(self.id_serie_sub_serie_cargo_permiso_GD)
+        return str(self.id_serie_subserie_caro_permiso_GDTCA)
     
     class Meta:
-        db_table='T215CCD_Clasif_Cargos_UndCargo_Permisos'
-        verbose_name='clasificación cargo unidad cargo y permisos'
-        verbose_name_plural='clasificaciones cargos unidad cargo y permisos'
+        db_table='T215CCD_Clasif_Serie_Subserie_TCA'
+        verbose_name='clasificacion serie subserie TCA'
+        verbose_name_plural='clasificacion serie subseri TCA'
+        unique_together = ['id_TCA', 'id_serie_subserie_doc','id_permiso_GD']
