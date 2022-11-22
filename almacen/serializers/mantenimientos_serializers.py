@@ -14,6 +14,12 @@ class SerializerProgramacionMantenimientos(serializers.ModelSerializer):
     class Meta:
         model=ProgramacionMantenimientos
         fields=('__all__')
+
+class AnularMantenimientoProgramadoSerializer(serializers.ModelSerializer):
+    justificacion_anulacion = serializers.CharField(max_length=255, min_length=10)
+    class Meta:
+        model=ProgramacionMantenimientos
+        fields=['justificacion_anulacion']
         
 class SerializerRegistroMantenimientos(serializers.ModelSerializer):
     id_persona_realiza = PersonasSerializer(read_only=True)

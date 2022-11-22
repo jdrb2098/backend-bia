@@ -3,11 +3,12 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from almacen.serializers.mantenimientos_serializers import (
     SerializerProgramacionMantenimientos,
-    SerializerRegistroMantenimientos
+    SerializerRegistroMantenimientos,
+    AnularMantenimientoProgramadoSerializer
     )
 from almacen.models.mantenimientos_models import (
     ProgramacionMantenimientos,
-    RegistroMantenimientos
+    RegistroMantenimientos,
 )
 from seguridad.models import (
     Personas
@@ -56,7 +57,30 @@ class GetMantenimientosProgramadosList(generics.ListAPIView):
             return Response({'status':True, 'detail':mantenimientos_programados}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'No existe ningún mantenimiento programado para este artículo'}, status=status.HTTP_404_NOT_FOUND)
- 
+
+
+class AnularMantenimientoProgramado(generics.RetrieveUpdateAPIView):
+    serializer_class = AnularMantenimientoProgramadoSerializer
+    queryset = ProgramacionMantenimientos.objects.all()
+    lookup_field = 'id_programacion_mtto'
+
+    def patch(self, request, id_programacion_mtto):
+        persona_usuario_logeado = request.user.persona.id_persona
+        persona_instance = Personas.objects.filter(id_persona=persona_usuario_logeado).first()
+        mantenimiento = ProgramacionMantenimientos.objects.filter(id_programacion_mtto=id_programacion_mtto).first()
+        if mantenimiento:
+            serializador = self.serializer_class(mantenimiento, data=request.data, many=False)
+            serializador.is_valid(raise_exception=True)
+            mantenimiento.fecha_anulacion = datetime.now()
+            mantenimiento.id_persona_anula = persona_instance
+            serializador.save()
+            mantenimiento.save()
+
+            return Response({'success': True, 'detail': 'Anulación exitosa'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'success': False, 'detail': 'No existe ningún mantenimiento con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+        
+
 class GetMantenimientosEjecutadosFiveList(generics.ListAPIView):
     serializer_class=SerializerRegistroMantenimientos
     queryset=RegistroMantenimientos.objects.all()
