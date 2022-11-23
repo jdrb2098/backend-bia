@@ -16,6 +16,7 @@ from gestion_documental.serializers.trd_serializers import (
     FormatosTiposMedioSerializer,
     FormatosTiposMedioPostSerializer,
     SeriesSubSeriesUnidadesOrgTRDSerializer,
+    SeriesSubSeriesUnidadesOrgTRDPutSerializer
 )
 from gestion_documental.serializers.ccd_serializers import (
     CCDSerializer
@@ -129,22 +130,115 @@ class GetTipologiasDocumentales(generics.ListAPIView):
 
 
 #Series SubSeries Unidades Organizacionales TRD
-class CreateSerieSubSeriesUnidadesOrgTRD(generics.RetrieveUpdateAPIView):
+class CreateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
     serializer_class = SeriesSubSeriesUnidadesOrgTRDSerializer
     queryset = SeriesSubSUnidadOrgTRD.objects.all()
 
-    def put(self, request, id_trd):
+    def post(self, request, id_trd):
         data_entrante = request.data
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
+        tipologias = request.data.get('tipologias')
+        
         if trd:
-            
-            return Response({'success': True, 'detail': 'Actualización exitosa'}, status=status.HTTP_201_CREATED)
+            serializador = self.serializer_class(data=data_entrante, many=False)
+            serializador.is_valid(raise_exception=True)
 
+            id_trd_data = serializador.validated_data.get('id_trd')
+            if int(id_trd) != trd.id_trd:
+                return Response({'success': False, 'detail': 'El id_trd enviado debe ser el mismo que el ingresado en la url'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serie_subserie_unidad = []
+            id_serie_subserie_unidad = serializador.validated_data.get('id_serie_subserie_doc')
+            serie_subserie_unidad.append(id_serie_subserie_unidad.id_serie_subserie_doc)
+
+            cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
+            digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
+            tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
+            tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
+            descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
+            
+            if not cod_disposicion_final and not digitalizacion_dis_final and not tiempo_retencion_ag and not tiempo_retencion_ac and not descripcion_procedimiento:
+                serializador.save()
+                return Response({'success': True, 'detail': 'Creación exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+            
+            elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento != None:  
+                tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=id_trd)
+                if len(tipologias) != tipologias_instance.count():
+                    return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben existir y deben estar relacionadas a la TRD elegida'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                series_trd = list(SeriesDoc.objects.filter(id_ccd=trd.id_ccd))
+                series_id = [serie.id_serie_doc for serie in series_trd]
+
+                series_subseries_unidades_org_ccd = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_id)
+                series_subseries_unidades_org_ccd_id = [serie.id_serie_subserie_doc for serie in series_subseries_unidades_org_ccd]
+                print(series_subseries_unidades_org_ccd_id)   
+               
+                if not set(serie_subserie_unidad).issubset(set(series_subseries_unidades_org_ccd_id)):
+                    return Response({'success': False, 'detail': 'Debe elegir una serie subserie unidad asociada al ccd que tiene la trd enviada en la url'}, status=status.HTTP_400_BAD_REQUEST)
+
+                serializado = serializador.save()
+                for tipologia in tipologias_instance:
+                    SeriesSubSUnidadOrgTRDTipologias.objects.create(
+                        id_serie_subserie_unidadorg_trd = serializado,
+                        id_tipologia_doc = tipologia
+                    )
+                return Response({'success': True, 'detail': 'Creación exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+            
+            else:
+                return Response({'success': False, 'detail': 'Debe enviar todas las especificaciones diligenciadas o todas las especificaciones vacias'}, status=status.HTTP_400_BAD_REQUEST)
+        
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Tabla de Retención Documental con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 
+class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
+    serializer_class = SeriesSubSeriesUnidadesOrgTRDPutSerializer
+    queryset = SeriesSubSUnidadOrgTRD.objects.all()
 
+    def put(self, request, id_serie_subs_unidadorg_trd):
+        data_entrante = request.data
+        serie_subs_unidadorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_serie_subs_unidadorg_trd).first()
+        tipologias = request.data.get('tipologias')
+        if serie_subs_unidadorg_trd:
+            serializador = self.serializer_class(serie_subs_unidadorg_trd, data=data_entrante, many=False)
+            serializador.is_valid(raise_exception=True)
+            cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
+            digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
+            tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
+            tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
+            descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
 
+            if not cod_disposicion_final and not digitalizacion_dis_final and not tiempo_retencion_ag and not tiempo_retencion_ac and not descripcion_procedimiento and not tipologias:
+                serializador.save()
+
+                series_unidades_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd)
+                series_unidades_tipologias.delete()
+                return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+                
+            elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento and tipologias:  
+                tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=serie_subs_unidadorg_trd.id_trd.id_trd)
+                
+                if len(tipologias) != tipologias_instance.count():
+                    return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben existir'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                serie_subserie_unidad_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(Q(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd) & ~Q(id_tipologia_doc__in=tipologias))
+                serie_subserie_unidad_tipologias.delete()
+                
+                serializado = serializador.save()
+                for tipologia in tipologias:
+                    serie_tipologia_instance = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd, id_tipologia_doc=tipologia)
+                    tipologia_instance_create = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia).first()
+                    if not serie_tipologia_instance:
+                        SeriesSubSUnidadOrgTRDTipologias.objects.create(
+                            id_serie_subserie_unidadorg_trd = serie_subs_unidadorg_trd,
+                            id_tipologia_doc = tipologia_instance_create
+                        )
+                return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+            
+            else:
+                return Response({'success': False, 'detail': 'Debe enviar todas las especificaciones y tipologias diligenciadas o todas las especificaciones y tipologias vacias'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response({'success': False, 'detail': 'No existe ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 #Tabla de Retencion Documental
 
 class GetTablaRetencionDocumental(generics.ListAPIView):

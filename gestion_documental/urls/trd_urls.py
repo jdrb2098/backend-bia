@@ -15,7 +15,8 @@ urlpatterns = [
     path('get-ccd-terminados/<str:pk>/', views.GetCCDTerminadoByPk.as_view(), name='ccd-terminados-get-by-id'),
     path('get-trd-terminados/<str:pk>/', views.GetTRDTerminadoByPk.as_view(), name='trd-terminados-get-by-id'),
     path('activar/',views.Activar.as_view(),name='activar'),
-    path('serie-subserie-unidad-trd/asignar/<str:id_trd>/',views.CreateSerieSubSeriesUnidadesOrgTRD.as_view(),name='activar'),
+    path('serie-subserie-unidad-trd/asignar/<str:id_trd>/',views.CreateSerieSubSeriesUnidadesOrgTRD.as_view(),name='serie-subserie-unidad-trd-create'),
+    path('serie-subserie-unidad-trd/update/<str:id_serie_subs_unidadorg_trd>/', views.UpdateSerieSubSeriesUnidadesOrgTRD.as_view(),name='serie-subserie-unidad-trd-update'),
 
     # FORMATOS TIPOS MEDIO
     path('formatos/get-by-params/', views.GetFormatosTiposMedioByParams.as_view(), name='formatos-get-by-params'),

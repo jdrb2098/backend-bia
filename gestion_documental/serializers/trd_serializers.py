@@ -94,6 +94,7 @@ class FormatosTiposMedioPostSerializer(serializers.ModelSerializer):
         ]
 
 class SeriesSubSeriesUnidadesOrgTRDSerializer(serializers.ModelSerializer):
+    tipologias = serializers.ListField(child=serializers.IntegerField(), read_only=True)
     class Meta:
         model = SeriesSubSUnidadOrgTRD
         fields = (
@@ -104,5 +105,28 @@ class SeriesSubSeriesUnidadesOrgTRDSerializer(serializers.ModelSerializer):
             'tiempo_retencion_ag',
             'tiempo_retencion_ac',
             'descripcion_procedimiento',
+            'tipologias'
         )
+        extra_kwargs = {
+            'id_trd': {'required': True},
+            'id_serie_subserie_doc': {'required': True},
+        }
+        validators = [UniqueTogetherValidator(
+               queryset=SeriesSubSUnidadOrgTRD.objects.all(),
+               fields = ['id_trd', 'id_serie_subserie_doc'],
+               message='El id_trd y el id_serie_subserie_doc deben ser una pareja única'
+           )]
+
             
+class SeriesSubSeriesUnidadesOrgTRDPutSerializer(serializers.ModelSerializer):
+    tipologias = serializers.ListField(child=serializers.IntegerField(), read_only=True)
+    class Meta:
+        model = SeriesSubSUnidadOrgTRD
+        fields = (
+            'cod_disposicion_final',
+            'digitalizacion_dis_final',
+            'tiempo_retencion_ag',
+            'tiempo_retencion_ac',
+            'descripcion_procedimiento',
+            'tipologias'
+        )

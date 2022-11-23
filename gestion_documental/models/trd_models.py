@@ -110,11 +110,11 @@ class SeriesSubSUnidadOrgTRD(models.Model):
     id_serie_subs_unidadorg_trd = models.AutoField(primary_key=True, editable=False, db_column='T218IdSerie_SubS_UnidadOrg_TRD')
     id_trd = models.ForeignKey(TablaRetencionDocumental, on_delete=models.CASCADE, db_column='T2018Id_TRD')
     id_serie_subserie_doc = models.ForeignKey(SeriesSubseriesUnidadOrg, on_delete=models.CASCADE, db_column='T218Id_SerieSubserieDoc')
-    cod_disposicion_final = models.CharField(max_length=20, choices=disposicion_final_series_CHOICES, db_column='T218Cod_DisposicionFinal')
-    digitalizacion_dis_final = models.BooleanField(default=False, db_column='T218digitalizacionDispFinal')
-    tiempo_retencion_ag = models.PositiveSmallIntegerField(db_column='T218tiempoRetencionAG')
-    tiempo_retencion_ac = models.PositiveSmallIntegerField(db_column='T218tiempoRetencionAC')
-    descripcion_procedimiento = models.TextField(max_length=500, db_column='T218descripcionProcedimiento')
+    cod_disposicion_final = models.CharField(max_length=20, choices=disposicion_final_series_CHOICES, null=True, blank=True, db_column='T218Cod_DisposicionFinal')
+    digitalizacion_dis_final = models.BooleanField(null=True, blank=True, db_column='T218digitalizacionDispFinal')
+    tiempo_retencion_ag = models.PositiveSmallIntegerField(null=True, blank=True, db_column='T218tiempoRetencionAG')
+    tiempo_retencion_ac = models.PositiveSmallIntegerField(null=True, blank=True, db_column='T218tiempoRetencionAC')
+    descripcion_procedimiento = models.TextField(max_length=500, null=True, blank=True, db_column='T218descripcionProcedimiento')
     fecha_registro = models.DateTimeField(auto_now=True, db_column='T218fechaRegistro')
     justificacion_cambio = models.CharField(max_length=255, null=True, blank=True, db_column='T218JustificacionCambio')
     ruta_archivo_cambio = models.FileField(null=True, blank=True, db_column='T218RutaArchivoCambio')
@@ -127,6 +127,7 @@ class SeriesSubSUnidadOrgTRD(models.Model):
         db_table = 'T218Series_SubS_UnidadOrg_TRD'
         verbose_name = 'Serie SubSerie Unidad Organizacional TRD'
         verbose_name = 'Series Subseries Unidades Organizacionales TRD'
+        unique_together = ['id_trd', 'id_serie_subserie_doc']
 
 
 class SeriesSubSUnidadOrgTRDTipologias(models.Model):
