@@ -12,7 +12,9 @@ urlpatterns = [
     path('create/', views.PostTablaRetencionDocumental.as_view(), name='trd-create'),
     path('update/<str:pk>/', views.UpdateTablaRetencionDocumental.as_view(), name='trd-update'),
     # path('finish/<str:id_trd>/', views.FinalizarTablaRetencionDocumental.as_view(), name='trd-finish'),
-    path('activar/<str:pk>/',views.Activar.as_view(),name='activar'),
+    path('get-ccd-terminados/<str:pk>/', views.GetCCDTerminadoByPk.as_view(), name='ccd-terminados-get-by-id'),
+    path('get-trd-terminados/<str:pk>/', views.GetTRDTerminadoByPk.as_view(), name='trd-terminados-get-by-id'),
+    path('activar/',views.Activar.as_view(),name='activar'),
     path('serie-subserie-unidad-trd/asignar/<str:id_trd>/',views.CreateSerieSubSeriesUnidadesOrgTRD.as_view(),name='activar'),
 
     # FORMATOS TIPOS MEDIO

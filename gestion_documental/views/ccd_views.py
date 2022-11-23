@@ -209,7 +209,7 @@ class GetCuadroClasificacionDocumental(generics.ListAPIView):
 
 class GetCCDTerminado(generics.ListAPIView):
     serializer_class = CCDSerializer  
-    queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None))
+    queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None) & Q(fecha_retiro_produccion=None))
 
 #Crear Series documentales
 class CreateSeriesDoc(generics.UpdateAPIView):

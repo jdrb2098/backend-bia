@@ -409,4 +409,4 @@ class GetSeccionSubsecciones(generics.ListAPIView):
             
 class GetOrganigramasTerminados(generics.ListAPIView):
     serializer_class = OrganigramaSerializer
-    queryset = Organigramas.objects.filter(~Q(fecha_terminado=None))  
+    queryset = Organigramas.objects.filter(~Q(fecha_terminado=None) & Q(fecha_retiro_produccion=None))  
