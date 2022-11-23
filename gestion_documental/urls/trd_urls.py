@@ -13,6 +13,7 @@ urlpatterns = [
     path('update/<str:pk>/', views.UpdateTablaRetencionDocumental.as_view(), name='trd-update'),
     # path('finish/<str:id_trd>/', views.FinalizarTablaRetencionDocumental.as_view(), name='trd-finish'),
     path('activar/<str:pk>/',views.Activar.as_view(),name='activar'),
+    path('serie-subserie-unidad-trd/asignar/<str:id_trd>/',views.CreateSerieSubSeriesUnidadesOrgTRD.as_view(),name='activar'),
 
     # FORMATOS TIPOS MEDIO
     path('formatos/get-by-params/', views.GetFormatosTiposMedioByParams.as_view(), name='formatos-get-by-params'),

@@ -4,7 +4,8 @@ from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from gestion_documental.models.trd_models import (
     TipologiasDocumentales,
     TablaRetencionDocumental,
-    FormatosTiposMedio
+    FormatosTiposMedio,
+    SeriesSubSUnidadOrgTRD
 )
 from gestion_documental.choices.tipos_medios_formato_choices import tipos_medios_formato_CHOICES
 
@@ -91,3 +92,17 @@ class FormatosTiposMedioPostSerializer(serializers.ModelSerializer):
                message='El tipo medio y el nombre deben ser una pareja única'
            )
         ]
+
+class SeriesSubSeriesUnidadesOrgTRDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeriesSubSUnidadOrgTRD
+        fields = (
+            'id_trd',
+            'id_serie_subserie_doc',
+            'cod_disposicion_final',
+            'digitalizacion_dis_final',
+            'tiempo_retencion_ag',
+            'tiempo_retencion_ac',
+            'descripcion_procedimiento',
+        )
+            

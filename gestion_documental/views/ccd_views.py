@@ -532,6 +532,8 @@ class ReanudarCuadroClasificacionDocumental(generics.UpdateAPIView):
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=pk).first()
         if ccd:
             if ccd.fecha_terminado:
+                if ccd.fecha_retiro_produccion:
+                    return Response({'success': False, 'detail': 'No se puede reanudar un cuadro de clasificación documental que ya fue retirado de producción'}, status=status.HTTP_403_FORBIDDEN)
                 trd = TablaRetencionDocumental.objects.filter(id_ccd=pk).exists()
                 if not trd:
                     ccd.fecha_terminado = None

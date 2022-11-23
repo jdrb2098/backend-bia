@@ -13,7 +13,8 @@ from gestion_documental.serializers.trd_serializers import (
     TRDPutSerializer,
     TRDFinalizarSerializer,
     FormatosTiposMedioSerializer,
-    FormatosTiposMedioPostSerializer
+    FormatosTiposMedioPostSerializer,
+    SeriesSubSeriesUnidadesOrgTRDSerializer,
 )
 from gestion_documental.models.ccd_models import (
     SeriesSubseriesUnidadOrg,
@@ -27,7 +28,8 @@ from gestion_documental.models.trd_models import (
     TablaRetencionDocumental,
     TipologiasDocumentales,
     SeriesSubSUnidadOrgTRDTipologias,
-    FormatosTiposMedio
+    FormatosTiposMedio,
+    SeriesSubSUnidadOrgTRD,
 )
 
 class UpdateTipologiasDocumentales(generics.UpdateAPIView):
@@ -119,7 +121,24 @@ class GetTipologiasDocumentales(generics.ListAPIView):
             return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'Debe consultar por un TRD válido'}, status=status.HTTP_404_NOT_FOUND)
-        
+
+
+#Series SubSeries Unidades Organizacionales TRD
+class CreateSerieSubSeriesUnidadesOrgTRD(generics.RetrieveUpdateAPIView):
+    serializer_class = SeriesSubSeriesUnidadesOrgTRDSerializer
+    queryset = SeriesSubSUnidadOrgTRD.objects.all()
+
+    def put(self, request, id_trd):
+        data_entrante = request.data
+        trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
+        if trd:
+            
+            return Response({'success': True, 'detail': 'Actualización exitosa'}, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response({'success': False, 'detail': 'No existe ninguna Tabla de Retención Documental con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 #Tabla de Retencion Documental
 
