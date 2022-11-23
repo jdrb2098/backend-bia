@@ -971,7 +971,7 @@ def uploadImage(request):
     user_id = data['id_usuario']
     user = User.objects.get(id_usuario=user_id)
 
-    user.image = request.FILES.get('image')
+    user.profile_img = request.FILES.get('image')
     user.save()
 
     return Response('Image was uploaded')
