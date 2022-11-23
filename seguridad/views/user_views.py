@@ -963,3 +963,15 @@ class SetNewPasswordApiView(generics.GenericAPIView):
         serializer=self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success':True,'message':'Contraseña actualizada'},status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def uploadImage(request):
+    data = request.data
+    print(data)
+    user_id = data['id_usuario']
+    user = User.objects.get(id_usuario=user_id)
+
+    user.image = request.FILES.get('image')
+    user.save()
+
+    return Response('Image was uploaded')
