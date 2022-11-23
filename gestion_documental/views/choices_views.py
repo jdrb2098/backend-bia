@@ -9,7 +9,7 @@ class TipoClasificacion(APIView):
         choices = tipo_clasificacion_CHOICES
         return Response(choices)
 
-class TiposSoportesDoc(APIView):
+class TiposMediosDoc(APIView):
     def get(self,request):
         choices = tipos_medios_doc_CHOICES
         return Response(choices)

@@ -3,8 +3,10 @@ from rest_framework.serializers import ReadOnlyField
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from gestion_documental.models.trd_models import (
     TipologiasDocumentales,
-    TablaRetencionDocumental
+    TablaRetencionDocumental,
+    FormatosTiposMedio
 )
+from gestion_documental.choices.tipos_medios_formato_choices import tipos_medios_formato_CHOICES
 
 class TipologiasDocumentalesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,4 +66,28 @@ class TRDFinalizarSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'fecha_terminado': {'read_only': True}
         }
-            
+
+class FormatosTiposMedioSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = FormatosTiposMedio
+        fields = '__all__'
+
+class FormatosTiposMedioPostSerializer(serializers.ModelSerializer):
+    cod_tipo_medio_doc = serializers.ChoiceField(choices=tipos_medios_formato_CHOICES)
+    nombre = serializers.CharField(max_length=30)
+
+    class Meta:
+        model = FormatosTiposMedio
+        fields = ['cod_tipo_medio_doc', 'nombre']
+        extra_kwargs = {
+            'cod_tipo_medio_doc': {'required': True},
+            'nombre': {'required': True}
+        }
+        validators = [
+           UniqueTogetherValidator(
+               queryset=FormatosTiposMedio.objects.all(),
+               fields = ['cod_tipo_medio_doc', 'nombre'],
+               message='El tipo medio y el nombre deben ser una pareja única'
+           )
+        ]

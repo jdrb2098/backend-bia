@@ -11,7 +11,9 @@ from gestion_documental.serializers.trd_serializers import (
     TRDSerializer,
     TRDPostSerializer,
     TRDPutSerializer,
-    TRDFinalizarSerializer
+    TRDFinalizarSerializer,
+    FormatosTiposMedioSerializer,
+    FormatosTiposMedioPostSerializer
 )
 from gestion_documental.models.ccd_models import (
     SeriesSubseriesUnidadOrg,
@@ -24,7 +26,8 @@ from almacen.models.organigrama_models import (
 from gestion_documental.models.trd_models import (
     TablaRetencionDocumental,
     TipologiasDocumentales,
-    SeriesSubSUnidadOrgTRDTipologias
+    SeriesSubSUnidadOrgTRDTipologias,
+    FormatosTiposMedio
 )
 
 class UpdateTipologiasDocumentales(generics.UpdateAPIView):
@@ -471,3 +474,112 @@ class Activar(generics.UpdateAPIView):
                 return Response({'success':False,'detail': 'No se puede activar TRD si no se encuentra finalizado'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success':False,'detail':'No existe ningún TRD con este ID'},status=status.HTTP_403_FORBIDDEN)
+
+class GetFormatosTiposMedioByParams(generics.ListAPIView):
+    serializer_class = FormatosTiposMedioSerializer
+    queryset = FormatosTiposMedio.objects.all()
+    
+    def get(self, request):
+        cod_tipo_medio = request.query_params.get('cod-tipo-medio')
+        nombre = request.query_params.get('nombre')
+        
+        if cod_tipo_medio == '':
+            cod_tipo_medio = None
+        if nombre == '':
+            nombre = None
+        
+        if not cod_tipo_medio and not nombre:
+            return Response({'success':False, 'detail':'Debe ingresar los parámetros de búsqueda'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if cod_tipo_medio and nombre:
+            formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio, nombre__icontains=nombre, activo=True)
+            serializador = self.serializer_class(formatos_tipos_medio, many=True)
+            if formatos_tipos_medio:
+                return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
+            
+        if cod_tipo_medio and not nombre:
+            formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio, activo=True)
+            serializador = self.serializer_class(formatos_tipos_medio, many=True)
+            if formatos_tipos_medio:
+                return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
+                
+        if not cod_tipo_medio and nombre:
+            formatos_tipos_medio = FormatosTiposMedio.objects.filter(nombre__icontains=nombre, activo=True)
+            serializador = self.serializer_class(formatos_tipos_medio, many=True)
+            if formatos_tipos_medio:
+                return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+            else:
+                return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
+
+class GetFormatosTiposMedioByCodTipoMedio(generics.ListAPIView):
+    serializer_class = FormatosTiposMedioSerializer
+    queryset = FormatosTiposMedio.objects.all()
+    
+    def get(self, request, cod_tipo_medio_doc):
+        if cod_tipo_medio_doc == 'H':
+            formatos_tipos_medio = FormatosTiposMedio.objects.filter(activo=True)
+        else:
+            formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio_doc, activo=True)
+            
+        serializador = self.serializer_class(formatos_tipos_medio, many=True)
+        if serializador:
+            return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
+
+class RegisterFormatosTiposMedio(generics.CreateAPIView):
+    serializer_class =  FormatosTiposMedioPostSerializer
+    queryset = FormatosTiposMedio.objects.all()
+    
+    def post(self, request):
+        data = request.data
+        serializador = self.serializer_class(data=data)
+        serializador.is_valid(raise_exception=True)
+        serializador.save()
+        return Response({'success':True, 'detail':'Se creado el Formato Tipo Medio'}, status=status.HTTP_201_CREATED)
+
+class UpdateFormatosTiposMedio(generics.RetrieveUpdateAPIView):
+    serializer_class = FormatosTiposMedioPostSerializer
+    queryset = FormatosTiposMedio.objects.all()
+
+    def put(self, request, pk):
+        formato_tipo_medio = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=pk).first()
+
+        if formato_tipo_medio:
+            if not formato_tipo_medio.registro_precargado:
+                if formato_tipo_medio.item_ya_usado:
+                    return Response({'success':False, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
+    
+                serializer = self.serializer_class(formato_tipo_medio, data=request.data, many=False)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response({'success':True, 'detail':'Registro actualizado exitosamente'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'success': False, 'detail': 'No puede actualizar un formato tipo medio precargado'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'success': False, 'detail': 'No existe el formato tipo medio'}, status=status.HTTP_404_NOT_FOUND)
+
+class DeleteFormatosTiposMedio(generics.DestroyAPIView):
+    serializer_class = FormatosTiposMedioPostSerializer
+    queryset = FormatosTiposMedio.objects.all()
+    
+    def delete(self, request, pk):
+        formato_tipo_medio = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=pk).first()
+        if formato_tipo_medio:
+            pass 
+            if not formato_tipo_medio.registro_precargado:
+                if formato_tipo_medio.item_ya_usado:
+                    formato_tipo_medio.activo = False
+                    formato_tipo_medio.save()
+                    return Response({'success':True, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual se desactivó'}, status=status.HTTP_200_OK)   
+  
+                formato_tipo_medio.delete()    
+                return Response({'success': True, 'detail': 'Este formato tipo medio ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'success': False, 'detail': 'No puedes eliminar un formato tipo medio precargado'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'success': False, 'detail':'No existe el formato tipo medio'}, status=status.HTTP_404_NOT_FOUND)

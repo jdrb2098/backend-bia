@@ -3,6 +3,7 @@ from gestion_documental.models.ccd_models import SeriesSubseriesUnidadOrg, Cuadr
 from gestion_documental.choices.disposicion_final_series_choices import disposicion_final_series_CHOICES
 from gestion_documental.choices.tipo_clasificacion_choices import tipo_clasificacion_CHOICES
 from gestion_documental.choices.tipos_medios_doc_choices import tipos_medios_doc_CHOICES
+from gestion_documental.choices.tipos_medios_formato_choices import tipos_medios_formato_CHOICES
 from seguridad.models import Personas
 
 
@@ -29,23 +30,23 @@ class TablaRetencionDocumental(models.Model):
 
 
 class TiposMediosDocumentos(models.Model):
-    cod_tipo_medio_doc = models.CharField(max_length=1, primary_key=True, editable=False, db_column='T209Cod_TipoSoporteDoc')
+    cod_tipo_medio_doc = models.CharField(max_length=1, primary_key=True, editable=False, db_column='T209CodTipoMedioDoc')
     nombre = models.CharField(max_length=11, db_column='T209nombre')
 
     def __str__(self):
         return str(self.nombre)
 
     class Meta:
-        db_table = 'T209TiposSoporteDocumentos'
-        verbose_name = 'Tipo Soporte Documento'
-        verbose_name_plural = 'Tipos Soportes Documentos'
+        db_table = 'T209TiposMediosDocumentos'
+        verbose_name = 'Tipo Medio Documento'
+        verbose_name_plural = 'Tipos Medios Documentos'
 
 
 class FormatosTiposMedio(models.Model):
     id_formato_tipo_medio = models.AutoField(primary_key=True, editable=False, db_column='T210IdFormato_TipoMedio')
-    cod_tipo_medio_doc = models.CharField(max_length=1, choices=tipos_medios_doc_CHOICES, db_column='T210Cod_TipoMedioDoc')
-    nombre = models.CharField(max_length=30, unique=True, db_column='T210nombre')
-    registro_precargado=models.BooleanField(default=False, db_column='T210regsitroPrecargado')
+    cod_tipo_medio_doc = models.CharField(max_length=1, choices=tipos_medios_formato_CHOICES, db_column='T210Cod_TipoMedioDoc')
+    nombre = models.CharField(max_length=30, db_column='T210nombre')
+    registro_precargado=models.BooleanField(default=False, db_column='T210registroPrecargado')
     activo = models.BooleanField(default=True, db_column='T210activo')
     item_ya_usado = models.BooleanField(default=False, db_column='T210itemYaUsado')
 
@@ -56,6 +57,7 @@ class FormatosTiposMedio(models.Model):
         db_table = 'T210Formatos_TiposMedio'
         verbose_name = 'Formato Tipo Medio'
         verbose_name_plural = 'Formatos Tipos Medios'
+        unique_together = ['cod_tipo_medio_doc', 'nombre']
 
 class TipologiasDocumentales(models.Model):
     id_tipologia_documental = models.AutoField(editable=False, primary_key=True, db_column='T208IdTipologiaDoc_TRD')
