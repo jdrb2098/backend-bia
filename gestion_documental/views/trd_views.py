@@ -81,6 +81,14 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     if not formatos_flat_list.issubset(formatos_actuales_list):
                         return Response({'success':False, 'detail':'Debe asignar formatos que existan'}, status=status.HTTP_400_BAD_REQUEST)
                     
+                    # VALIDAR QUE LOS FORMATOS PERTENEZCAN AL TIPO MEDIO INDICADO
+                    for tipologia in data:
+                        if tipologia['cod_tipo_medio_doc'] == 'E' or tipologia['cod_tipo_medio_doc'] == 'F':
+                            formatos_actuales = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=tipologia['cod_tipo_medio_doc'])
+                            formatos_actuales_list = [formato.id_formato_tipo_medio for formato in formatos_actuales]
+                            if not set(tipologia['formatos']).issubset(formatos_actuales_list):
+                                return Response({'success':False, 'detail':'Debe asignar formatos que correspondan al tipo medio elegido'}, status=status.HTTP_400_BAD_REQUEST)
+                    
                     # CREAR TIPOLOGIAS
                     tipologias_create = list(filter(lambda tipologia: tipologia['id_tipologia_documental'] == None, data))
                     tipologias_id_create = []
@@ -104,17 +112,23 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                         for tipologia in tipologias_update:
                             tipologia_existe = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia['id_tipologia_documental']).first()
                             if tipologia_existe:
-                                serializer = self.serializer_class(tipologia_existe, data=tipologia)
-                                serializer.is_valid(raise_exception=True)
-                                serializador = serializer.save()
+                                if tipologia_existe.cod_tipo_medio_doc != tipologia['cod_tipo_medio_doc']:
+                                    formato_tipologia_existe = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental'])
+                                    formato_tipologia_existe.delete()
+                                
+                                if not trd.actual:    
+                                    serializer = self.serializer_class(tipologia_existe, data=tipologia)
+                                    serializer.is_valid(raise_exception=True)
+                                    serializador = serializer.save()
                                 
                                 # ACTUALIZAR FORMATOS
                                 for formato in tipologia['formatos']:
                                     formato_tipologia_existe = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental'], id_formato_tipo_medio=formato)
+                                    tipologia_actualizada = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia['id_tipologia_documental']).first()
                                     if not formato_tipologia_existe:
                                         formato_instance = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=formato).first()
                                         FormatosTiposMedioTipoDoc.objects.create(
-                                            id_tipologia_doc=serializador,
+                                            id_tipologia_doc=tipologia_actualizada,
                                             id_formato_tipo_medio=formato_instance
                                         )
                                     formato_tipologia_eliminar = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental']).exclude(id_formato_tipo_medio__in=tipologia['formatos'])
@@ -124,6 +138,9 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     lista_tipologia_id = [tipologia['id_tipologia_documental'] for tipologia in tipologias_update]
                     lista_tipologia_id.extend(tipologias_id_create)
                     tipologias_eliminar = TipologiasDocumentales.objects.filter(id_trd=id_trd).exclude(id_tipologia_documental__in=lista_tipologia_id)
+                    
+                    if tipologias_eliminar and trd.actual:
+                        return Response({'success':False, 'detail':'No puede eliminar tipologias para una TRD actual. Intente desactivar'})
                     
                     # VALIDAR QUE NO SE ESTÉN USANDO LAS TIPOLOGIAS A ELIMINAR
                     tipologias_eliminar_id = [tipologia.id_tipologia_documental for tipologia in tipologias_eliminar]

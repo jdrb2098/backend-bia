@@ -35,12 +35,12 @@ class TipologiasDocumentalesPutSerializer(serializers.ModelSerializer):
            UniqueTogetherValidator(
                queryset=TipologiasDocumentales.objects.all(),
                fields = ['id_trd', 'codigo'],
-               message='El id_ccd y el codigo deben ser una pareja única'
+               message='El id_trd y el codigo deben ser una pareja única'
            ),
            UniqueTogetherValidator(
                queryset=TipologiasDocumentales.objects.all(),
                fields = ['id_trd', 'nombre'],
-               message='El id_ccd y nombre deben ser una pareja única'
+               message='El id_trd y nombre deben ser una pareja única'
            )
         ]
 
