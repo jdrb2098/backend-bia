@@ -82,7 +82,6 @@ class UpdateCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
     serializer_class = CCDPutSerializer
     queryset = CuadrosClasificacionDocumental.objects.all()
     permission_classes = [IsAuthenticated]
-    #Falta validación si está siendo usado en la TRD
 
     def patch(self, request, pk):
         try:

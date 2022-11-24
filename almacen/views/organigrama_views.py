@@ -25,6 +25,7 @@ from almacen.models.organigrama_models import (
     UnidadesOrganizacionales,
     NivelesOrganigrama
     )
+from rest_framework.permissions import IsAuthenticated
 
 # VIEWS FOR NIVELES ORGANIGRAMA
 class UpdateNiveles(generics.UpdateAPIView):
@@ -303,6 +304,7 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
 class CreateOrgChart(generics.CreateAPIView):
     serializer_class = OrganigramaPostSerializer
     queryset = Organigramas.objects.all()
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         try:
@@ -332,6 +334,7 @@ class UpdateOrganigrama(generics.RetrieveUpdateAPIView):
     serializer_class = OrganigramaPutSerializer
     queryset= Organigramas.objects.all()
     lookup_field='id_organigrama'
+    permission_classes = [IsAuthenticated]
 
     def patch(self, request, id_organigrama):
         organigrama = Organigramas.objects.get(id_organigrama=id_organigrama)   

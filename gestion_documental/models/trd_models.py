@@ -84,7 +84,7 @@ class TipologiasDocumentales(models.Model):
 class FormatosTiposMedioTipoDoc(models.Model):
     id_formato_tipomedio_tipo_doc = models.AutoField(primary_key=True, editable=False, db_column='T217IdFormato_TipoMedio_TipoDoc_TRD')
     id_tipologia_doc = models.ForeignKey(TipologiasDocumentales, on_delete=models.CASCADE, db_column='T217Id_TipologiaDoc')
-    id_formato_tipo_medio = models.ForeignKey(TiposMediosDocumentos, on_delete=models.CASCADE, db_column='T217Id_Formato_TipoMedio')
+    id_formato_tipo_medio = models.ForeignKey(FormatosTiposMedio, on_delete=models.CASCADE, db_column='T217Id_Formato_TipoMedio')
 
     def __str__(self):
         return str(self.id_formato_tipomedio_tipo_doc)

@@ -1046,6 +1046,7 @@ class getSucursalEmpresaById(generics.RetrieveAPIView):
 class deleteSucursalEmpresa(generics.DestroyAPIView):
     serializer_class = SucursalesEmpresasSerializer
     queryset = SucursalesEmpresas.objects.all()
+    permission_classes = [IsAuthenticated]
     
     def delete(self,request,pk):
         sucursal=SucursalesEmpresas.objects.filter(id_sucursal_empresa=pk).first()

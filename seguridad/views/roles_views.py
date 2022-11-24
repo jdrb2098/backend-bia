@@ -71,6 +71,7 @@ class RegisterRol(CreateAPIView):
 class DeleteUserRol(DestroyAPIView):
     serializer_class = UsuarioRolesSerializers
     queryset = UsuariosRol.objects.all()
+    permission_classes = [IsAuthenticated]
     
     def delete(self, request, pk):
         try:
@@ -82,15 +83,11 @@ class DeleteUserRol(DestroyAPIView):
         if id_usuarios_rol:
             id_usuarios_rol.delete()
             usuario = request.user.id_usuario
-            user = User.objects.get(id_usuario = usuario)
-            modulo = Modulos.objects.get(id_modulo = 5)
-            permiso = Permisos.objects.get(cod_permiso = 'BO')
-            direccion_ip = Util.get_client_ip(request)
             descripcion =  {"id_usuarios_rol" : str(pk), "Usuario" : str(id_usuarios_rol.id_usuario.nombre_de_usuario), "Rol" : str(id_usuarios_rol.id_rol.nombre_rol)}
             dirip = Util.get_client_ip(request)
         
             auditoria_data = {
-                'id_usuario': request.user.id_usuario,
+                'id_usuario': usuario,
                 'id_modulo': 5,
                 'cod_permiso': 'BO',
                 'subsistema': 'SEGU',

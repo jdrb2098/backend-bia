@@ -26,6 +26,23 @@ class TipologiasDocumentalesSerializer(serializers.ModelSerializer):
            )
         ]
 
+class TipologiasDocumentalesPutSerializer(serializers.ModelSerializer):
+    formatos = serializers.ListField(child=serializers.IntegerField(), read_only=True)
+    class Meta:
+        model = TipologiasDocumentales
+        fields = ('id_tipologia_documental', 'id_trd', 'nombre', 'codigo', 'cod_tipo_medio_doc', 'formatos')
+        validators = [
+           UniqueTogetherValidator(
+               queryset=TipologiasDocumentales.objects.all(),
+               fields = ['id_trd', 'codigo'],
+               message='El id_ccd y el codigo deben ser una pareja única'
+           ),
+           UniqueTogetherValidator(
+               queryset=TipologiasDocumentales.objects.all(),
+               fields = ['id_trd', 'nombre'],
+               message='El id_ccd y nombre deben ser una pareja única'
+           )
+        ]
 
 class TRDSerializer(serializers.ModelSerializer):
     

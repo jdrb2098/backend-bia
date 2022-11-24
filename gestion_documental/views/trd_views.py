@@ -16,7 +16,8 @@ from gestion_documental.serializers.trd_serializers import (
     FormatosTiposMedioSerializer,
     FormatosTiposMedioPostSerializer,
     SeriesSubSeriesUnidadesOrgTRDSerializer,
-    SeriesSubSeriesUnidadesOrgTRDPutSerializer
+    SeriesSubSeriesUnidadesOrgTRDPutSerializer,
+    TipologiasDocumentalesPutSerializer
 )
 from gestion_documental.serializers.ccd_serializers import (
     CCDSerializer
@@ -36,10 +37,11 @@ from gestion_documental.models.trd_models import (
     SeriesSubSUnidadOrgTRDTipologias,
     FormatosTiposMedio,
     SeriesSubSUnidadOrgTRD,
+    FormatosTiposMedioTipoDoc
 )
 
 class UpdateTipologiasDocumentales(generics.UpdateAPIView):
-    serializer_class = TipologiasDocumentalesSerializer
+    serializer_class = TipologiasDocumentalesPutSerializer
     queryset = TipologiasDocumentales.objects.all()
     
     def put(self, request, id_trd):
@@ -66,14 +68,35 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     if len(nombres_list) != len(set(nombres_list)):
                         return Response({'success':False, 'detail':'Debe validar que los nombres de las tipologias sean únicos'}, status=status.HTTP_400_BAD_REQUEST)
                     
+                    # VALIDAR QUE LOS FORMATOS NO ESTÉN VACÍOS
+                    formatos_list = [tipologia['formatos'] for tipologia in data]
+                    formatos_empty = any(sublist == [] for sublist in formatos_list)
+                    if formatos_empty:
+                        return Response({'success':False, 'detail':'Debe asignar formatos para el tipo de medio de cada tipologia'}, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # VALIDAR QUE LOS FORMATOS EXISTAN
+                    formatos_actuales = FormatosTiposMedio.objects.all()
+                    formatos_actuales_list = [formato.id_formato_tipo_medio for formato in formatos_actuales]
+                    formatos_flat_list = set([item for sublist in formatos_list for item in sublist])
+                    if not formatos_flat_list.issubset(formatos_actuales_list):
+                        return Response({'success':False, 'detail':'Debe asignar formatos que existan'}, status=status.HTTP_400_BAD_REQUEST)
+                    
                     # CREAR TIPOLOGIAS
                     tipologias_create = list(filter(lambda tipologia: tipologia['id_tipologia_documental'] == None, data))
                     tipologias_id_create = []
                     if tipologias_create:
-                        serializer = self.serializer_class(data=tipologias_create, many=True)
-                        serializer.is_valid(raise_exception=True)
-                        serializador = serializer.save()
-                        tipologias_id_create.extend([tipologia.id_tipologia_documental for tipologia in serializador])
+                        # CREAR RELACIONES CON FORMATOS
+                        for tipologia in tipologias_create:
+                            serializer = self.serializer_class(data=tipologia)
+                            serializer.is_valid(raise_exception=True)
+                            serializador = serializer.save()
+                            tipologias_id_create.append(serializador.id_tipologia_documental)
+                            for formato in tipologia['formatos']:
+                                formato_instance = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=formato).first()
+                                FormatosTiposMedioTipoDoc.objects.create(
+                                    id_tipologia_doc=serializador,
+                                    id_formato_tipo_medio=formato_instance
+                                )
 
                     # ACTUALIZAR TIPOLOGIAS
                     tipologias_update = list(filter(lambda tipologia: tipologia['id_tipologia_documental'] != None, data))
@@ -83,7 +106,19 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                             if tipologia_existe:
                                 serializer = self.serializer_class(tipologia_existe, data=tipologia)
                                 serializer.is_valid(raise_exception=True)
-                                serializer.save()
+                                serializador = serializer.save()
+                                
+                                # ACTUALIZAR FORMATOS
+                                for formato in tipologia['formatos']:
+                                    formato_tipologia_existe = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental'], id_formato_tipo_medio=formato)
+                                    if not formato_tipologia_existe:
+                                        formato_instance = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=formato).first()
+                                        FormatosTiposMedioTipoDoc.objects.create(
+                                            id_tipologia_doc=serializador,
+                                            id_formato_tipo_medio=formato_instance
+                                        )
+                                    formato_tipologia_eliminar = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental']).exclude(id_formato_tipo_medio__in=tipologia['formatos'])
+                                    formato_tipologia_eliminar.delete()
 
                     # ELIMINAR TIPOLOGIAS
                     lista_tipologia_id = [tipologia['id_tipologia_documental'] for tipologia in tipologias_update]
@@ -412,6 +447,7 @@ class Activar(generics.UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class =TRDSerializer
     queryset=TablaRetencionDocumental.objects.all()
+    permission_classes = [IsAuthenticated]
     
     def put(self,request):
         json_recibido = request.data
