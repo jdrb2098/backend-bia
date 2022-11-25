@@ -107,6 +107,10 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                                     id_tipologia_doc=serializador,
                                     id_formato_tipo_medio=formato_instance
                                 )
+                        # CAMBIOS POR CONFIRMAR TRUE SI ES TRD ACTUAL
+                        if trd.actual:
+                            trd.cambios_por_confirmar = True
+                            trd.save()
 
                     # ACTUALIZAR TIPOLOGIAS
                     tipologias_update = list(filter(lambda tipologia: tipologia['id_tipologia_documental'] != None, data))
@@ -875,3 +879,40 @@ class DeleteFormatosTiposMedio(generics.DestroyAPIView):
                 return Response({'success': False, 'detail': 'No puedes eliminar un formato tipo medio precargado'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success': False, 'detail':'No existe el formato tipo medio'}, status=status.HTTP_404_NOT_FOUND)
+
+class CambiosPorConfirmar(generics.UpdateAPIView):
+    serializer_class = SeriesSubSeriesUnidadesOrgTRDPutSerializer
+    queryset = SeriesSubSUnidadOrgTRDTipologias.objects.all()
+
+    def put(self, request, id_trd):
+        confirm = request.query_params.get('confirm')
+        trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
+        if trd:
+            if trd.actual:
+                if trd.cambios_por_confirmar:
+                    series_sub_unidades_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_trd=id_trd)
+                    series_sub_unidades_trd_list = [serie_sub_unidad_trd.id_serie_subs_unidadorg_trd for serie_sub_unidad_trd in series_sub_unidades_trd]
+                    formatos_tipo_medio = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd__in=series_sub_unidades_trd_list)
+                    tipologias_list = [formato_tipo_medio.id_tipologia_doc.id_tipologia_documental for formato_tipo_medio in formatos_tipo_medio]
+                    tipologias_trd = TipologiasDocumentales.objects.filter(id_trd=id_trd)
+                    tipologias_trd_list = [tipologia.id_tipologia_documental for tipologia in tipologias_trd]
+
+                    if not set(tipologias_trd_list).issubset(tipologias_list):
+                        tipologias_faltan = TipologiasDocumentales.objects.filter(id_trd=id_trd).exclude(id_tipologia_documental__in=tipologias_list)
+                        if confirm == 'true':
+                            tipologias_faltan.delete()
+                            trd.cambios_por_confirmar = False
+                            trd.save()
+                            return Response({'success': True, 'detail': 'Se han eliminado las tipologias no usadas y se confirmaron cambios'}, status=status.HTTP_200_OK)
+                        else:
+                            return Response({'success': False, 'detail': 'Tiene tipologias pendientes por usar', 'data':tipologias_faltan.values()}, status=status.HTTP_403_FORBIDDEN)
+                    else:
+                        trd.cambios_por_confirmar = False
+                        trd.save()
+                        return Response({'success': True, 'detail': 'Está usando todas las tipologias, se han confirmado cambios'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'success': False, 'detail': 'No tiene cambios por confirmar'}, status=status.HTTP_403_FORBIDDEN)
+            else:
+                return Response({'success':False, 'detail':'No puede realizar esta acción porque no es el TRD actual'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'success':False, 'detail':'El TRD no existe'}, status=status.HTTP_404_NOT_FOUND)
