@@ -274,6 +274,7 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
     queryset=Organigramas.objects.all()
     
     def put(self,request,pk):
+        confirm = request.query_params.get('confirm')
         organigrama_a_finalizar=Organigramas.objects.filter(id_organigrama=pk).first()
         if organigrama_a_finalizar:
             if not organigrama_a_finalizar.fecha_terminado:
@@ -285,22 +286,38 @@ class FinalizarOrganigrama(generics.UpdateAPIView):
                     return Response({'success':False,'detail':'No se puede finalizar organigrama si no cuenta con minimo un nivel'}, status=status.HTTP_403_FORBIDDEN)
                 if not unidades:
                     return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe contener por lo menos una unidad'}, status=status.HTTP_403_FORBIDDEN)
-                if nivel_list and not nivel_unidad_list:
+               #Confirmación de unidades para borrar las que no están siendo utilizadas
+                if confirm == 'true':
+                    nivel_difference_list = [nivel for nivel in nivel_list if nivel not in nivel_unidad_list]
+                    nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=nivel_difference_list)
+                    nivel_difference_list1=sorted(nivel_difference_list,reverse=True)
+                    nivel_list1=sorted(nivel_list,reverse=True)
+                    cont=0
+                    for nivel in nivel_difference_list1:
+                        nivel_difference_values = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).values().first()
+                        if nivel == nivel_list1[cont]:
+                            cont = cont+1
+                            nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama=nivel).first()
+                            nivel_difference_instance.delete()
+                        else:
+                            return Response({"Detail":"No se puede borrar",'La unidad que no se puede borrar es= ':nivel_difference_values})
+                    return Response({'success':True,'detail':'Niveles eliminadas'},status=status.HTTP_200_OK)
+                if nivel_list and not nivel_unidad_list: # si los niveles no se está utilizando (hace comparacion de dos listas)
                     nivel_difference_list = [nivel for nivel in nivel_list if nivel not in nivel_unidad_list]
                     nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=nivel_difference_list).values()
                     return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles', 'Niveles sin asignar': nivel_difference_instance}, status=status.HTTP_403_FORBIDDEN)
-                if not set(nivel_list).issubset(nivel_unidad_list):
+                if not set(nivel_list).issubset(nivel_unidad_list): 
                     nivel_difference_list = [nivel for nivel in nivel_list if nivel not in nivel_unidad_list]
+                    print('NO SE ESTAN UTILIZANDO',nivel_difference_list)
                     nivel_difference_instance = NivelesOrganigrama.objects.filter(id_nivel_organigrama__in=nivel_difference_list).values()
                     return Response({'success':False,'detail':'No se puede finalizar organigrama porque debe utilizar todos los niveles', 'Niveles sin asignar': nivel_difference_instance}, status=status.HTTP_403_FORBIDDEN)
-                
                 organigrama_a_finalizar.fecha_terminado=datetime.now()
                 organigrama_a_finalizar.save()
                 return Response({'success':True,'detail':'Se Finalizo el organigrama correctamente'},status=status.HTTP_200_OK)
             else:
                 return Response({'success':False, 'detail':'Ya se encuentra finalizado este Organigrama'})
+
         return Response({'success':False,'detail':'No existe organigrama'},status=status.HTTP_403_FORBIDDEN)
-    
 class CreateOrgChart(generics.CreateAPIView):
     serializer_class = OrganigramaPostSerializer
     queryset = Organigramas.objects.all()
