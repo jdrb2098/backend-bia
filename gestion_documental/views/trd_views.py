@@ -860,9 +860,7 @@ class DeleteFormatosTiposMedio(generics.DestroyAPIView):
             pass
             if not formato_tipo_medio.registro_precargado:
                 if formato_tipo_medio.item_ya_usado:
-                    formato_tipo_medio.activo = False
-                    formato_tipo_medio.save()
-                    return Response({'success':True, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual se desactivó'}, status=status.HTTP_200_OK)
+                    return Response({'success':False, 'detail':'Este formato tipo medio ya está siendo usado, no se pudo eliminar'}, status=status.HTTP_403_FORBIDDEN)
 
                 formato_tipo_medio.delete()
                 return Response({'success': True, 'detail': 'Este formato tipo medio ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)

@@ -97,7 +97,7 @@ class FormatosTiposMedioPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FormatosTiposMedio
-        fields = ['cod_tipo_medio_doc', 'nombre']
+        fields = ['cod_tipo_medio_doc', 'nombre', 'activo']
         extra_kwargs = {
             'cod_tipo_medio_doc': {'required': True},
             'nombre': {'required': True}
