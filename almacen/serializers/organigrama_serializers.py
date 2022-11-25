@@ -77,7 +77,7 @@ class OrganigramaPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organigramas
-        fields = ['nombre', 'descripcion', 'version', 'ruta_resolucion']
+        fields = ['id_organigrama','nombre', 'descripcion', 'version', 'ruta_resolucion']
         extra_kwargs = {
             'nombre': {'required': True},
             'descripcion': {'required': True},

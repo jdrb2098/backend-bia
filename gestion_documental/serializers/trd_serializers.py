@@ -56,7 +56,7 @@ class TRDPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TablaRetencionDocumental
-        fields = [ 'id_ccd', 'version', 'nombre', 'ruta_soporte']
+        fields = ['id_trd', 'id_ccd', 'version', 'nombre', 'ruta_soporte']
         extra_kwargs = {
             'id_ccd': {'required': True},
             'version': {'required': True},
@@ -145,5 +145,7 @@ class SeriesSubSeriesUnidadesOrgTRDPutSerializer(serializers.ModelSerializer):
             'tiempo_retencion_ag',
             'tiempo_retencion_ac',
             'descripcion_procedimiento',
+            'justificacion_cambio',
+            # 'ruta_archivo_cambio',
             'tipologias'
         )

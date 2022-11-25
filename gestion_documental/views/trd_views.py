@@ -37,13 +37,14 @@ from gestion_documental.models.trd_models import (
     SeriesSubSUnidadOrgTRDTipologias,
     FormatosTiposMedio,
     SeriesSubSUnidadOrgTRD,
-    FormatosTiposMedioTipoDoc
+    FormatosTiposMedioTipoDoc,
+    HistoricosSerieSubSeriesUnidadOrgTRD,
 )
 
 class UpdateTipologiasDocumentales(generics.UpdateAPIView):
     serializer_class = TipologiasDocumentalesPutSerializer
     queryset = TipologiasDocumentales.objects.all()
-    
+
     def put(self, request, id_trd):
         data = request.data
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
@@ -58,12 +59,12 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     else:
                         if trd_list[0] != int(id_trd):
                             return Response({'success':False, 'detail':'El id trd de la petición debe ser igual al enviado en url'}, status=status.HTTP_400_BAD_REQUEST)
-                                     
+
                     # VALIDAR QUE LOS CODIGOS SEAN UNICOS
                     codigos_list = [tipologia['codigo'] for tipologia in data]
                     if len(codigos_list) != len(set(codigos_list)):
                         return Response({'success':False, 'detail':'Debe validar que los códigos de las tipologias sean únicos'}, status=status.HTTP_400_BAD_REQUEST)
-                    
+
                     # VALIDAR QUE LOS NOMBRES SEAN UNICOS
                     nombres_list = [tipologia['nombre'] for tipologia in data]
                     if len(nombres_list) != len(set(nombres_list)):
@@ -153,7 +154,7 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                             return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD', 'data':serie_subserie_unidad_tipologia.values()}, status=status.HTTP_403_FORBIDDEN)
                     
                     tipologias_eliminar.delete()
-                    
+
                     return Response({'success':True, 'detail':'Se ha realizado cambios con las tipologias'}, status=status.HTTP_201_CREATED)
                 else:
                     # VALIDAR QUE NO SE ESTÉN USANDO LAS TIPOLOGIAS A ELIMINAR
@@ -162,7 +163,7 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                     serie_subserie_unidad_tipologia = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_tipologia_doc__in=tipologias_eliminar_id)
                     if serie_subserie_unidad_tipologia:
                         return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'}, status=status.HTTP_403_FORBIDDEN)
-                    
+
                     tipologias_eliminar.delete()
 
                     return Response({'success':True, 'detail':'Se han eliminado todas las tipologias'}, status=status.HTTP_204_NO_CONTENT)
@@ -174,7 +175,7 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
 class GetTipologiasDocumentales(generics.ListAPIView):
     serializer_class = TipologiasDocumentalesSerializer
     queryset = TipologiasDocumentales.objects.all()
-    
+
     def get(self, request, id_trd):
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
         if trd:
@@ -194,105 +195,177 @@ class CreateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
         data_entrante = request.data
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
         tipologias = request.data.get('tipologias')
-        
+
         if trd:
             serializador = self.serializer_class(data=data_entrante, many=False)
             serializador.is_valid(raise_exception=True)
 
-            id_trd_data = serializador.validated_data.get('id_trd')
-            if int(id_trd) != trd.id_trd:
-                return Response({'success': False, 'detail': 'El id_trd enviado debe ser el mismo que el ingresado en la url'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            serie_subserie_unidad = []
+            id_trd_validated = serializador.validated_data.get('id_trd')
             id_serie_subserie_unidad = serializador.validated_data.get('id_serie_subserie_doc')
-            serie_subserie_unidad.append(id_serie_subserie_unidad.id_serie_subserie_doc)
-
             cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
             digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
             tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
             tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
             descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
-            
+
+            #VALIDACION DE NO ASIGNAR UNA SERIE SUBSERIE UNIDAD TRD A OTRA TRD
+            if int(id_trd) != id_trd_validated.id_trd:
+                return Response({'success': False, 'detail': 'El id_trd enviado debe ser el mismo que el ingresado en la url'}, status=status.HTTP_400_BAD_REQUEST)
+
+            #VALIDACION ENVIO VACIO DE LA INFORMACION
             if not cod_disposicion_final and not digitalizacion_dis_final and not tiempo_retencion_ag and not tiempo_retencion_ac and not descripcion_procedimiento:
                 serializador.save()
                 return Response({'success': True, 'detail': 'Creación exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
-            
-            elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento != None:  
+
+            #VALIDACION ENVIO COMPLETO DE LA INFORMACION
+            elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento != None:
                 tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=id_trd)
                 if len(tipologias) != tipologias_instance.count():
                     return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben existir y deben estar relacionadas a la TRD elegida'}, status=status.HTTP_400_BAD_REQUEST)
-                
+
+                #VALIDAR QUE SE ELIJA UNA SERIE SUBSERIE UNIDAD VALIDA, SEGÚN LA TRD ELEGIDA
+                serie_subserie_unidad = []
+                serie_subserie_unidad.append(id_serie_subserie_unidad.id_serie_subserie_doc)
                 series_trd = list(SeriesDoc.objects.filter(id_ccd=trd.id_ccd))
                 series_id = [serie.id_serie_doc for serie in series_trd]
-
                 series_subseries_unidades_org_ccd = SeriesSubseriesUnidadOrg.objects.filter(id_serie_doc__in=series_id)
                 series_subseries_unidades_org_ccd_id = [serie.id_serie_subserie_doc for serie in series_subseries_unidades_org_ccd]
-                print(series_subseries_unidades_org_ccd_id)   
-               
                 if not set(serie_subserie_unidad).issubset(set(series_subseries_unidades_org_ccd_id)):
                     return Response({'success': False, 'detail': 'Debe elegir una serie subserie unidad asociada al ccd que tiene la trd enviada en la url'}, status=status.HTTP_400_BAD_REQUEST)
 
                 serializado = serializador.save()
+
+                #CREACIÓN DE LA SERIE SUBSERIE UNIDAD TRD TIPOLOGIA
                 for tipologia in tipologias_instance:
                     SeriesSubSUnidadOrgTRDTipologias.objects.create(
                         id_serie_subserie_unidadorg_trd = serializado,
                         id_tipologia_doc = tipologia
                     )
                 return Response({'success': True, 'detail': 'Creación exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
-            
             else:
                 return Response({'success': False, 'detail': 'Debe enviar todas las especificaciones diligenciadas o todas las especificaciones vacias'}, status=status.HTTP_400_BAD_REQUEST)
-        
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Tabla de Retención Documental con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
     serializer_class = SeriesSubSeriesUnidadesOrgTRDPutSerializer
     queryset = SeriesSubSUnidadOrgTRD.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, id_serie_subs_unidadorg_trd):
         data_entrante = request.data
+        persona_usuario_logeado = request.user.persona
         serie_subs_unidadorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_serie_subs_unidadorg_trd).first()
         tipologias = request.data.get('tipologias')
+        # tipologias = []
+        # tipologias.append(tipologias_request)
+        # print(tipologias)
+        previous_serie_subs_unidad_org_trd = copy.copy(serie_subs_unidadorg_trd)
+
         if serie_subs_unidadorg_trd:
-            serializador = self.serializer_class(serie_subs_unidadorg_trd, data=data_entrante, many=False)
-            serializador.is_valid(raise_exception=True)
-            cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
-            digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
-            tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
-            tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
-            descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
+            #SI LA TRD NO ES ACTUAL Y NO TIENE FECHA RETIRO PRODUCCIÓN ACTUALIZA SERIE SUBSERIE SIN HISTORICO
+            if serie_subs_unidadorg_trd.id_trd.actual == False and serie_subs_unidadorg_trd.id_trd.fecha_retiro_produccion == None:
+                serializador = self.serializer_class(serie_subs_unidadorg_trd, data=data_entrante, many=False)
+                serializador.is_valid(raise_exception=True)
 
-            if not cod_disposicion_final and not digitalizacion_dis_final and not tiempo_retencion_ag and not tiempo_retencion_ac and not descripcion_procedimiento and not tipologias:
-                serializador.save()
+                cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
+                digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
+                tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
+                tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
+                descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
 
-                series_unidades_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd)
-                series_unidades_tipologias.delete()
-                return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
-                
-            elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento and tipologias:  
-                tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=serie_subs_unidadorg_trd.id_trd.id_trd)
-                
-                if len(tipologias) != tipologias_instance.count():
-                    return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben existir'}, status=status.HTTP_400_BAD_REQUEST)
-                
-                serie_subserie_unidad_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(Q(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd) & ~Q(id_tipologia_doc__in=tipologias))
-                serie_subserie_unidad_tipologias.delete()
-                
-                serializado = serializador.save()
-                for tipologia in tipologias:
-                    serie_tipologia_instance = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd, id_tipologia_doc=tipologia)
-                    tipologia_instance_create = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia).first()
-                    if not serie_tipologia_instance:
-                        SeriesSubSUnidadOrgTRDTipologias.objects.create(
-                            id_serie_subserie_unidadorg_trd = serie_subs_unidadorg_trd,
-                            id_tipologia_doc = tipologia_instance_create
-                        )
-                return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+                #SI ENVIAN TODAS LAS ESPECIFICACIONES VACIAS
+                if not cod_disposicion_final and not digitalizacion_dis_final and not tiempo_retencion_ag and not tiempo_retencion_ac and not descripcion_procedimiento and not tipologias:
+                    serializador.save()
+
+                    #ELIMINA TODAS LAS TIPOLOGIAS ASOCIADAS A ESA SSU-TRD
+                    series_unidades_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd)
+                    series_unidades_tipologias.delete()
+                    return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+
+                #SI ENVIAN TODAS LAS ESPECIFICACIONES DILIGENCIADAS
+                elif cod_disposicion_final and digitalizacion_dis_final and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento and tipologias:
+                    tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=serie_subs_unidadorg_trd.id_trd.id_trd)
+
+                    #VALIDACION SI ENVIAN TIPOLOGIAS QUE NO SON DE LA MISMA TRD O QUE NO EXISTEN
+                    if len(tipologias) != tipologias_instance.count():
+                        return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben existir y deben estar relacionadas a la TRD elegida'}, status=status.HTTP_400_BAD_REQUEST)
+
+                    #ELIMINA TODAS LAS TIPOLOGIAS QUE NO HAYA ENVIADO AL MOMENTO DE ACTUALIZAR
+                    serie_subserie_unidad_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(Q(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd) & ~Q(id_tipologia_doc__in=tipologias))
+                    serie_subserie_unidad_tipologias.delete()
+
+                    serializado = serializador.save()
+                    
+                    #VERIFICAR ESTO
+                    for tipologia in tipologias:
+                        serie_tipologia_instance = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd, id_tipologia_doc=tipologia)
+                        tipologia_instance_create = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia).first()
+                        if not serie_tipologia_instance:
+                            SeriesSubSUnidadOrgTRDTipologias.objects.create(
+                                id_serie_subserie_unidadorg_trd = serie_subs_unidadorg_trd,
+                                id_tipologia_doc = tipologia_instance_create
+                            )
+                    return Response({'success': True, 'detail': 'Actualización exitosa', 'data': serializador.data}, status=status.HTTP_201_CREATED)
+
+                else:
+                    return Response({'success': False, 'detail': 'Debe enviar todas las especificaciones y tipologias diligenciadas o todas las especificaciones y tipologias vacias'}, status=status.HTTP_400_BAD_REQUEST)
             
-            else:
-                return Response({'success': False, 'detail': 'Debe enviar todas las especificaciones y tipologias diligenciadas o todas las especificaciones y tipologias vacias'}, status=status.HTTP_400_BAD_REQUEST)
-        
+            # SI LA TRD A MODIFICAR ES LA ACTUAL, GENERA HISTORICOS Y ASIGNA NUEVAS TIPOLOGIAS
+            elif serie_subs_unidadorg_trd.id_trd.actual == True:
+                serializador = self.serializer_class(serie_subs_unidadorg_trd, data=data_entrante, many=False)
+                serializador.is_valid(raise_exception=True)
+
+                cod_disposicion_final = serializador.validated_data.get('cod_disposicion_final')
+                digitalizacion_dis_final = serializador.validated_data.get('digitalizacion_dis_final')
+                tiempo_retencion_ag = serializador.validated_data.get('tiempo_retencion_ag')
+                tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
+                descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
+                justificacion_cambio = serializador.validated_data.get('justificacion_cambio')
+                # ruta_archivo_cambio = serializador.validated_data.get('ruta_archivo_cambio')
+
+
+                if cod_disposicion_final and digitalizacion_dis_final == True or digitalizacion_dis_final == False and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento and justificacion_cambio:
+                    tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=serie_subs_unidadorg_trd.id_trd.id_trd)
+                    tipologias_instance_list = [tipologia.id_tipologia_documental for tipologia in tipologias_instance]
+                    
+                    if tipologias and not tipologias_instance_list:
+                        return Response({'detail': 'La tipologia seleccionada no hace parte de las disponibles'})
+                    
+                    if not set(tipologias).issubset(set(tipologias_instance_list)):
+                        return Response({'detail': 'Alguna de las tipologias seleccionadas no hacen parte de las disponibles'})
+                    
+                    for tipologia in tipologias_instance:
+                        if tipologia.activo == False:
+                            return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben estar activas para poder asignarlas'}, status=status.HTTP_400_BAD_REQUEST)
+                      
+                    serializado = serializador.save()
+
+                    for tipologia in tipologias_instance:
+                        tipologia_existente = SeriesSubSUnidadOrgTRDTipologias.objects.filter(Q(id_serie_subserie_unidadorg_trd=serie_subs_unidadorg_trd.id_serie_subs_unidadorg_trd) & Q(id_tipologia_doc=tipologia.id_tipologia_documental)).first()
+                        if not tipologia_existente:
+                            SeriesSubSUnidadOrgTRDTipologias.objects.create(
+                                id_serie_subserie_unidadorg_trd = serie_subs_unidadorg_trd,
+                                id_tipologia_doc = tipologia
+                            )
+
+
+                    # HistoricosSerieSubSeriesUnidadOrgTRD.objects.create(
+                    #     id_serie_subs_unidadorg_trd = previous_serie_subs_unidad_org_trd,
+                    #     cod_disposicion_final = previous_serie_subs_unidad_org_trd.cod_disposicion_final,
+                    #     digitalizacion_disp_final = previous_serie_subs_unidad_org_trd.digitalizacion_dis_final,
+                    #     tiempo_retencion_ag = previous_serie_subs_unidad_org_trd.tiempo_retencion_ag,
+                    #     tiempo_retencion_ac = previous_serie_subs_unidad_org_trd.tiempo_retencion_ac,
+                    #     descripcion_procedimiento = previous_serie_subs_unidad_org_trd.descripcion_procedimiento,
+                    #     justificacion = previous_serie_subs_unidad_org_trd.justificacion_cambio,
+                    #     ruta_archivo = previous_serie_subs_unidad_org_trd.ruta_archivo_cambio,
+                    #     id_persona_cambia = persona_usuario_logeado
+                    # )
+
+                    return Response({'detail': 'HHHHHHHHHHHHHHHHHHHH'})
+                else:
+                    return Response({'success': False, 'detail': 'Para modificar una trd actual se debe completar toda la información'})
+            return Response({'detail': 'Vamos acá'})
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 #Tabla de Retencion Documental
@@ -317,14 +390,14 @@ class PostTablaRetencionDocumental(generics.CreateAPIView):
             pass
         except:
             return Response({'success': False, 'detail': 'Valide la información ingresada, el id_ccd es requerido, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         #Validación de seleccionar solo ccd terminados
         ccd = serializer.validated_data.get('id_ccd')
         ccd_instance = CuadrosClasificacionDocumental.objects.filter(id_ccd=ccd.id_ccd).first()
         if ccd_instance:
             if ccd_instance.fecha_terminado == None:
                 return Response({'success': False, 'detail': 'No se pueden seleccionar Cuadros de Clasificación Documental que no estén terminados'}, status=status.HTTP_403_FORBIDDEN)
-        
+
             serializado = serializer.save()
 
             #Auditoria Crear Tabla de Retención Documental
@@ -337,7 +410,7 @@ class PostTablaRetencionDocumental(generics.CreateAPIView):
                 "cod_permiso": "CR",
                 "subsistema": 'GEST',
                 "dirip": direccion,
-                "descripcion": descripcion, 
+                "descripcion": descripcion,
             }
             Util.save_auditoria(auditoria_data)
 
@@ -360,15 +433,15 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
 
         if trd.fecha_terminado:
             return Response({'success': False,'detail': 'No se puede actualizar una TRD terminada'}, status=status.HTTP_403_FORBIDDEN)
-            
+
         serializer = self.serializer_class(trd, data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
-            pass 
+            pass
         except:
             return Response({'success': False, 'detail': 'Validar data enviada, el nombre y la versión son requeridos y deben ser únicos'}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        
+
         # AUDITORIA DE UPDATE DE CCD
         user_logeado = request.user.id_usuario
         dirip = Util.get_client_ip(request)
@@ -384,7 +457,7 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
             'valores_actualizados': valores_actualizados
         }
         Util.save_auditoria(auditoria_data)
-        
+
         return Response({'success': True, 'detail': 'Tabla de Retención Documental actualizado exitosamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 # class FinalizarTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
@@ -421,8 +494,8 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
 #                     tipologias_difference_list = [tipologia for tipologia in tipologias_list if tipologia not in tipologias_asignacion_list]
 #                     tipologias_difference_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias_difference_list).values()
 #                     return Response({'success': False, 'detail': 'Debe asociar todas las tipologias de esta TRD', 'Tipologias sin asignar':tipologias_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
-                    
-                
+
+
 #                 if not set(serie_subserie_unidadorg_list).issubset(series_unidades_asignacion_list):
 #                     serie_subser_unidad_difference_list = [serie_sub_uni for serie_sub_uni in serie_subserie_unidadorg_list if serie_sub_uni not in series_unidades_asignacion_list]
 #                     serie_sub_unidad_difference_instance = SeriesSubseriesUnidadOrg.objects.filter(id_serie_subserie_doc__in=serie_subser_unidad_difference_list).values()
@@ -435,35 +508,35 @@ class UpdateTablaRetencionDocumental(generics.RetrieveUpdateAPIView):
 #             else:
 #                 return Response({'success': False, 'detail': 'Ya se encuentra finalizado esta TRD'}, status=status.HTTP_404_NOT_FOUND)
 #         else:
-#             return Response({'success': False, 'detail': 'No se encontró ninguna TRD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)    
+#             return Response({'success': False, 'detail': 'No se encontró ninguna TRD con estos parámetros'}, status=status.HTTP_404_NOT_FOUND)
 class GetCCDTerminadoByPk(generics.ListAPIView):
-    serializer_class = CCDSerializer  
+    serializer_class = CCDSerializer
     queryset = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None) & Q(fecha_retiro_produccion=None))
-    
+
     def get(self, request, pk):
         orgamigrama = Organigramas.objects.filter(id_organigrama = pk).first()
         if not orgamigrama:
             return Response({'success': False, 'detail': 'El organigrama ingresado no existe'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         if orgamigrama.fecha_terminado == None or orgamigrama.fecha_retiro_produccion != None:
             return Response({'success': False, 'detail': 'El organigrama ingresado ya está retirado o no está terminado'}, status=status.HTTP_400_BAD_REQUEST)
         ccds = CuadrosClasificacionDocumental.objects.filter(~Q(fecha_terminado = None) & Q(fecha_retiro_produccion=None)).filter(id_organigrama = int(orgamigrama.id_organigrama)).values()
         return Response({'success': True, 'detail': 'CCD', 'data': ccds}, status=status.HTTP_201_CREATED)
-            
+
 class GetTRDTerminadoByPk(generics.ListAPIView):
-    serializer_class = TRDSerializer  
+    serializer_class = TRDSerializer
     queryset = TablaRetencionDocumental.objects.filter(~Q(fecha_terminado = None) & Q(fecha_retiro_produccion=None))
-    
+
     def get(self, request, pk):
         ccd = CuadrosClasificacionDocumental.objects.filter(id_organigrama = pk).first()
         if not ccd:
             return Response({'success': False, 'detail': 'El ccd ingresado no existe'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         if ccd.fecha_terminado == None or ccd.fecha_retiro_produccion != None:
             return Response({'success': False, 'detail': 'El ccd ingresado ya está retirado o no está terminado'}, status=status.HTTP_400_BAD_REQUEST)
         trds = TablaRetencionDocumental.objects.filter(~Q(fecha_terminado = None) & Q(fecha_retiro_produccion=None)).filter(id_ccd = int(ccd.id_ccd)).values()
-        return Response({'success': True, 'detail': 'CCD', 'data': trds}, status=status.HTTP_201_CREATED)          
-    
+        return Response({'success': True, 'detail': 'CCD', 'data': trds}, status=status.HTTP_201_CREATED)
+
 class Activar(generics.UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class =TRDSerializer
@@ -503,7 +576,7 @@ class Activar(generics.UpdateAPIView):
         trd_a_remplazar=TablaRetencionDocumental.objects.filter(actual=True).first()
         ccd_a_remplazar=CuadrosClasificacionDocumental.objects.filter(actual=True).first()
         organigrama_a_remplazar=Organigramas.objects.filter(actual=True).first()
-        
+
         user_logeado = request.user.id_usuario
         dirip = Util.get_client_ip(request)
         previous_remplazante_trd=copy.copy(trd)
@@ -512,7 +585,7 @@ class Activar(generics.UpdateAPIView):
         previous_a_remplazar_ccd=copy.copy(ccd_a_remplazar)
         previous_remplazante_org=copy.copy(organigrama)
         previous_a_remplazar_org=copy.copy(organigrama_a_remplazar)
-        
+
         if trd_a_remplazar and ccd_a_remplazar and organigrama_a_remplazar:
             if organigrama.actual == True and ccd.actual == True and trd.actual == True:
                 return Response({'success': False, 'detail': 'Esta combinación ya se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
@@ -541,19 +614,19 @@ class Activar(generics.UpdateAPIView):
                 ccd.save()
                 organigrama_a_remplazar.save()
                 organigrama.save()
-                
+
                 #auditoria organigrama desactivado
                 descripcion = {"nombre":str(organigrama_a_remplazar.nombre),"versión":str(organigrama_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_org, 'current':organigrama_a_remplazar}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 16,'cod_permiso': 'AC','subsistema': 'TRSV','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria CCD desactivado
                 descripcion = {"nombre":str(ccd_a_remplazar.nombre),"versión":str(ccd_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_ccd, 'current':ccd_a_remplazar}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 28,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD desactivado
                 descripcion = {"nombre":str(trd_a_remplazar.nombre),"versión":str(trd_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_trd, 'current':trd_a_remplazar}
@@ -565,21 +638,21 @@ class Activar(generics.UpdateAPIView):
                 valores_actualizados={'previous':previous_remplazante_org, 'current':organigrama}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 16,'cod_permiso': 'AC','subsistema': 'TRSV','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria CCD activado
                 descripcion = {"nombre":str(ccd.nombre),"versión":str(ccd.version)}
                 valores_actualizados={'previous':previous_remplazante_ccd, 'current':ccd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 28,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD activado
                 descripcion = {"nombre":str(trd.nombre),"versión":str(trd.version)}
                 valores_actualizados={'previous':previous_remplazante_trd, 'current':trd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
-                return Response({'success': True, 'detail': 'Activación exitosa'}, status=status.HTTP_201_CREATED)                
-            
+
+                return Response({'success': True, 'detail': 'Activación exitosa'}, status=status.HTTP_201_CREATED)
+
             if organigrama.actual == True and ccd.actual == False and trd.actual == False:
                 ccd_a_remplazar.actual = False
                 ccd.actual = True
@@ -597,33 +670,33 @@ class Activar(generics.UpdateAPIView):
                 trd.save()
                 ccd_a_remplazar.save()
                 ccd.save()
-                
+
                  #auditoria CCD desactivado
                 descripcion = {"nombre":str(ccd_a_remplazar.nombre),"versión":str(ccd_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_ccd, 'current':ccd_a_remplazar}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 28,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD desactivado
                 descripcion = {"nombre":str(trd_a_remplazar.nombre),"versión":str(trd_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_trd, 'current':trd_a_remplazar}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria CCD activado
                 descripcion = {"nombre":str(ccd.nombre),"versión":str(ccd.version)}
                 valores_actualizados={'previous':previous_remplazante_ccd, 'current':ccd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 28,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD activado
                 descripcion = {"nombre":str(trd.nombre),"versión":str(trd.version)}
                 valores_actualizados={'previous':previous_remplazante_trd, 'current':trd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                 return Response({'success': True, 'detail': 'Activación exitosa'}, status=status.HTTP_201_CREATED)
-                
+
             if organigrama.actual == True and ccd.actual == True and trd.actual == False:
                 trd_a_remplazar.actual = False
                 trd.actual =True
@@ -633,23 +706,23 @@ class Activar(generics.UpdateAPIView):
                 trd.ruta_soporte = json_recibido['archivo']
                 trd_a_remplazar.save()
                 trd.save()
-                
+
                  #auditoria TRD desactivado
                 descripcion = {"nombre":str(trd_a_remplazar.nombre),"versión":str(trd_a_remplazar.version)}
                 valores_actualizados={'previous':previous_a_remplazar_trd, 'current':trd_a_remplazar}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD activado
                 descripcion = {"nombre":str(trd.nombre),"versión":str(trd.version)}
                 valores_actualizados={'previous':previous_remplazante_trd, 'current':trd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                 return Response({'success': True, 'detail': 'Activación exitosa'}, status=status.HTTP_201_CREATED)
-                
+
             return Response({'success': False, 'detail': 'No se pudo llevar a cabo la activación. Contraste la información ingresada con la que está en la base de datos'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         if (trd_a_remplazar == None) and (ccd_a_remplazar == None) and (organigrama_a_remplazar == None):
                 organigrama.actual = True
                 ccd.actual = True
@@ -666,45 +739,45 @@ class Activar(generics.UpdateAPIView):
                 trd.save()
                 ccd.save()
                 organigrama.save()
-    
+
                 #auditoria organigrama activado
                 descripcion = {"nombre":str(organigrama.nombre),"versión":str(organigrama.version)}
                 valores_actualizados={'previous':previous_remplazante_org, 'current':organigrama}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 16,'cod_permiso': 'AC','subsistema': 'TRSV','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria CCD activado
                 descripcion = {"nombre":str(ccd.nombre),"versión":str(ccd.version)}
                 valores_actualizados={'previous':previous_remplazante_ccd, 'current':ccd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 28,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                  #auditoria TRD activado
                 descripcion = {"nombre":str(trd.nombre),"versión":str(trd.version)}
                 valores_actualizados={'previous':previous_remplazante_trd, 'current':trd}
                 auditoria_data = {'id_usuario': user_logeado,'id_modulo': 30,'cod_permiso': 'AC','subsistema': 'GEST','dirip': dirip, 'descripcion': descripcion,'valores_actualizados': valores_actualizados}
                 Util.save_auditoria(auditoria_data)
-                
+
                 return Response({'success': True, 'detail': 'Activación exitosa'}, status=status.HTTP_201_CREATED)
         return Response({'success': False, 'detail': 'Error de base de datos'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class GetFormatosTiposMedioByParams(generics.ListAPIView):
     serializer_class = FormatosTiposMedioSerializer
     queryset = FormatosTiposMedio.objects.all()
-    
+
     def get(self, request):
         cod_tipo_medio = request.query_params.get('cod-tipo-medio')
         nombre = request.query_params.get('nombre')
-        
+
         if cod_tipo_medio == '':
             cod_tipo_medio = None
         if nombre == '':
             nombre = None
-        
+
         if not cod_tipo_medio and not nombre:
             return Response({'success':False, 'detail':'Debe ingresar los parámetros de búsqueda'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if cod_tipo_medio and nombre:
             formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio, nombre__icontains=nombre, activo=True)
             serializador = self.serializer_class(formatos_tipos_medio, many=True)
@@ -712,7 +785,7 @@ class GetFormatosTiposMedioByParams(generics.ListAPIView):
                 return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
             else:
                 return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
-            
+
         if cod_tipo_medio and not nombre:
             formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio, activo=True)
             serializador = self.serializer_class(formatos_tipos_medio, many=True)
@@ -720,7 +793,7 @@ class GetFormatosTiposMedioByParams(generics.ListAPIView):
                 return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
             else:
                 return Response({'success':False, 'detail':'No se encontró ningún resultado'}, status=status.HTTP_404_NOT_FOUND)
-                
+
         if not cod_tipo_medio and nombre:
             formatos_tipos_medio = FormatosTiposMedio.objects.filter(nombre__icontains=nombre, activo=True)
             serializador = self.serializer_class(formatos_tipos_medio, many=True)
@@ -732,13 +805,13 @@ class GetFormatosTiposMedioByParams(generics.ListAPIView):
 class GetFormatosTiposMedioByCodTipoMedio(generics.ListAPIView):
     serializer_class = FormatosTiposMedioSerializer
     queryset = FormatosTiposMedio.objects.all()
-    
+
     def get(self, request, cod_tipo_medio_doc):
         if cod_tipo_medio_doc == 'H':
             formatos_tipos_medio = FormatosTiposMedio.objects.filter(activo=True)
         else:
             formatos_tipos_medio = FormatosTiposMedio.objects.filter(cod_tipo_medio_doc=cod_tipo_medio_doc, activo=True)
-            
+
         serializador = self.serializer_class(formatos_tipos_medio, many=True)
         if serializador:
             return Response({'success':True, 'detail':serializador.data}, status=status.HTTP_200_OK)
@@ -748,7 +821,7 @@ class GetFormatosTiposMedioByCodTipoMedio(generics.ListAPIView):
 class RegisterFormatosTiposMedio(generics.CreateAPIView):
     serializer_class =  FormatosTiposMedioPostSerializer
     queryset = FormatosTiposMedio.objects.all()
-    
+
     def post(self, request):
         data = request.data
         serializador = self.serializer_class(data=data)
@@ -767,7 +840,7 @@ class UpdateFormatosTiposMedio(generics.RetrieveUpdateAPIView):
             if not formato_tipo_medio.registro_precargado:
                 if formato_tipo_medio.item_ya_usado:
                     return Response({'success':False, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual no es actualizable'}, status=status.HTTP_403_FORBIDDEN)
-    
+
                 serializer = self.serializer_class(formato_tipo_medio, data=request.data, many=False)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
@@ -780,18 +853,18 @@ class UpdateFormatosTiposMedio(generics.RetrieveUpdateAPIView):
 class DeleteFormatosTiposMedio(generics.DestroyAPIView):
     serializer_class = FormatosTiposMedioPostSerializer
     queryset = FormatosTiposMedio.objects.all()
-    
+
     def delete(self, request, pk):
         formato_tipo_medio = FormatosTiposMedio.objects.filter(id_formato_tipo_medio=pk).first()
         if formato_tipo_medio:
-            pass 
+            pass
             if not formato_tipo_medio.registro_precargado:
                 if formato_tipo_medio.item_ya_usado:
                     formato_tipo_medio.activo = False
                     formato_tipo_medio.save()
-                    return Response({'success':True, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual se desactivó'}, status=status.HTTP_200_OK)   
-  
-                formato_tipo_medio.delete()    
+                    return Response({'success':True, 'detail':'Este formato tipo medio ya está siendo usado, por lo cual se desactivó'}, status=status.HTTP_200_OK)
+
+                formato_tipo_medio.delete()
                 return Response({'success': True, 'detail': 'Este formato tipo medio ha sido eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({'success': False, 'detail': 'No puedes eliminar un formato tipo medio precargado'}, status=status.HTTP_403_FORBIDDEN)

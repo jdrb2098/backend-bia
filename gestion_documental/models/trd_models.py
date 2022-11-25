@@ -118,8 +118,7 @@ class SeriesSubSUnidadOrgTRD(models.Model):
     fecha_registro = models.DateTimeField(auto_now=True, db_column='T218fechaRegistro')
     justificacion_cambio = models.CharField(max_length=255, null=True, blank=True, db_column='T218JustificacionCambio')
     ruta_archivo_cambio = models.FileField(null=True, blank=True, db_column='T218RutaArchivoCambio')
-    id_persona_cambia = models.ForeignKey(Personas, null=True, blank=True, on_delete=models.SET_NULL, db_column='T218Id_PersonaCambia')
-
+    
     def __str__(self):
         return str(self.id_serie_subs_unidadorg_trd)
 
