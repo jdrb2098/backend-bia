@@ -159,10 +159,17 @@ class UpdateTipologiasDocumentales(generics.UpdateAPIView):
                 else:
                     # VALIDAR QUE NO SE ESTÉN USANDO LAS TIPOLOGIAS A ELIMINAR
                     tipologias_eliminar = TipologiasDocumentales.objects.filter(id_trd=id_trd)
+                    
+                    if tipologias_eliminar and trd.actual:
+                        return Response({'success':False, 'detail':'No puede eliminar tipologias para una TRD actual. Intente desactivar'})
+                    
                     tipologias_eliminar_id = [tipologia.id_tipologia_documental for tipologia in tipologias_eliminar]
                     serie_subserie_unidad_tipologia = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_tipologia_doc__in=tipologias_eliminar_id)
                     if serie_subserie_unidad_tipologia:
-                        return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD, por favor eliminar asociaciones primero'}, status=status.HTTP_403_FORBIDDEN)
+                        if confirm == 'true':
+                            serie_subserie_unidad_tipologia.delete()
+                        else:
+                            return Response({'success':False, 'detail':'Una o varias tipologias a eliminar ya están asociadas al TRD', 'data':serie_subserie_unidad_tipologia.values()}, status=status.HTTP_403_FORBIDDEN)
 
                     tipologias_eliminar.delete()
 
