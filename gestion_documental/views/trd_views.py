@@ -267,6 +267,7 @@ class CreateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Tabla de Retención Documental con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 
+
 # @api_view(['POST'])
 # def uploadDocument(request, id_serie_subserie_uniorg_trd):
 #     ssuorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_serie_subserie_uniorg_trd).first()
