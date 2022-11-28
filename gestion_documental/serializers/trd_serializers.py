@@ -146,9 +146,11 @@ class SeriesSubSeriesUnidadesOrgTRDPutSerializer(serializers.ModelSerializer):
             'tiempo_retencion_ac',
             'descripcion_procedimiento',
             'justificacion_cambio',
-            # 'ruta_archivo_cambio',
             'tipologias'
         )
+        extra_kwargs = {
+            'justificacion_cambio': {'required': True},
+        }
 
 class GetSeriesSubSUnidadOrgTRDSerializer(serializers.ModelSerializer):
     

@@ -269,9 +269,6 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
         persona_usuario_logeado = request.user.persona
         serie_subs_unidadorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_serie_subs_unidadorg_trd).first()
         tipologias = request.data.get('tipologias')
-        # tipologias = []
-        # tipologias.append(tipologias_request)
-        # print(tipologias)
         previous_serie_subs_unidad_org_trd = copy.copy(serie_subs_unidadorg_trd)
 
         if serie_subs_unidadorg_trd:
@@ -309,7 +306,7 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
 
                     serializado = serializador.save()
                     
-                    #VERIFICAR ESTO
+                    #VERIFICA QUE NO EXISTA EN SSUTRD-TIPOLOGIAS Y CREA LA CONEXIÓN
                     for tipologia in tipologias:
                         serie_tipologia_instance = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=id_serie_subs_unidadorg_trd, id_tipologia_doc=tipologia)
                         tipologia_instance_create = TipologiasDocumentales.objects.filter(id_tipologia_documental=tipologia).first()
@@ -334,25 +331,27 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
                 tiempo_retencion_ac = serializador.validated_data.get('tiempo_retencion_ac')
                 descripcion_procedimiento = serializador.validated_data.get('descripcion_procedimiento')
                 justificacion_cambio = serializador.validated_data.get('justificacion_cambio')
-                # ruta_archivo_cambio = serializador.validated_data.get('ruta_archivo_cambio')
 
-
+                #SI ENVIAN TODA LA INFORMACIÓN DILIGENCIADA
                 if cod_disposicion_final and digitalizacion_dis_final == True or digitalizacion_dis_final == False and tiempo_retencion_ag and tiempo_retencion_ac and descripcion_procedimiento and justificacion_cambio:
                     tipologias_instance = TipologiasDocumentales.objects.filter(id_tipologia_documental__in=tipologias, id_trd=serie_subs_unidadorg_trd.id_trd.id_trd)
                     tipologias_instance_list = [tipologia.id_tipologia_documental for tipologia in tipologias_instance]
                     
+                    #VALIDA QUE LAS TIPOLOGIAS SELECCIONADAS TENGAN LA MISMA TRD COMO PADRE
                     if tipologias and not tipologias_instance_list:
                         return Response({'detail': 'La tipologia seleccionada no hace parte de las disponibles'})
-                    
                     if not set(tipologias).issubset(set(tipologias_instance_list)):
                         return Response({'detail': 'Alguna de las tipologias seleccionadas no hacen parte de las disponibles'})
                     
+                    #VALIDA QUE LA TIPOLOGIA SELECCIONADA ESTÉ ACTIVA
                     for tipologia in tipologias_instance:
                         if tipologia.activo == False:
                             return Response({'success': False, 'detail': 'Todas las tipologias seleccionadas deben estar activas para poder asignarlas'}, status=status.HTTP_400_BAD_REQUEST)
-                      
+
+                    #GUARDA LA INFORMACIÓN ENVIADA  
                     serializado = serializador.save()
 
+                    #CREA LA CONEXIÓN EN LA TABLA SSUTRD-TIPOLOGIA SI NO EXISTE
                     for tipologia in tipologias_instance:
                         tipologia_existente = SeriesSubSUnidadOrgTRDTipologias.objects.filter(Q(id_serie_subserie_unidadorg_trd=serie_subs_unidadorg_trd.id_serie_subs_unidadorg_trd) & Q(id_tipologia_doc=tipologia.id_tipologia_documental)).first()
                         if not tipologia_existente:
@@ -361,25 +360,38 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
                                 id_tipologia_doc = tipologia
                             )
 
+                    #CREA EL HISTORICO
+                    HistoricosSerieSubSeriesUnidadOrgTRD.objects.create(
+                        id_serie_subs_unidadorg_trd = previous_serie_subs_unidad_org_trd,
+                        cod_disposicion_final = previous_serie_subs_unidad_org_trd.cod_disposicion_final,
+                        digitalizacion_disp_final = previous_serie_subs_unidad_org_trd.digitalizacion_dis_final,
+                        tiempo_retencion_ag = previous_serie_subs_unidad_org_trd.tiempo_retencion_ag,
+                        tiempo_retencion_ac = previous_serie_subs_unidad_org_trd.tiempo_retencion_ac,
+                        descripcion_procedimiento = previous_serie_subs_unidad_org_trd.descripcion_procedimiento,
+                        justificacion = previous_serie_subs_unidad_org_trd.justificacion_cambio,
+                        id_persona_cambia = persona_usuario_logeado
+                    )
 
-                    # HistoricosSerieSubSeriesUnidadOrgTRD.objects.create(
-                    #     id_serie_subs_unidadorg_trd = previous_serie_subs_unidad_org_trd,
-                    #     cod_disposicion_final = previous_serie_subs_unidad_org_trd.cod_disposicion_final,
-                    #     digitalizacion_disp_final = previous_serie_subs_unidad_org_trd.digitalizacion_dis_final,
-                    #     tiempo_retencion_ag = previous_serie_subs_unidad_org_trd.tiempo_retencion_ag,
-                    #     tiempo_retencion_ac = previous_serie_subs_unidad_org_trd.tiempo_retencion_ac,
-                    #     descripcion_procedimiento = previous_serie_subs_unidad_org_trd.descripcion_procedimiento,
-                    #     justificacion = previous_serie_subs_unidad_org_trd.justificacion_cambio,
-                    #     ruta_archivo = previous_serie_subs_unidad_org_trd.ruta_archivo_cambio,
-                    #     id_persona_cambia = persona_usuario_logeado
-                    # )
-
-                    return Response({'detail': 'HHHHHHHHHHHHHHHHHHHH'})
+                    return Response({'success': True, 'detail': 'Actualización exitosa de la TRD Actual'}, status=status.HTTP_201_CREATED)
                 else:
-                    return Response({'success': False, 'detail': 'Para modificar una trd actual se debe completar toda la información'})
-            return Response({'detail': 'Vamos acá'})
+                    return Response({'success': False, 'detail': 'Para modificar una trd actual se debe completar toda la información'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# class DeleteSerieSubserieUnidadTRD(generics.RetrieveDestroyAPIView):
+#     serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
+#     queryset = SeriesSubSUnidadOrgTRD.objects.all()
+
+#     def delete(self, request, id_ssuorg_trd):
+#         serie_ss_uniorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_ssuorg_trd).first()
+#         if serie_ss_uniorg_trd:
+#             serie_ss_uniorg_trd_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=)
+#         else:
+#             return Response({'success': False, 'detail': 'No se encontró ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status.HTTP_404_NOT_FOUND)
+
+
+
 #Tabla de Retencion Documental
 
 class GetTablaRetencionDocumental(generics.ListAPIView):
