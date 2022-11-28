@@ -5,6 +5,7 @@ urlpatterns = [
     # UNIDADES ORGANIZACIONALES
     path('unidades/update/<str:pk>/',views.UpdateUnidades.as_view(),name='unidades-org-update'),
     path('unidades/get-list/', views.GetUnidades.as_view(), name='unidades-get-list'),
+    path('unidades/get-by-organigrama/<str:id_organigrama>/', views.GetUnidadesByOrganigrama.as_view(), name='unidades-get-by-organigrama'),
     path('unidades/get-sec-sub/<str:id_organigrama>/', views.GetSeccionSubsecciones.as_view(), name='unidades-get-sec-sub'),
 
     # NIVELES
