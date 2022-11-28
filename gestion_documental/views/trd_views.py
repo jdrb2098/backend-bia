@@ -1031,3 +1031,29 @@ class DesactivarTipologiaActual(generics.UpdateAPIView):
                 return Response({'success':False, 'detail':'No puede realizar esta acción porque no es el TRD actual'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success':False, 'detail':'La tipologia ingresada no existe'}, status=status.HTTP_404_NOT_FOUND)
+
+class finalizarTRD(generics.UpdateAPIView):
+    serializer_class = TRDFinalizarSerializer
+    queryset = TablaRetencionDocumental.objects.all()
+    
+    def put(self, request, pk):
+        trd_ingresada = pk
+        confirm = request.query_params("confirm")
+        trd = TablaRetencionDocumental.objects.filter(id_trd = trd_ingresada).first()
+        series_subseries_unidad_org_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd = trd_ingresada).values()
+        for i in series_subseries_unidad_org_trd:
+            if i['cod_disposicion_final'] == None and i['digitalizacion_dis_final'] == None and i['tiempo_retencion_ag'] == None and i['tiempo_retencion_ac'] == None:
+                return Response({'success': False, 'detail': 'No se encontró información relacionada a ese id'}, status=status.HTTP_403_FORBIDDEN)
+            if i['digitalizacion_dis_final'] == None: 
+                return Response({'success': False, 'detail': 'No se encontró información relacionada a ese id'}, status=status.HTTP_403_FORBIDDEN)
+            if i['tiempo_retencion_ag'] == None:
+                return Response({'success': False, 'detail': 'No se encontró información relacionada a ese id'}, status=status.HTTP_403_FORBIDDEN)
+            if i['tiempo_retencion_ac'] == None:
+                return Response({'success': False, 'detail': 'No se encontró información relacionada a ese id'}, status=status.HTTP_403_FORBIDDEN)
+        ids_series_subseries_unidad_org_trd = [i['id_serie_subs_unidadorg_trd'] for i in series_subseries_unidad_org_trd]
+        
+        
+        
+        
+        
+         

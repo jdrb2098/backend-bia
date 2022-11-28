@@ -127,9 +127,11 @@ class FinalizarCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
 
     def put(self, request, pk):
         ccd = CuadrosClasificacionDocumental.objects.filter(id_ccd=pk).first()
+        confirm = request.query_params.get('confirm')
         if ccd:
             #Validacion existencia del ccd a finalizar
             if ccd.fecha_terminado == None:
+                
                 unidades = UnidadesOrganizacionales.objects.filter(Q(id_organigrama=ccd.id_organigrama) & ~Q(cod_agrupacion_documental=None))
                 unidades_list = [unidad.id_unidad_organizacional for unidad in unidades]
                 
@@ -146,30 +148,53 @@ class FinalizarCuadroClasificacionDocumental(generics.RetrieveUpdateAPIView):
 
                 subseries_asignacion_list = [subserie.id_sub_serie_doc.id_subserie_doc for subserie in serie_subserie_unidad if subserie.id_sub_serie_doc]
 
-                if not set(unidades_list).issubset(unidades_asignacion_list):
-                    unidades_difference_list = [unidad for unidad in unidades_list if unidad not in unidades_asignacion_list]
-                    unidades_difference_instance = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional__in=unidades_difference_list).values()
-                    return Response({'success': False, 'detail': 'Debe asociar todas las unidades', 'Unidades sin asignar': unidades_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                if not confirm:
+                    if not set(unidades_list).issubset(unidades_asignacion_list):
+                        unidades_difference_list = [unidad for unidad in unidades_list if unidad not in unidades_asignacion_list]
+                        unidades_difference_instance = UnidadesOrganizacionales.objects.filter(id_unidad_organizacional__in=unidades_difference_list).values()
+                        print('Unidades sin usar: ', unidades_difference_instance)
+                        return Response({'success': False, 'detail': 'Debe asociar todas las unidades', 'Unidades sin asignar': unidades_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
-                if not set(series_list).issubset(series_asignacion_list):
-                    #Mostrar las series sin asignar
-                    series_difference_list = [serie for serie in series_list if serie not in series_asignacion_list]
-                    series_difference_instance = SeriesDoc.objects.filter(id_serie_doc__in=series_difference_list).values()
-                    return Response({'success': False, 'detail': 'Debe asociar todas las series', 'Series sin asignar': series_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                    if not set(series_list).issubset(series_asignacion_list):
+                        #Mostrar las series sin asignar
+                        series_difference_list = [serie for serie in series_list if serie not in series_asignacion_list]
+                        series_difference_instance = SeriesDoc.objects.filter(id_serie_doc__in=series_difference_list).values()
+                        return Response({'success': False, 'detail': 'Debe asociar todas las series', 'Series sin asignar': series_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
-                #Agregar validación para cuando una lista viene vacia
-                if subseries_list and not subseries_asignacion_list:
-                    subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
-                    subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
-                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas, no hay ninguna asignada', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
-                if not set(subseries_list).issubset(set(subseries_asignacion_list)):
-                    subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
-                    subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
-                    return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                    #Agregar validación para cuando una lista viene vacia
+                    if subseries_list and not subseries_asignacion_list:
+                        subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                        subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
+                        return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas, no hay ninguna asignada', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                    if not set(subseries_list).issubset(set(subseries_asignacion_list)):
+                        subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                        subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list).values()
+                        return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
 
-                ccd.fecha_terminado = datetime.now()
-                ccd.save()
-                return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
+                if confirm == 'true':
+                    if not set(series_list).issubset(series_asignacion_list):
+                        #Mostrar las series sin asignar
+                        series_difference_list = [serie for serie in series_list if serie not in series_asignacion_list]
+                        series_difference_instance = SeriesDoc.objects.filter(id_serie_doc__in=series_difference_list)
+                        #return Response({'success': False, 'detail': 'Debe asociar todas las series', 'Series sin asignar': series_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+
+                    #Agregar validación para cuando una lista viene vacia
+                    if subseries_list and not subseries_asignacion_list:
+                        subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                        subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list)
+                        #return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas, no hay ninguna asignada', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+                    if not set(subseries_list).issubset(set(subseries_asignacion_list)):
+                        subseries_difference_list = [subserie for subserie in subseries_list if subserie not in subseries_asignacion_list]
+                        subseries_difference_instance = SubseriesDoc.objects.filter(id_subserie_doc__in=subseries_difference_list)
+                        #return Response({'success': False, 'detail': 'Debe asociar todas las subseries creadas', 'Subseries sin asignar': subseries_difference_instance}, status=status.HTTP_400_BAD_REQUEST)
+
+                    series_difference_instance.delete()
+                    subseries_difference_instance.delete()
+                    
+                    ccd.fecha_terminado = datetime.now()
+                    ccd.save()
+                    return Response({'success': True, 'detail': 'Finalizado el CCD'}, status=status.HTTP_201_CREATED)
+                
             else:
                 return Response({'success': False, 'detail': 'Ya se encuentra finalizado este CCD'}, status=status.HTTP_404_NOT_FOUND)
         else:
