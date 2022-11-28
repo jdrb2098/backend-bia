@@ -5,6 +5,7 @@ urlpatterns = [
     # TIPOLOGIAS DOCUMENTALES
     path('tipologias/update/<str:id_trd>/', views.UpdateTipologiasDocumentales.as_view(), name='update-tipologias-doc'),
     path('tipologias/get-by-id/<str:id_trd>/', views.GetTipologiasDocumentales.as_view(),name='id-get-tipologias-doc'),
+    path('tipologias/desactivar/<str:id_tipologia>/', views.DesactivarTipologiaActual.as_view(),name='desactivar-tipologias-doc'),
     
     # TABLA DE RETENCION DOCUMENTAL
     path('get-terminados/', views.GetTablaRetencionDocumentalTerminados.as_view(), name='trd-terminados-get'),

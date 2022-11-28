@@ -917,6 +917,7 @@ class CambiosPorConfirmar(generics.UpdateAPIView):
                 return Response({'success':False, 'detail':'No puede realizar esta acción porque no es el TRD actual'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success':False, 'detail':'El TRD no existe'}, status=status.HTTP_404_NOT_FOUND)
+
 class GetSeriesSubSUnidadOrgTRD(generics.ListAPIView):
     serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
     queryset = SeriesSubSUnidadOrgTRD.objects.all()
@@ -964,3 +965,31 @@ class GetSeriesSubSUnidadOrgTRDByPk(generics.ListAPIView):
             
             
         return Response({'success': True, 'Tabla': result}, status=status.HTTP_204_NO_CONTENT)
+
+class DesactivarTipologiaActual(generics.UpdateAPIView):
+    serializer_class = TipologiasDocumentalesPutSerializer
+    queryset = TipologiasDocumentales.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, id_tipologia):
+        persona = request.user.persona
+        tipologia = TipologiasDocumentales.objects.filter(id_tipologia_documental=id_tipologia).first()
+        justificacion = request.data.get('justificacion_desactivacion')
+        if tipologia:
+            trd = TablaRetencionDocumental.objects.filter(id_trd=tipologia.id_trd.id_trd).first()
+            if trd.actual:
+                if not tipologia.activo:
+                    return Response({'success':False, 'detail':'La tipologia ya se encuentra desactivada'}, status=status.HTTP_403_FORBIDDEN)
+                if not justificacion:
+                    return Response({'success':False, 'detail':'Debe ingresar la justificación para desactivar la tipología'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                tipologia.activo = False
+                tipologia.fecha_desactivacion = datetime.now()
+                tipologia.justificacion_desactivacion = justificacion
+                tipologia.id_persona_desactiva = persona
+                tipologia.save()
+                return Response({'success': True, 'detail': 'Se ha desactivado la tipologia indicada'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'success':False, 'detail':'No puede realizar esta acción porque no es el TRD actual'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'success':False, 'detail':'La tipologia ingresada no existe'}, status=status.HTTP_404_NOT_FOUND)
