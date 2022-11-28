@@ -19,6 +19,9 @@ urlpatterns = [
     path('serie-subserie-unidad-trd/asignar/<str:id_trd>/',views.CreateSerieSubSeriesUnidadesOrgTRD.as_view(),name='serie-subserie-unidad-trd-create'),
     path('serie-subserie-unidad-trd/update/<str:id_serie_subs_unidadorg_trd>/', views.UpdateSerieSubSeriesUnidadesOrgTRD.as_view(),name='serie-subserie-unidad-trd-update'),
     path('confirmar-cambios/<str:id_trd>/',views.CambiosPorConfirmar.as_view(),name='confirmar-cambios-trd'),
+    path('serie-subserie-unidad-trd/delete/<str:id_ssuorg_trd>/',views.DeleteSerieSubserieUnidadTRD.as_view(), name='serie-subserie-unidad-trd-delete'),
+    path('serie-subserie-unidad-trd/delete/<str:id_ssuorg_trd>/',views.DeleteSerieSubserieUnidadTRD.as_view(), name='serie-subserie-unidad-trd-delete'),
+
 
     # FORMATOS TIPOS MEDIO
     path('formatos/get-by-params/', views.GetFormatosTiposMedioByParams.as_view(), name='formatos-get-by-params'),

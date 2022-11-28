@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from seguridad.utils import Util
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view, permission_classes
 from gestion_documental.serializers.trd_serializers import (
     TipologiasDocumentalesSerializer,
     TRDSerializer,
@@ -266,6 +267,19 @@ class CreateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Tabla de Retención Documental con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 
+# @api_view(['POST'])
+# def uploadDocument(request, id_serie_subserie_uniorg_trd):
+#     ssuorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_serie_subserie_uniorg_trd).first()
+#     if ssuorg_trd:
+#         if ssuorg_trd.id_trd.actual:
+#             return Response({'success': False, 'detail': ''})
+#         ssuorg_trd.ruta_archivo_cambio = request.FILES.get('document')
+#         ssuorg_trd.save()
+#     else:
+#         return Response({'success': False, 'detail': 'No se encontró ninguna ssuorg-trd con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
+
+#     return Response({'success': True, 'detail': 'Documento cargado correctamente'}, status=status.HTTP_201_CREATED)
+
 class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
     serializer_class = SeriesSubSeriesUnidadesOrgTRDPutSerializer
     queryset = SeriesSubSUnidadOrgTRD.objects.all()
@@ -346,9 +360,9 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
                     
                     #VALIDA QUE LAS TIPOLOGIAS SELECCIONADAS TENGAN LA MISMA TRD COMO PADRE
                     if tipologias and not tipologias_instance_list:
-                        return Response({'detail': 'La tipologia seleccionada no hace parte de las disponibles'})
+                        return Response({'success': False, 'detail': 'La tipologia seleccionada no hace parte de las disponibles'}, status=status.HTTP_400_BAD_REQUEST)
                     if not set(tipologias).issubset(set(tipologias_instance_list)):
-                        return Response({'detail': 'Alguna de las tipologias seleccionadas no hacen parte de las disponibles'})
+                        return Response({'success': False, 'detail': 'Alguna de las tipologias seleccionadas no hacen parte de las disponibles'}, status=status.HTTP_400_BAD_REQUEST)
                     
                     #VALIDA QUE LA TIPOLOGIA SELECCIONADA ESTÉ ACTIVA
                     for tipologia in tipologias_instance:
@@ -379,23 +393,28 @@ class UpdateSerieSubSeriesUnidadesOrgTRD(generics.CreateAPIView):
                         id_persona_cambia = persona_usuario_logeado
                     )
 
-                    return Response({'success': True, 'detail': 'Actualización exitosa de la TRD Actual'}, status=status.HTTP_201_CREATED)
+                    return Response({'success': True, 'detail': 'Actualización exitosa de la TRD Actual', 'data': serializador.data}, status=status.HTTP_201_CREATED)
                 else:
                     return Response({'success': False, 'detail': 'Para modificar una trd actual se debe completar toda la información'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'success': False, 'detail': 'No existe ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class DeleteSerieSubserieUnidadTRD(generics.RetrieveDestroyAPIView):
-#     serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
-#     queryset = SeriesSubSUnidadOrgTRD.objects.all()
+class DeleteSerieSubserieUnidadTRD(generics.RetrieveDestroyAPIView):
+    serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
+    queryset = SeriesSubSUnidadOrgTRD.objects.all()
 
-#     def delete(self, request, id_ssuorg_trd):
-#         serie_ss_uniorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_ssuorg_trd).first()
-#         if serie_ss_uniorg_trd:
-#             serie_ss_uniorg_trd_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=)
-#         else:
-#             return Response({'success': False, 'detail': 'No se encontró ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status.HTTP_404_NOT_FOUND)
+    def delete(self, request, id_ssuorg_trd):
+        serie_ss_uniorg_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd=id_ssuorg_trd).first()
+        if serie_ss_uniorg_trd:
+            if serie_ss_uniorg_trd.id_trd.actual == True:
+                return Response({'success': False, 'detail': 'No se pueden realizar acciones sobre las Series'})
+            serie_ss_uniorg_trd_tipologias = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd=serie_ss_uniorg_trd)
+            serie_ss_uniorg_trd_tipologias.delete()
+            serie_ss_uniorg_trd.delete()
+            return Response({'success': True, 'detail': 'Eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'success': False, 'detail': 'No se encontró ninguna Serie Subserie Unidad TRD con el parámetro ingresado'}, status.HTTP_404_NOT_FOUND)
 
 
 
