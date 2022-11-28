@@ -191,9 +191,16 @@ class GetTipologiasDocumentales(generics.ListAPIView):
     def get(self, request, id_trd):
         trd = TablaRetencionDocumental.objects.filter(id_trd=id_trd).first()
         if trd:
-            tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd)
-            serializer = self.serializer_class(tipologias, many=True)
-            return Response({'success':True, 'detail':serializer.data}, status=status.HTTP_200_OK)
+            tipologias = TipologiasDocumentales.objects.filter(id_trd=id_trd, activo=True).values()
+            if not tipologias:
+                return Response({'success':True, 'detail':'No se encontraron tipologías para el organigrama', 'data':tipologias}, status=status.HTTP_200_OK)
+            for tipologia in tipologias:
+                formatos_tipologias = FormatosTiposMedioTipoDoc.objects.filter(id_tipologia_doc=tipologia['id_tipologia_documental'])
+                formatos_tipologias_list = [formato_tipologia.id_formato_tipo_medio.id_formato_tipo_medio for formato_tipologia in formatos_tipologias]
+                formatos = FormatosTiposMedio.objects.filter(id_formato_tipo_medio__in=formatos_tipologias_list).values()
+                tipologia['formatos'] = formatos
+                
+            return Response({'success':True, 'detail':'Se encontraron las siguientes tipologías para el organigrama', 'data':tipologias}, status=status.HTTP_200_OK)
         else:
             return Response({'success':False, 'detail':'Debe consultar por un TRD válido'}, status=status.HTTP_404_NOT_FOUND)
 
