@@ -9,6 +9,7 @@ urlpatterns = [
 
     # NIVELES
     path('niveles/get-list/', views.GetNiveles.as_view(), name='get-list-niveles'),
+    path('niveles/get-by-organigrama/<str:id_organigrama>/', views.GetNivelesByOrganigrama.as_view(), name='get-by-organigrama-niveles'),
     path('niveles/update/<str:id_organigrama>/', views.UpdateNiveles.as_view(), name='update-niveles'),
 
     #ORGANIGRAMA

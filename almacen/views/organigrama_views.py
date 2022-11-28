@@ -117,6 +117,19 @@ class GetNiveles(generics.ListAPIView):
             return Response({'success': True, 'Nivel': nivel}, status=status.HTTP_200_OK)
 
 
+class GetNivelesByOrganigrama(generics.ListAPIView):
+    serializer_class = NivelesGetSerializer
+    queryset = NivelesOrganigrama.objects.all()
+    lookup_field = 'id_organigrama'
+
+    def get(self, request, id_organigrama):
+        niveles = NivelesOrganigrama.objects.filter(id_organigrama=id_organigrama)
+        if not niveles:
+            return Response({'success': True, 'detail': 'No se encontraron niveles para el organigrama ingresado', 'data': niveles.values()}, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(niveles, many=True)
+        return Response({'success': True, 'detail': 'Se encontraron los siguientes niveles para el organigrama ingresado', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+
 #VIEWS FOR UNIDADES ORGANIZACIONALES 
 class UpdateUnidades(generics.UpdateAPIView):
     serializer_class=UnidadesPutSerializer
