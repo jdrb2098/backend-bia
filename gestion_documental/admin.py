@@ -31,6 +31,7 @@ admin.site.register(SeriesSubseriesUnidadOrg),
 
 #TRD
 admin.site.register(TablaRetencionDocumental),
+admin.site.register(TipologiasDocumentales),
 admin.site.register(TiposMediosDocumentos),
 admin.site.register(FormatosTiposMedio),
 admin.site.register(FormatosTiposMedioTipoDoc),

@@ -17,7 +17,8 @@ from gestion_documental.serializers.trd_serializers import (
     FormatosTiposMedioPostSerializer,
     SeriesSubSeriesUnidadesOrgTRDSerializer,
     SeriesSubSeriesUnidadesOrgTRDPutSerializer,
-    TipologiasDocumentalesPutSerializer
+    TipologiasDocumentalesPutSerializer,
+    GetSeriesSubSUnidadOrgTRDSerializer
 )
 from gestion_documental.serializers.ccd_serializers import (
     CCDSerializer
@@ -916,3 +917,50 @@ class CambiosPorConfirmar(generics.UpdateAPIView):
                 return Response({'success':False, 'detail':'No puede realizar esta acción porque no es el TRD actual'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'success':False, 'detail':'El TRD no existe'}, status=status.HTTP_404_NOT_FOUND)
+class GetSeriesSubSUnidadOrgTRD(generics.ListAPIView):
+    serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
+    queryset = SeriesSubSUnidadOrgTRD.objects.all()
+    
+    def get(self, request, pk):
+        id_trd_a_consultar1 = pk
+        series_subseries_unidad_org_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_trd = id_trd_a_consultar1).values()
+        if not series_subseries_unidad_org_trd:
+            return Response({'success': False, 'detail': 'No se encontró la TRD'}, status=status.HTTP_403_FORBIDDEN)
+        
+        ids_serie_subs_unidad_org_trd = [i['id_serie_subs_unidadorg_trd'] for i in series_subseries_unidad_org_trd]
+        #print(ids_serie_subs_unidad_org_trd)
+        result = []
+        for i in ids_serie_subs_unidad_org_trd:
+            main_detail = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd = i).values().first()
+            detalle_serie_subs_unidad_org_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd = main_detail['id_serie_subserie_unidadorg_trd_id']).values().first()
+            detalle_tipologias = TipologiasDocumentales.objects.filter(id_tipologia_documental = main_detail['id_tipologia_doc_id']).values().first()
+            main_detail['id_serie_subserie_unidadorg_trd_id'] = detalle_serie_subs_unidad_org_trd
+            main_detail['id_tipologia_doc_id'] = detalle_tipologias
+            result.append(main_detail)
+            
+            
+        return Response({'success': True, 'Tabla': result}, status=status.HTTP_204_NO_CONTENT)
+
+class GetSeriesSubSUnidadOrgTRDByPk(generics.ListAPIView):
+    serializer_class = GetSeriesSubSUnidadOrgTRDSerializer
+    queryset = SeriesSubSUnidadOrgTRD.objects.all()
+    
+    def get(self, request, pk):
+        pk_a_consultar1 = pk
+        serie_subseries_unidad_org = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd = pk_a_consultar1).values()
+        if not serie_subseries_unidad_org:
+            return Response({'success': False, 'detail': 'No se encontró información relacionada a ese id'}, status=status.HTTP_403_FORBIDDEN)
+        
+        ids_serie_subs_unidad_org_trd = [i['id_serie_subs_unidadorg_trd'] for i in serie_subseries_unidad_org]
+        #print(ids_serie_subs_unidad_org_trd)
+        result = []
+        for i in ids_serie_subs_unidad_org_trd:
+            main_detail = SeriesSubSUnidadOrgTRDTipologias.objects.filter(id_serie_subserie_unidadorg_trd = i).values().first()
+            detalle_serie_subs_unidad_org_trd = SeriesSubSUnidadOrgTRD.objects.filter(id_serie_subs_unidadorg_trd = main_detail['id_serie_subserie_unidadorg_trd_id']).values().first()
+            detalle_tipologias = TipologiasDocumentales.objects.filter(id_tipologia_documental = main_detail['id_tipologia_doc_id']).values().first()
+            main_detail['id_serie_subserie_unidadorg_trd_id'] = detalle_serie_subs_unidad_org_trd
+            main_detail['id_tipologia_doc_id'] = detalle_tipologias
+            result.append(main_detail)
+            
+            
+        return Response({'success': True, 'Tabla': result}, status=status.HTTP_204_NO_CONTENT)

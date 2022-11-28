@@ -149,3 +149,9 @@ class SeriesSubSeriesUnidadesOrgTRDPutSerializer(serializers.ModelSerializer):
             # 'ruta_archivo_cambio',
             'tipologias'
         )
+
+class GetSeriesSubSUnidadOrgTRDSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = SeriesSubSUnidadOrgTRD
+        fields = '__all__'

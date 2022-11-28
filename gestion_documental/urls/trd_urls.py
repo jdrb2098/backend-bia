@@ -24,5 +24,9 @@ urlpatterns = [
     path('formatos/get-by-cod/<str:cod_tipo_medio_doc>/', views.GetFormatosTiposMedioByCodTipoMedio.as_view(), name='formatos-get-by-cod'),
     path('formatos/create/', views.RegisterFormatosTiposMedio.as_view(), name='formatos-create'),
     path('formatos/update/<str:pk>/', views.UpdateFormatosTiposMedio.as_view(), name='formatos-update'),
-    path('formatos/delete/<str:pk>/', views.DeleteFormatosTiposMedio.as_view(), name='formatos-delete')
+    path('formatos/delete/<str:pk>/', views.DeleteFormatosTiposMedio.as_view(), name='formatos-delete'),
+    
+    # GetSeriesSubSUnidadOrgTRD 
+    path('get-serie-subserie-unidad-org-TRD/<str:pk>/', views.GetSeriesSubSUnidadOrgTRD.as_view(), name='get-serie-subserie-unidad-org-TRD'),
+    path('get-una-serie-subserie-unidad-org-TRD/<str:pk>/', views.GetSeriesSubSUnidadOrgTRDByPk.as_view(), name='get-serie-subserie-unidad-org-TRD')
 ]
